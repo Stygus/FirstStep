@@ -1,6 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'logowanie.dart';
+import 'rejestracja.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +21,11 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: Logowanie(),
+        routes: {
+          '/logowanie': (context) => Logowanie(),
+          '/rejestracja': (context) => Rejestracja(),
+        },
       ),
     );
   }
@@ -36,7 +42,21 @@ class MyHomePage extends StatelessWidget {
 
     return Scaffold(
       body: Column(
-        children: [Text('A random idea:'), Text(appState.current.asLowerCase)],
+        children: [
+          Text(appState.current.asLowerCase),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/logowanie');
+            },
+            child: Text('Logowanie'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/rejestracja');
+            },
+            child: Text('Rejestracja'),
+          ),
+        ],
       ),
     );
   }
