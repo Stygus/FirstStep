@@ -7,39 +7,62 @@ class Logowanie extends StatelessWidget {
       appBar: AppBar(
         title: Text('Logowanie'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Hasło'),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Logika logowania
-                },
-                child: Text('Zaloguj się'),
+      backgroundColor: Color(0x101010),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.black),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.black),
               ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/rejestracja');
-                },
-                child: Text(
-                  'Nie masz konta? Zarejestruj się',
-                  style: TextStyle(color: Colors.blue),
+              SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Hasło',
+                  labelStyle: TextStyle(color: Colors.black),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
+                style: TextStyle(color: Colors.black),
+                obscureText: true,
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Logika logowania
+                  },
+                  child: Text('Zaloguj się'),
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: 20),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/rejestracja');
+                  },
+                  child: Text(
+                    'Nie masz konta? \n Zarejestruj się',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
