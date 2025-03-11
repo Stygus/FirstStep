@@ -14,9 +14,18 @@ class Rejestracja extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text(
+                'FirstStep',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 20),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Nazwa konta*',
                   labelStyle: TextStyle(color: Colors.black),
                   filled: true,
                   fillColor: Colors.white,
@@ -29,7 +38,7 @@ class Rejestracja extends StatelessWidget {
               SizedBox(height: 16),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'Hasło',
+                  labelText: 'Adres e-mail*',
                   labelStyle: TextStyle(color: Colors.black),
                   filled: true,
                   fillColor: Colors.white,
@@ -43,7 +52,7 @@ class Rejestracja extends StatelessWidget {
               SizedBox(height: 16),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'Potwierdź Hasło',
+                  labelText: 'Hasło*',
                   labelStyle: TextStyle(color: Colors.black),
                   filled: true,
                   fillColor: Colors.white,
@@ -60,7 +69,13 @@ class Rejestracja extends StatelessWidget {
                   onPressed: () {
                     // Logika rejestracji
                   },
-                  child: Text('Zarejestruj się'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF27813A),
+                  ),
+                  child: Text(
+                    'Zarejestruj się',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -70,7 +85,7 @@ class Rejestracja extends StatelessWidget {
                 },
                 child: Text(
                   'Masz już konto? \n Zaloguj się',
-                  style: TextStyle(color: Colors.blue),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],

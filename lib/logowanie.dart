@@ -14,9 +14,18 @@ class Logowanie extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text(
+                'FirstStep',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 20),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Adres e-mail',
                   labelStyle: TextStyle(color: Colors.black),
                   filled: true,
                   fillColor: Colors.white,
@@ -46,7 +55,20 @@ class Logowanie extends StatelessWidget {
                   onPressed: () {
                     // Logika logowania
                   },
-                  child: Text('Zaloguj się'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF27813A),
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(24),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Zaloguj się',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -57,7 +79,7 @@ class Logowanie extends StatelessWidget {
                   },
                   child: Text(
                     'Nie masz konta? \n Zarejestruj się',
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
