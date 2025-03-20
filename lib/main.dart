@@ -16,12 +16,13 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'FirstStep',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
           scaffoldBackgroundColor: Color(0xFF1E1E1E),
         ),
+        // Ekran startowy
         home: Logowanie(),
         routes: {
           '/logowanie': (context) => Logowanie(),

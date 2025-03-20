@@ -14,6 +14,7 @@ class Rejestracja extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Tytuł aplikacji
               Text(
                 'FirstStep',
                 style: TextStyle(
@@ -23,6 +24,7 @@ class Rejestracja extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+              // Pole do wpisania nazwy konta
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Nazwa konta*',
@@ -36,6 +38,7 @@ class Rejestracja extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               SizedBox(height: 16),
+              // Pole do wpisania adresu e-mail
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Adres e-mail*',
@@ -50,6 +53,7 @@ class Rejestracja extends StatelessWidget {
                 obscureText: true,
               ),
               SizedBox(height: 16),
+              // Pole do wpisania hasła
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Hasło*',
@@ -64,6 +68,7 @@ class Rejestracja extends StatelessWidget {
                 obscureText: true,
               ),
               SizedBox(height: 20),
+              // Przycisk rejestracji
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -79,6 +84,7 @@ class Rejestracja extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+              // Link do logowania
               GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/logowanie');

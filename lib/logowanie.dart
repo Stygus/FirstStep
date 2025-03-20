@@ -14,6 +14,7 @@ class Logowanie extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Tytuł aplikacji
               Text(
                 'FirstStep',
                 style: TextStyle(
@@ -23,6 +24,7 @@ class Logowanie extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+              // Pole do wpisania adresu e-mail
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Adres e-mail',
@@ -36,6 +38,7 @@ class Logowanie extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               SizedBox(height: 16),
+              // Pole do wpisania hasła
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Hasło',
@@ -50,28 +53,54 @@ class Logowanie extends StatelessWidget {
                 obscureText: true,
               ),
               SizedBox(height: 20),
+              // Przycisk logowania
               Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Logika logowania
+                child: GestureDetector(
+                  onTap: () {
+                    // Akcja po naciśnięciu przycisku
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Przycisk logowania kliknięty!')),
+                    );
+
+                    // przejście do menu głównego
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF27813A),
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(24),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
+                      // Poziomy prostokąt plusa
+                      Container(
+                        width: 110,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      // Pionowy prostokąt plusa
+                      Container(
+                        width: 50,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      // Tekst na przycisku
                       Text(
-                        'Zaloguj się',
-                        style: TextStyle(color: Colors.white),
+                        'Zaloguj',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
               SizedBox(height: 20),
+
+              // Link do rejestracji
               Center(
                 child: GestureDetector(
                   onTap: () {
