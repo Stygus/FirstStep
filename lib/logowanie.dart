@@ -1,11 +1,28 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Logowanie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Logowanie'),
+        automaticallyImplyLeading: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Logowanie',
+              style: GoogleFonts.roboto(
+                fontSize: 32,
+                fontWeight: FontWeight.values[3],
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Color(0x101010),
       ),
       backgroundColor: Color(0x101010),
       body: Center(
@@ -14,6 +31,13 @@ class Logowanie extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 10),
+              Image.asset(
+                'assets/images/linia.png', // Ścieżka do obrazu
+                height: 100,
+                width: 1000, // Wysokość obrazu
+                fit: BoxFit.cover,
+              ),
               // Tytuł aplikacji
               Text(
                 'FirstStep',

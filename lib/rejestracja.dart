@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Rejestracja extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rejestracja'),
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Rejestracja',
+          style: GoogleFonts.roboto(
+            fontSize: 32,
+            fontWeight: FontWeight.values[3],
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0x101010),
       ),
       backgroundColor: Color(0x101010),
       body: Center(
