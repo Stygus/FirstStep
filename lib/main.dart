@@ -1,64 +1,42 @@
-import 'package:english_words/english_words.dart';
+import 'package:firststep/models/user.dart';
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'logowanie.dart';
 import 'rejestracja.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class MyApp extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-          scaffoldBackgroundColor: Color(0xFF1E1E1E),
-        ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+
+    if (user.id == '-1') {
+      return MaterialApp(
+        title: 'FirstStep',
+        theme: ThemeData(primarySwatch: Colors.blue),
         home: Logowanie(),
-        routes: {
-          '/logowanie': (context) => Logowanie(),
-          '/rejestracja': (context) => Rejestracja(),
-        },
-      ),
-    );
+      );
+    } else {
+      return MaterialApp(
+        title: 'FirstStep',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: Test(),
+      );
+    }
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
-
-class MyHomePage extends StatelessWidget {
+class Test extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
     return Scaffold(
-      body: Column(
-        children: [
-          Text(appState.current.asLowerCase),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/logowanie');
-            },
-            child: Text('Logowanie'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/rejestracja');
-            },
-            child: Text('Rejestracja'),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text('Test')),
+      body: Center(child: Text('Test')),
     );
   }
 }
