@@ -56,6 +56,7 @@ class Rejestracja extends StatelessWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
+                  SizedBox(height: 20), // Dodano odstęp
                   // Pole do wpisania adresu e-mail
                   TextField(
                     decoration: InputDecoration(
@@ -69,7 +70,7 @@ class Rejestracja extends StatelessWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 25), // Zwiększono odstęp
+                  SizedBox(height: 20), // Dodano odstęp
                   // Pole do wpisania hasła
                   TextField(
                     decoration: InputDecoration(
@@ -84,7 +85,7 @@ class Rejestracja extends StatelessWidget {
                     style: TextStyle(color: Colors.black),
                     obscureText: true,
                   ),
-                  SizedBox(height: 24), // Zwiększono odstęp
+                  SizedBox(height: 24),
                   // Przycisk logowania
                   Center(
                     child: ElevatedButton(
@@ -106,7 +107,7 @@ class Rejestracja extends StatelessWidget {
                             EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       ),
                       child: Text(
-                        'Zaloguj',
+                        'Zarejestruj',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
