@@ -42,16 +42,15 @@ class Logowanie extends StatelessWidget {
                 children: [
                   SizedBox(height: 10),
 
-                  // Tytuł aplikacji
-                  Text(
-                    'FirstStep',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Image.asset(
+                    'assets/images/logod.png',
+                    height: 180,
+                    width: 180,
                   ),
                   SizedBox(height: 20),
+                  // Tytuł aplikacji
+
+                  SizedBox(height: 20), // Zwiększono odstęp
                   // Pole do wpisania adresu e-mail
                   TextField(
                     decoration: InputDecoration(
@@ -65,7 +64,7 @@ class Logowanie extends StatelessWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 25), // Zwiększono odstęp
                   // Pole do wpisania hasła
                   TextField(
                     decoration: InputDecoration(
@@ -80,7 +79,7 @@ class Logowanie extends StatelessWidget {
                     style: TextStyle(color: Colors.black),
                     obscureText: true,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 24), // Zwiększono odstęp
                   // Przycisk logowania
                   Center(
                     child: GestureDetector(
@@ -127,7 +126,7 @@ class Logowanie extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 24),
 
                   // Link do rejestracji
                   Center(
