@@ -5,6 +5,7 @@ class Rejestracja extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
@@ -56,7 +57,7 @@ class Rejestracja extends StatelessWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 20), // Dodano odstęp
+                  SizedBox(height: 20),
                   // Pole do wpisania adresu e-mail
                   TextField(
                     decoration: InputDecoration(

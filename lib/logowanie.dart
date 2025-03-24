@@ -1,12 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rive/rive.dart' as rive;
 
 class Logowanie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Column(
@@ -28,12 +28,15 @@ class Logowanie extends StatelessWidget {
       backgroundColor: Color(0x101010),
       body: Column(
         children: [
-          Image.asset(
-            'assets/images/linia.png', // Ścieżka do obrazu
-            height: 50, // Wysokość obrazu
-            width: 1000, // Wysokość obrazu
-            fit: BoxFit.cover,
+          rive.RiveAnimation.asset(
+            'assets/Animacje/neonowy_puls.riv',
           ),
+          // Image.asset(
+          //   'assets/images/linia.png', // Ścieżka do obrazu
+          //   height: 50, // Wysokość obrazu
+          //   width: 1000, // Wysokość obrazu
+          //   fit: BoxFit.cover,
+          // ),
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
