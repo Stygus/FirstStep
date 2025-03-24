@@ -87,8 +87,8 @@ class Rejestracja extends StatelessWidget {
                   SizedBox(height: 24), // Zwiększono odstęp
                   // Przycisk logowania
                   Center(
-                    child: GestureDetector(
-                      onTap: () {
+                    child: ElevatedButton(
+                      onPressed: () {
                         // Akcja po naciśnięciu przycisku
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -97,37 +97,21 @@ class Rejestracja extends StatelessWidget {
 
                         // przejście do menu głównego
                       },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Poziomy prostokąt plusa
-                          Container(
-                            width: 110,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          // Pionowy prostokąt plusa
-                          Container(
-                            width: 50,
-                            height: 110,
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          // Tekst na przycisku
-                          Text(
-                            'Zaloguj',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      ),
+                      child: Text(
+                        'Zaloguj',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
