@@ -28,8 +28,12 @@ class Logowanie extends StatelessWidget {
       backgroundColor: Color(0x101010),
       body: Column(
         children: [
-          rive.RiveAnimation.asset(
-            'assets/Animacje/neonowy_puls.riv',
+          SizedBox(
+            height: 80, // Define a fixed height
+            child: rive.RiveAnimation.asset(
+              'assets/Animacje/neonowy_puls.riv',
+              fit: BoxFit.scaleDown,
+            ),
           ),
           // Image.asset(
           //   'assets/images/linia.png', // Ścieżka do obrazu
