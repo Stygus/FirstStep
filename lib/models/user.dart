@@ -39,6 +39,11 @@ class User extends ChangeNotifier {
         },
       );
 
+      if (response.statusCode != 200) {
+        saveToken("");
+        return null;
+      }
+
       final Map<String, dynamic> responseData = jsonDecode(response.body);
 
       User user = User(
@@ -80,6 +85,33 @@ class User extends ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<void> signUp(String email, String password) async {
+    final url = Uri.parse('http://83.27.64.223:3000/auth/register');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+      debugPrint(response.body);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> signOut() async {
+    saveToken("");
+    setUser(
+      User(
+        id: '-1',
+        name: '',
+        email: '',
+        lastLogin: DateTime.now(),
+        courseCount: 0,
+      ),
+    );
   }
 
   Future<String?> getToken() async {

@@ -14,7 +14,6 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
-
     if (user.id == '-1') {
       return MaterialApp(
         title: 'FirstStep',
@@ -31,12 +30,20 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class Test extends StatelessWidget {
+class Test extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
     return Scaffold(
-      appBar: AppBar(title: Text('Test')),
-      body: Center(child: Text('Test')),
+      appBar: AppBar(title: Text(user.name)),
+      body: Center(
+        child: TextButton(
+          onPressed: () {
+            ref.read(userProvider).signOut();
+          },
+          child: Text('Wyloguj'),
+        ),
+      ),
     );
   }
 }

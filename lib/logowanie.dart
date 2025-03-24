@@ -1,12 +1,25 @@
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Logowanie extends StatelessWidget {
+class Logowanie extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+
+    user.getToken().then((token) {
+      if (token != null) {
+        user.authorize(token).then((user) {
+          if (user != null) {
+            ref.read(userProvider).setUser(user);
+          }
+        });
+      }
+    });
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Logowanie'),
-      ),
+      appBar: AppBar(title: Text('Logowanie')),
       backgroundColor: Color(0x101010),
       body: Center(
         child: Padding(
