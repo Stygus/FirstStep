@@ -1,48 +1,65 @@
-import 'package:firststep/models/user.dart';
-import 'package:firststep/providers/userProvider.dart';
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'logowanie.dart';
 import 'rejestracja.dart';
 
-void main() async {
-  runApp(ProviderScope(child: MyApp()));
+void main() {
+  runApp(MyApp());
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
-    if (user.id == '-1') {
-      return MaterialApp(
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
         title: 'FirstStep',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          scaffoldBackgroundColor: Color(0xFF1E1E1E),
+        ),
+        // Ekran startowy
         home: Logowanie(),
-      );
-    } else {
-      return MaterialApp(
-        title: 'FirstStep',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: Test(),
-      );
-    }
+        routes: {
+          '/logowanie': (context) => Logowanie(),
+          '/rejestracja': (context) => Rejestracja(),
+        },
+      ),
+    );
   }
 }
 
-class Test extends ConsumerWidget {
+class MyAppState extends ChangeNotifier {
+  var current = WordPair.random();
+}
+
+class MyHomePage extends StatelessWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
     return Scaffold(
-      appBar: AppBar(title: Text(user.name)),
-      body: Center(
-        child: TextButton(
-          onPressed: () {
-            ref.read(userProvider).signOut();
-          },
-          child: Text('Wyloguj'),
-        ),
+      resizeToAvoidBottomInset: false,
+      body: Column(
+        children: [
+          Text(appState.current.asLowerCase),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/logowanie');
+            },
+            child: Text('Logowanie'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/rejestracja');
+            },
+            child: Text('Rejestracja'),
+          ),
+        ],
       ),
     );
   }
