@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rive/rive.dart' as rive;
 
 class Rejestracja extends StatelessWidget {
   @override
@@ -21,11 +22,12 @@ class Rejestracja extends StatelessWidget {
       backgroundColor: Color(0x101010),
       body: Column(
         children: [
-          Image.asset(
-            'assets/images/linia.png', // Ścieżka do obrazu
-            height: 50, // Wysokość obrazu
-            width: 1000, // Wysokość obrazu
-            fit: BoxFit.cover,
+          SizedBox(
+            height: 80, // Define a fixed height
+            child: rive.RiveAnimation.asset(
+              'assets/Animacje/neonowy_puls.riv',
+              fit: BoxFit.scaleDown,
+            ),
           ),
           Center(
             child: Padding(

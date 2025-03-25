@@ -98,6 +98,7 @@ class Logowanie extends StatelessWidget {
                         );
 
                         // przejście do menu głównego
+                        Navigator.pushNamed(context, '/menu');
                       },
                       child: Stack(
                         alignment: Alignment.center,

@@ -1,8 +1,9 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'logowanie.dart';
+import 'logowanie.dart' as logowanie;
 import 'rejestracja.dart';
+import 'menu.dart' as menu;
 
 void main() {
   runApp(MyApp());
@@ -23,10 +24,11 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Color(0xFF1E1E1E),
         ),
         // Ekran startowy
-        home: Logowanie(),
+        home: logowanie.Logowanie(),
         routes: {
-          '/logowanie': (context) => Logowanie(),
+          '/logowanie': (context) => logowanie.Logowanie(),
           '/rejestracja': (context) => Rejestracja(),
+          '/menu': (context) => menu.Menu(),
         },
       ),
     );
