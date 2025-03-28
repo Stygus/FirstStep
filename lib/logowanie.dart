@@ -47,7 +47,7 @@ class Logowanie extends ConsumerWidget {
             height: 80, // Define a fixed height
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.contain,
             ),
           ),
           // Image.asset(
