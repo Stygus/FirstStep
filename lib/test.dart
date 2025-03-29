@@ -7,52 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
 
-class stepusTest extends ConsumerStatefulWidget {
-  const stepusTest({super.key, final riveFile});
-
-  @override
-  ConsumerState<stepusTest> createState() => _stepusTestState();
-}
-
-class _stepusTestState extends ConsumerState<stepusTest> {
-  RiveFile? riveFile;
-  late final animations = ref.read(animationsProvider);
+class stepusTest extends ConsumerWidget {
   TextEditingController? _promptControler = TextEditingController();
 
-  StateMachineController? _controller;
-  SMITrigger? _hit;
-  SMITrigger? _unhit;
-  SMITrigger? _eureka;
-  SMIBool? _think;
-
-  void _onInit(Artboard artboard) {
-    var ctrl = StateMachineController.fromArtboard(artboard, 'State Machine 1');
-    if (ctrl != null) {
-      ctrl.isActive = true;
-      artboard.addController(ctrl);
-      _hit = ctrl.getTriggerInput("hit");
-      _controller = ctrl;
-      _unhit = ctrl.getTriggerInput("unhit");
-      _eureka = ctrl.getTriggerInput("eureka");
-      _think = ctrl.getBoolInput("think");
-    } else {
-      debugPrint('StateMachineController could not be initialized.');
-    }
-  }
-
   @override
-  void initState() {
-    super.initState();
-    _loadRiveFile();
-  }
-
-  Future<void> _loadRiveFile() async {
-    riveFile = await animations["stepus"];
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final chatHistory = ref.watch(stepusChatProvider.notifier);
 
     return MaterialApp(
@@ -77,55 +36,11 @@ class _stepusTestState extends ConsumerState<stepusTest> {
                   height:
                       MediaQuery.of(context).size.width *
                       0.6, // 80% of screen height
-                  // child:
-                  //     riveFile != null
-                  //         ? RiveAnimation.direct(
-                  //           riveFile!,
-                  //           antialiasing: false,
-                  //           fit: BoxFit.contain,
-                  //           stateMachines: ["State Machine 1"],
-                  //           onInit: _onInit,
-                  //           controllers:
-                  //               _controller != null ? [_controller!] : [],
-                  //         )
-                  //         : const Center(
-                  //           child: Text(
-                  //             'Loading animation...',
-                  //             style: TextStyle(color: Colors.white),
-                  //           ),
-                  //         ),
+                  child: StepusAnimation(),
                 ),
               ),
               SizedBox(height: 50),
 
-              // Row(
-              //   children: [
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         _hit?.fire();
-              //       },
-              //       child: Text('Hit'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         _unhit?.fire();
-              //       },
-              //       child: Text('Unhit'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         _eureka?.fire();
-              //       },
-              //       child: Text('Eureka'),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         _think?.value = !_think!.value;
-              //       },
-              //       child: Text('Think'),
-              //     ),
-              //   ],
-              // ),
               ElevatedButton(
                 onPressed: () {
                   if (_promptControler!.text != "") {
@@ -135,33 +50,9 @@ class _stepusTestState extends ConsumerState<stepusTest> {
                 },
                 child: Text('Wyślij wiadomość'),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  chatHistory.clearChatHistory();
-                },
-                child: Text('Clear'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  chatHistory.showMessage();
-                },
-                child: Text('Show Message'),
-              ),
-              Container(
-                height: 400,
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    final chatHistory = ref.watch(stepusChatProvider);
 
-                    return ListView.builder(
-                      itemCount: chatHistory.chatHistory.length,
-                      itemBuilder: (context, index) {
-                        return Message(id: index);
-                      },
-                    );
-                  },
-                ),
-              ),
+              SizedBox(height: 400, child: Chat()),
+
               TextField(
                 controller: _promptControler,
                 decoration: InputDecoration(

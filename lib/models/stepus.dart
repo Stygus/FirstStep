@@ -1,15 +1,44 @@
 import 'dart:convert';
 
+import 'package:firststep/components/aiChatComponents/chatBubble.dart';
+import 'package:firststep/components/aiChatComponents/clearChatAlert.dart';
+import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:rive/rive.dart';
 
 class Stepus extends ChangeNotifier {
   List<Map<String, String>> chatHistory = [];
+  String state = "idle";
+  SMITrigger? _hit;
+  SMITrigger? _unhit;
+  SMITrigger? _eureka;
+  SMIBool? _think;
 
   void clearChatHistory() {
     chatHistory = [];
+    notifyListeners();
+  }
+
+  void hit() {
+    _hit?.fire();
+    notifyListeners();
+  }
+
+  void unhit() {
+    _unhit?.fire();
+    notifyListeners();
+  }
+
+  void eureka() {
+    _eureka?.fire();
+    notifyListeners();
+  }
+
+  void think() {
+    _think?.change(!_think!.value);
     notifyListeners();
   }
 
@@ -24,17 +53,21 @@ class Stepus extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Map<String, String>> getChatHistory() {
-    return chatHistory;
-  }
+  // List<Map<String, String>> getChatHistory() {
+  //   _hit?.fire();
 
-  void showMessage() {
-    debugPrint(chatHistory.toString());
-  }
+  //   return chatHistory;
+  // }
+
+  // void showMessage() {
+  //   debugPrint(chatHistory.toString());
+  // }
 
   Future<void> sendMessage(String message) async {
     chatHistory.add({"role": "user", "content": message});
-    notifyListeners();
+    notifyListeners(); // Powiadomienie tylko raz na początku
+
+    think();
     int lastIndex = chatHistory.length;
 
     final String messageJson = jsonEncode({"messages": chatHistory});
@@ -51,9 +84,11 @@ class Stepus extends ChangeNotifier {
 
     if (response.statusCode != 200) {
       debugPrint("Error: ${response.statusCode}");
+      think();
       return;
     }
 
+    eureka();
     final Map<String, dynamic> responseMap = jsonDecode(response.body);
     final String rawMessages = responseMap["message"];
     final List<String> messageChunks =
@@ -68,10 +103,34 @@ class Stepus extends ChangeNotifier {
       await Future.delayed(const Duration(milliseconds: 300));
       updateMessages(fullMessage, lastIndex);
     }
+    eureka();
 
-    debugPrint(chatHistory.toString());
+    notifyListeners(); // Powiadomienie tylko raz na końcu
+  }
+}
 
-    notifyListeners();
+class Chat extends StatefulWidget {
+  const Chat({super.key});
+
+  @override
+  State<Chat> createState() => _ChatState();
+}
+
+class _ChatState extends State<Chat> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final chatHistory = ref.watch(stepusChatProvider);
+
+        return ListView.builder(
+          itemCount: chatHistory.chatHistory.length,
+          itemBuilder: (context, index) {
+            return Message(id: index);
+          },
+        );
+      },
+    );
   }
 }
 
@@ -98,19 +157,86 @@ class _MessageState extends ConsumerState<Message> {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: role == "user" ? Colors.blue : Colors.grey[800],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            message ?? "",
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
+        child: ChatBubble(text: message, isUser: role == "user"),
       ),
+    );
+  }
+}
+
+class StepusAnimation extends ConsumerStatefulWidget {
+  StepusAnimation({super.key});
+
+  @override
+  ConsumerState<StepusAnimation> createState() => _StepusAnimationState();
+}
+
+class _StepusAnimationState extends ConsumerState<StepusAnimation> {
+  RiveFile? riveFile;
+  late final animations = ref.read(animationsProvider);
+
+  void _onInit(Artboard artboard) {
+    var ctrl = StateMachineController.fromArtboard(artboard, 'State Machine 1');
+    if (ctrl != null) {
+      ctrl.isActive = true;
+      artboard.addController(ctrl);
+
+      final stepusNotifier = ref.read(stepusChatProvider.notifier);
+      stepusNotifier._hit = ctrl.getTriggerInput("hit");
+      stepusNotifier._unhit = ctrl.getTriggerInput("unhit");
+      stepusNotifier._eureka = ctrl.getTriggerInput("eureka");
+      stepusNotifier._think = ctrl.getBoolInput("think");
+    } else {
+      debugPrint('StateMachineController could not be initialized.');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRiveFile();
+  }
+
+  final riveFileNotifier = ValueNotifier<RiveFile?>(null);
+
+  Future<void> _loadRiveFile() async {
+    riveFileNotifier.value = await animations["stepus"];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<RiveFile?>(
+      valueListenable: riveFileNotifier,
+      builder: (context, riveFile, child) {
+        if (riveFile == null) {
+          return const Center(
+            child: Text(
+              'Loading animation...',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+        return GestureDetector(
+          onTap: () {
+            ref.read(stepusChatProvider.notifier).hit();
+            Future.microtask(() {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return ClearChatAlert();
+                },
+              );
+            });
+          },
+          child: RiveAnimation.direct(
+            riveFile,
+            alignment: Alignment.center,
+            antialiasing: true,
+            fit: BoxFit.contain,
+            stateMachines: ["State Machine 1"],
+            onInit: _onInit,
+          ),
+        );
+      },
     );
   }
 }
