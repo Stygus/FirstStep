@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:firststep/components/aiChatComponents/chatPrompter.dart';
 import 'package:firststep/models/stepus.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
@@ -23,49 +24,32 @@ class stepusTest extends ConsumerWidget {
       ),
       // Ekran startowy
       home: Scaffold(
+        resizeToAvoidBottomInset: true,
         body: Center(
-          child: Column(
-            children: [
-              SizedBox(height: 50),
-              Container(
-                color: Color.fromARGB(59, 147, 230, 255),
-                child: SizedBox(
-                  width:
-                      MediaQuery.of(context).size.width *
-                      0.6, // 80% of screen width
-                  height:
-                      MediaQuery.of(context).size.width *
-                      0.6, // 80% of screen height
-                  child: StepusAnimation(),
-                ),
-              ),
-              SizedBox(height: 50),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 50),
 
-              ElevatedButton(
-                onPressed: () {
-                  if (_promptControler!.text != "") {
-                    chatHistory.sendMessage(_promptControler!.text);
-                    _promptControler!.clear();
-                  }
-                },
-                child: Text('Wyślij wiadomość'),
-              ),
-
-              SizedBox(height: 400, child: Chat()),
-
-              TextField(
-                controller: _promptControler,
-                decoration: InputDecoration(
-                  hintText: 'Wpisz wiadomość',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none,
+                Container(
+                  color: Color.fromARGB(59, 147, 230, 255),
+                  child: SizedBox(
+                    width:
+                        MediaQuery.of(context).size.width *
+                        0.6, // 80% of screen width
+                    height:
+                        MediaQuery.of(context).size.width *
+                        0.6, // 80% of screen height
+                    child: StepusAnimation(),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 10),
+
+                SizedBox(height: 400, child: Chat()),
+
+                chatPrompter(controller: _promptControler),
+              ],
+            ),
           ),
         ),
       ),

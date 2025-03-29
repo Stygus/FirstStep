@@ -11,14 +11,19 @@ import 'package:rive/rive.dart';
 
 class Stepus extends ChangeNotifier {
   List<Map<String, String>> chatHistory = [];
-  String state = "idle";
   SMITrigger? _hit;
   SMITrigger? _unhit;
   SMITrigger? _eureka;
   SMIBool? _think;
+  bool isThinking = false;
 
   void clearChatHistory() {
     chatHistory = [];
+    notifyListeners();
+  }
+
+  void changeIsThinking() {
+    isThinking = _think?.value ?? false;
     notifyListeners();
   }
 
@@ -34,11 +39,13 @@ class Stepus extends ChangeNotifier {
 
   void eureka() {
     _eureka?.fire();
+    changeIsThinking();
     notifyListeners();
   }
 
   void think() {
     _think?.change(!_think!.value);
+    changeIsThinking();
     notifyListeners();
   }
 
@@ -53,59 +60,54 @@ class Stepus extends ChangeNotifier {
     notifyListeners();
   }
 
-  // List<Map<String, String>> getChatHistory() {
-  //   _hit?.fire();
-
-  //   return chatHistory;
-  // }
-
-  // void showMessage() {
-  //   debugPrint(chatHistory.toString());
-  // }
-
   Future<void> sendMessage(String message) async {
-    chatHistory.add({"role": "user", "content": message});
-    notifyListeners(); // Powiadomienie tylko raz na początku
+    try {
+      if (message.isEmpty) return;
+      chatHistory.add({"role": "user", "content": message});
+      notifyListeners(); // Powiadomienie tylko raz na początku
 
-    think();
-    int lastIndex = chatHistory.length;
-
-    final String messageJson = jsonEncode({"messages": chatHistory});
-
-    final url = Uri.parse('http://10.0.2.2:3000/ai/ask');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-      },
-      body: messageJson,
-    );
-
-    if (response.statusCode != 200) {
-      debugPrint("Error: ${response.statusCode}");
       think();
-      return;
+      int lastIndex = chatHistory.length;
+
+      final String messageJson = jsonEncode({"messages": chatHistory});
+
+      final url = Uri.parse('http://83.27.8.134:3000/ai/ask');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+        },
+        body: messageJson,
+      );
+
+      if (response.statusCode != 200) {
+        debugPrint("Error: ${response.statusCode}");
+        think();
+        return;
+      }
+
+      eureka();
+      final Map<String, dynamic> responseMap = jsonDecode(response.body);
+      final String rawMessages = responseMap["message"];
+      final List<String> messageChunks =
+          rawMessages.split('\n').where((chunk) => chunk.isNotEmpty).toList();
+
+      chatHistory.add({"role": "assistant", "content": ""});
+
+      String fullMessage = '';
+      for (final chunk in messageChunks) {
+        final Map<String, dynamic> chunkMap = jsonDecode(chunk);
+        fullMessage += chunkMap["message"]["content"];
+        await Future.delayed(const Duration(milliseconds: 300));
+        updateMessages(fullMessage, lastIndex);
+      }
+      eureka();
+
+      notifyListeners(); // Powiadomienie tylko raz na końcu
+    } catch (e) {
+      print("Error: $e");
     }
-
-    eureka();
-    final Map<String, dynamic> responseMap = jsonDecode(response.body);
-    final String rawMessages = responseMap["message"];
-    final List<String> messageChunks =
-        rawMessages.split('\n').where((chunk) => chunk.isNotEmpty).toList();
-
-    chatHistory.add({"role": "assistant", "content": ""});
-
-    String fullMessage = '';
-    for (final chunk in messageChunks) {
-      final Map<String, dynamic> chunkMap = jsonDecode(chunk);
-      fullMessage += chunkMap["message"]["content"];
-      await Future.delayed(const Duration(milliseconds: 300));
-      updateMessages(fullMessage, lastIndex);
-    }
-    eureka();
-
-    notifyListeners(); // Powiadomienie tylko raz na końcu
   }
 }
 
