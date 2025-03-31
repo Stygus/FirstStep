@@ -1,10 +1,25 @@
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Logowanie extends StatelessWidget {
+class Logowanie extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+
+    user.getToken().then((token) {
+      if (token != null) {
+        user.authorize(token).then((user) {
+          if (user != null) {
+            ref.read(userProvider).setUser(user);
+          }
+        });
+      }
+    });
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -32,7 +47,7 @@ class Logowanie extends StatelessWidget {
             height: 80, // Define a fixed height
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.contain,
             ),
           ),
           // Image.asset(
@@ -55,8 +70,8 @@ class Logowanie extends StatelessWidget {
                     width: 180,
                   ),
                   SizedBox(height: 20),
-                  // Tytuł aplikacji
 
+                  // Tytuł aplikacji
                   SizedBox(height: 20), // Zwiększono odstęp
                   // Pole do wpisania adresu e-mail
                   TextField(
@@ -94,7 +109,8 @@ class Logowanie extends StatelessWidget {
                         // Akcja po naciśnięciu przycisku
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text('Przycisk logowania kliknięty!')),
+                            content: Text('Przycisk logowania kliknięty!'),
+                          ),
                         );
 
                         // przejście do menu głównego
