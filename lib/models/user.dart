@@ -20,25 +20,25 @@ IOClient client = IOClient(httpClient);
 
 class User extends ChangeNotifier {
   String id;
-  String name;
+  String nickname;
   String email;
-  DateTime lastLogin;
-  int courseCount;
+  DateTime lastLoginDate;
+  String role;
 
   User({
     required this.id,
-    required this.name,
+    required this.nickname,
     required this.email,
-    required this.lastLogin,
-    required this.courseCount,
+    required this.lastLoginDate,
+    required this.role,
   });
 
   Future<void> setUser(User user) async {
     id = user.id;
-    name = user.name;
+    nickname = user.nickname;
     email = user.email;
-    lastLogin = user.lastLogin;
-    courseCount = user.courseCount;
+    lastLoginDate = user.lastLoginDate;
+    role = user.role;
     notifyListeners();
   }
 
@@ -62,12 +62,12 @@ class User extends ChangeNotifier {
 
       User user = User(
         id: responseData['id'],
-        name: responseData['pseudonim'],
+        nickname: responseData['nickname'],
         email: responseData['email'],
-        lastLogin: DateTime.parse(responseData['dataOstatniegoLogowania']),
-        courseCount: responseData['iloscKursow'],
+        lastLoginDate: DateTime.parse(responseData['lastLoginDate']),
+        role: responseData['role'],
       );
-
+      // print(user.toString());
       return user;
     } catch (e) {
       print(e);
@@ -81,12 +81,12 @@ class User extends ChangeNotifier {
     // Obtain shared preferences.
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
-      final response = await http.post(
+      final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
-
+      debugPrint(response.body);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         await saveToken(responseData['token']);
@@ -104,7 +104,7 @@ class User extends ChangeNotifier {
   Future<void> signUp(String email, String password) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/register');
     try {
-      final response = await http.post(
+      final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
@@ -120,10 +120,10 @@ class User extends ChangeNotifier {
     setUser(
       User(
         id: '-1',
-        name: '',
+        nickname: '',
         email: '',
-        lastLogin: DateTime.now(),
-        courseCount: 0,
+        lastLoginDate: DateTime.now(),
+        role: '',
       ),
     );
   }
