@@ -43,8 +43,8 @@ class Rejestracja extends StatelessWidget {
                     width: 180,
                   ),
                   SizedBox(height: 20),
-                  // Tytuł aplikacji
 
+                  // Tytuł aplikacji
                   SizedBox(height: 20), // Zwiększono odstęp
                   // Pole do wpisania nazwy konta
                   TextField(
@@ -96,7 +96,8 @@ class Rejestracja extends StatelessWidget {
                         // Akcja po naciśnięciu przycisku
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text('Przycisk logowania kliknięty!')),
+                            content: Text('Przycisk logowania kliknięty!'),
+                          ),
                         );
 
                         // przejście do menu głównego
@@ -106,8 +107,10 @@ class Rejestracja extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
                       ),
                       child: Text(
                         'Zarejestruj',
@@ -133,7 +136,7 @@ class Rejestracja extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -2,8 +2,10 @@ import 'dart:math' as math;
 
 import 'package:firststep/components/aiChatComponents/chatPrompter.dart';
 import 'package:firststep/models/stepus.dart';
+import 'package:firststep/models/user.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
@@ -57,11 +59,11 @@ class stepusTest extends ConsumerWidget {
   }
 }
 
-class testowy extends StatelessWidget {
+class testowy extends ConsumerWidget {
   const testowy({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Center(
         child: Column(
@@ -116,6 +118,15 @@ class testowy extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            SizedBox(height: 50),
+            TextButton(
+              onPressed: () async {
+                final user = ref.watch(userProvider.notifier);
+
+                debugPrint(user.nickname.toString());
+              },
+              child: Text('Testowy przycisk'),
             ),
           ],
         ),
