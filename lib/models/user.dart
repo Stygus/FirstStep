@@ -1,8 +1,22 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Tworzenie niestandardowego HttpClient
+HttpClient httpClient =
+    HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+        // Ignorowanie błędów certyfikatu
+        print("Pomijanie błędu certyfikatu dla hosta: $host");
+        return true;
+      };
+
+IOClient client = IOClient(httpClient);
 
 class User extends ChangeNotifier {
   String id;
@@ -29,9 +43,9 @@ class User extends ChangeNotifier {
   }
 
   Future<User?> authorize(String? token) async {
-    final url = Uri.parse('http://83.27.64.223:3000/auth/authenticate');
+    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/authenticate');
     try {
-      final response = await http.get(
+      final response = await client.get(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +76,7 @@ class User extends ChangeNotifier {
   }
 
   Future<void> signIn(String email, String password) async {
-    final url = Uri.parse('http://83.27.64.223:3000/auth/login');
+    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/login');
     User? user;
     // Obtain shared preferences.
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -88,7 +102,7 @@ class User extends ChangeNotifier {
   }
 
   Future<void> signUp(String email, String password) async {
-    final url = Uri.parse('http://83.27.64.223:3000/auth/register');
+    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/register');
     try {
       final response = await http.post(
         url,

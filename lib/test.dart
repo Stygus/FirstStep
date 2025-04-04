@@ -139,6 +139,8 @@ class testowy extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 50),
+            TextButton(onPressed: () {}, child: Text('Testowy przycisk')),
           ],
         ),
       ),

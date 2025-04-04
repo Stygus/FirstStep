@@ -3,13 +3,14 @@ import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/test.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'logowanie.dart';
 import 'rejestracja.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await dotenv.load(fileName: ".env");
   final container = ProviderContainer();
   container.read(animationsProvider);
 

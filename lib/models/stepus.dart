@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firststep/components/aiChatComponents/chatBubble.dart';
 import 'package:firststep/components/aiChatComponents/clearChatAlert.dart';
@@ -7,7 +8,9 @@ import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:rive/rive.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Stepus extends ChangeNotifier {
   List<Map<String, String>> chatHistory = [];
@@ -62,6 +65,8 @@ class Stepus extends ChangeNotifier {
 
   Future<void> sendMessage(String message) async {
     try {
+      debugPrint(dotenv.env['SERVER_URL']!);
+
       if (message.isEmpty) return;
       chatHistory.add({"role": "user", "content": message});
       notifyListeners(); // Powiadomienie tylko raz na początku
@@ -71,8 +76,24 @@ class Stepus extends ChangeNotifier {
 
       final String messageJson = jsonEncode({"messages": chatHistory});
 
-      final url = Uri.parse('http://83.27.8.134:3000/ai/ask');
-      final response = await http.post(
+      final url = Uri.parse(dotenv.env['SERVER_URL']! + '/ai/ask');
+
+      // Tworzenie niestandardowego HttpClient
+      HttpClient httpClient =
+          HttpClient()
+            ..badCertificateCallback = (
+              X509Certificate cert,
+              String host,
+              int port,
+            ) {
+              // Ignorowanie błędów certyfikatu
+              print("Pomijanie błędu certyfikatu dla hosta: $host");
+              return true;
+            };
+
+      IOClient client = IOClient(httpClient);
+
+      final response = await client.post(
         url,
         headers: {
           'Content-Type': 'application/json',
