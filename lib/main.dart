@@ -1,6 +1,6 @@
 import 'package:english_words/english_words.dart';
 import 'package:firststep/providers/animationsProvider.dart';
-import 'package:firststep/test.dart';
+import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import 'logowanie.dart';
@@ -34,13 +34,13 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
           scaffoldBackgroundColor: Color(0xFF1E1E1E),
         ),
-        // Ekran startowy
-        home: logowanie.Logowanie(),
-        routes: {
-          '/logowanie': (context) => logowanie.Logowanie(),
-          '/rejestracja': (context) => Rejestracja(),
-          '/menu': (context) => menu.Menu(),
-        },
+        // // Ekran startowy
+        // home: logowanie.Logowanie(),
+        // routes: {
+        //   '/logowanie': (context) => logowanie.Logowanie(),
+        //   '/rejestracja': (context) => Rejestracja(),
+        //   '/menu': (context) => menu.Menu(),
+        // },
       ),
     );
   }

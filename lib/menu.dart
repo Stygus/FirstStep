@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
+import 'dart:math' as math;
 
 class Menu extends StatelessWidget {
   @override
@@ -57,7 +58,72 @@ class Menu extends StatelessWidget {
                     width: 180,
                   ),
                   SizedBox(height: 20),
+
                   // Tytuł aplikacji
+                  Container(
+                    width: 250,
+                    height: 250,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Transform.rotate(
+                            angle: 45 * math.pi / 180,
+                            child: ClipPath(
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                color: const Color.fromARGB(
+                                  255,
+                                  244,
+                                  225,
+                                  54,
+                                ), // Pierwszy kontener (na spodzie)
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Transform.rotate(
+                            angle: 45 * math.pi / 180,
+                            child: ClipPath(
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                color:
+                                    Colors
+                                        .red, // Pierwszy kontener (na spodzie)
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Transform.rotate(
+                            angle: 45 * math.pi / 180,
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              color: Colors.green, // Drugi kontener (na środku)
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Transform.rotate(
+                            angle: 45 * math.pi / 180,
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              color:
+                                  Colors.blue, // Trzeci kontener (na wierzchu)
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

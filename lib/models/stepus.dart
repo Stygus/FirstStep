@@ -71,7 +71,7 @@ class Stepus extends ChangeNotifier {
 
       final String messageJson = jsonEncode({"messages": chatHistory});
 
-      final url = Uri.parse('http://83.27.8.134:3000/ai/ask');
+      final url = Uri.parse('http://83.27.1.88:3000/ai/ask');
       final response = await http.post(
         url,
         headers: {

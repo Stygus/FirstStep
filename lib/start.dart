@@ -114,28 +114,6 @@ class testowy extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Transform.rotate(
-                      angle: 45 * math.pi / 180,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.green, // Drugi kontener (na środku)
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Transform.rotate(
-                      angle: 45 * math.pi / 180,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.blue, // Trzeci kontener (na wierzchu)
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
