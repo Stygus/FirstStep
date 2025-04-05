@@ -1,3 +1,4 @@
+import 'package:firststep/logowanie.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
@@ -8,7 +9,13 @@ class Rejestracja extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           'Rejestracja',
           style: GoogleFonts.roboto(
@@ -126,7 +133,10 @@ class Rejestracja extends StatelessWidget {
                   // Link do logowania
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/logowanie');
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Logowanie()),
+                      );
                     },
                     child: Text(
                       'Masz już konto? \n Zaloguj się',

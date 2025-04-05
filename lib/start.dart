@@ -1,58 +1,109 @@
 import 'dart:math' as math;
 
 import 'package:firststep/components/aiChatComponents/chatPrompter.dart';
+import 'package:firststep/logowanie.dart';
+import 'package:firststep/menu.dart';
 import 'package:firststep/models/stepus.dart';
 import 'package:firststep/models/user.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
+import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
 
-class stepusTest extends ConsumerWidget {
-  TextEditingController? _promptControler = TextEditingController();
+void switchToApp(User user, BuildContext context) async {
+  user
+      .getToken()
+      .then((token) {
+        if (int.tryParse(user.id) != -1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Menu()),
+          );
+          return;
+        } else if (token != "") {
+          debugPrint('Token: $token');
+          user
+              .authorize(token)
+              .then((user) {
+                if (user == null) {
+                  debugPrint('Błąd: Autoryzacja nie powiodła się');
+                  return;
+                }
+
+                debugPrint('User authorized: ${user.nickname}');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Menu()),
+                );
+              })
+              .catchError((error) {
+                debugPrint('Błąd podczas autoryzacji: $error');
+              });
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Logowanie()),
+          );
+        }
+      })
+      .catchError((error) {
+        debugPrint('Błąd podczas pobierania tokenu: $error');
+      });
+}
+
+class Start extends ConsumerWidget {
+  const Start({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chatHistory = ref.watch(stepusChatProvider.notifier);
+    final user = ref.watch(userProvider.notifier);
 
-    return MaterialApp(
-      title: 'FirstStep',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        scaffoldBackgroundColor: Color(0xFF1E1E1E),
-      ),
-      // Ekran startowy
-      home: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 50),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
 
-                Container(
-                  color: Color.fromARGB(59, 147, 230, 255),
-                  child: SizedBox(
-                    width:
-                        MediaQuery.of(context).size.width *
-                        0.6, // 80% of screen width
-                    height:
-                        MediaQuery.of(context).size.width *
-                        0.6, // 80% of screen height
-                    child: StepusAnimation(),
-                  ),
-                ),
-                SizedBox(height: 10),
-
-                SizedBox(height: 400, child: Chat()),
-
-                chatPrompter(controller: _promptControler),
-              ],
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 50),
+            SizedBox(width: 250, height: 250, child: Placeholder()),
+            SizedBox(height: 50),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => StepusWidget()),
+                );
+              },
+              child: SizedBox(
+                width: 100,
+                height: 100,
+                child: ColoredBox(color: Colors.blue),
+              ),
             ),
-          ),
+            SizedBox(height: 50),
+            GestureDetector(
+              onTap: () {
+                switchToApp(user, context);
+              },
+              child: SizedBox(
+                width: 100,
+                height: 100,
+                child: ColoredBox(color: Colors.red),
+              ),
+            ),
+
+            SizedBox(height: 50),
+            TextButton(
+              onPressed: () {
+                user.signOut();
+              },
+              child: Text('Wyloguj się'),
+            ),
+          ],
         ),
       ),
     );
@@ -74,7 +125,7 @@ class testowy extends ConsumerWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => stepusTest()),
+                  MaterialPageRoute(builder: (context) => StepusWidget()),
                 );
               },
               child: Text('Test'),
@@ -123,8 +174,7 @@ class testowy extends ConsumerWidget {
             TextButton(
               onPressed: () async {
                 final user = ref.watch(userProvider.notifier);
-
-                debugPrint(user.nickname.toString());
+                debugPrint(user.nickname);
               },
               child: Text('Testowy przycisk'),
             ),

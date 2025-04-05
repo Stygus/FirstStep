@@ -27,6 +27,7 @@ class Stepus extends ChangeNotifier {
 
   void changeIsThinking() {
     isThinking = _think?.value ?? false;
+
     notifyListeners();
   }
 
@@ -125,6 +126,8 @@ class Stepus extends ChangeNotifier {
       }
       eureka();
 
+      debugPrint(isThinking.toString());
+      isThinking = false;
       notifyListeners(); // Powiadomienie tylko raz na końcu
     } catch (e) {
       print("Error: $e");

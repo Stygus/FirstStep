@@ -75,7 +75,11 @@ class User extends ChangeNotifier {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(
+    String email,
+    String password,
+    BuildContext context,
+  ) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/login');
     User? user;
     // Obtain shared preferences.
@@ -86,15 +90,23 @@ class User extends ChangeNotifier {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
-      debugPrint(response.body);
+      // debugPrint(response.body);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         await saveToken(responseData['token']);
 
         user = await authorize(responseData['token']);
         setUser(user!);
+        saveToken(responseData['token']);
       } else {
         debugPrint('Failed to sign in: ${response.statusCode}');
+        if (response.body.contains("Invalid credentials")) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Złe dane logowania!')));
+        } else {
+          throw "Unknown error";
+        }
       }
     } catch (e) {
       print(e);
@@ -117,6 +129,7 @@ class User extends ChangeNotifier {
 
   Future<void> signOut() async {
     saveToken("");
+
     setUser(
       User(
         id: '-1',
@@ -126,6 +139,8 @@ class User extends ChangeNotifier {
         role: '',
       ),
     );
+    notifyListeners();
+    debugPrint('User signed out');
   }
 
   Future<String?> getToken() async {

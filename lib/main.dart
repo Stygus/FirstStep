@@ -1,4 +1,5 @@
 import 'package:english_words/english_words.dart';
+import 'package:firststep/menu.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ void main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(home: testowy()),
+      child: MaterialApp(home: MyApp()),
     ),
   );
 }
@@ -29,12 +30,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       child: MaterialApp(
+        themeAnimationStyle: AnimationStyle(
+          duration: Duration(milliseconds: 500),
+        ),
         title: 'FirstStep',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
           scaffoldBackgroundColor: Color(0xFF1E1E1E),
         ),
+        home: Start(),
       ),
     );
   }
