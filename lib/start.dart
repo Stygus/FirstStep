@@ -30,6 +30,10 @@ void switchToApp(User user, BuildContext context) async {
               .then((user) {
                 if (user == null) {
                   debugPrint('Błąd: Autoryzacja nie powiodła się');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Logowanie()),
+                  );
                   return;
                 }
 

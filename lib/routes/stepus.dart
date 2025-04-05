@@ -7,9 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class StepusWidget extends ConsumerWidget {
   StepusWidget({super.key});
   TextEditingController? _promptControler = TextEditingController();
+  ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chatHistory = ref.watch(stepusChatProvider.notifier);
+    if (chatHistory.isThinking) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stepus'),
@@ -24,11 +28,7 @@ class StepusWidget extends ConsumerWidget {
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
-        controller: ScrollController(
-          onDetach: (position) {
-            position.jumpTo(0);
-          },
-        ),
+        controller: _scrollController,
         child: Column(
           children: [
             Container(

@@ -1,11 +1,17 @@
 import 'package:firststep/logowanie.dart';
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
 
-class Rejestracja extends StatelessWidget {
+class Rejestracja extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final passwordController = TextEditingController();
+    final emailController = TextEditingController();
+    final nicknameController = TextEditingController();
+    final user = ref.watch(userProvider);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -55,6 +61,7 @@ class Rejestracja extends StatelessWidget {
                   SizedBox(height: 20), // Zwiększono odstęp
                   // Pole do wpisania nazwy konta
                   TextField(
+                    controller: nicknameController,
                     decoration: InputDecoration(
                       labelText: 'Nazwa konta*',
                       labelStyle: TextStyle(color: Colors.black),
@@ -69,6 +76,7 @@ class Rejestracja extends StatelessWidget {
                   SizedBox(height: 20),
                   // Pole do wpisania adresu e-mail
                   TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: 'Adres e-mail',
                       labelStyle: TextStyle(color: Colors.black),
@@ -83,6 +91,7 @@ class Rejestracja extends StatelessWidget {
                   SizedBox(height: 20), // Dodano odstęp
                   // Pole do wpisania hasła
                   TextField(
+                    controller: passwordController,
                     decoration: InputDecoration(
                       labelText: 'Hasło',
                       labelStyle: TextStyle(color: Colors.black),
@@ -101,10 +110,10 @@ class Rejestracja extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         // Akcja po naciśnięciu przycisku
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Przycisk logowania kliknięty!'),
-                          ),
+                        user.signUp(
+                          emailController.text,
+                          passwordController.text,
+                          nicknameController.text,
                         );
 
                         // przejście do menu głównego

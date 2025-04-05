@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -54,7 +55,6 @@ class User extends ChangeNotifier {
       );
 
       if (response.statusCode != 200) {
-        saveToken("");
         return null;
       }
 
@@ -82,13 +82,19 @@ class User extends ChangeNotifier {
   ) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/login');
     User? user;
+
+    // Szyfrowanie hasła za pomocą JWT
+    final jwtKey = dotenv.env['JWT_SECRET_KEY']!;
+    final jwt = JWT({'password': password});
+    final String hashedPassword = jwt.sign(SecretKey(jwtKey));
+
     // Obtain shared preferences.
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
       final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'email': email, 'password': hashedPassword}),
       );
       // debugPrint(response.body);
       if (response.statusCode == 200) {
@@ -113,13 +119,20 @@ class User extends ChangeNotifier {
     }
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(String email, String password, String nickname) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/register');
     try {
+      final jwtKey = dotenv.env['JWT_SECRET_KEY']!;
+      final jwt = JWT({'password': password});
+      final String hashedPassword = jwt.sign(SecretKey(jwtKey));
       final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({
+          'email': email,
+          'password': hashedPassword,
+          'nickname': nickname,
+        }),
       );
       debugPrint(response.body);
     } catch (e) {
