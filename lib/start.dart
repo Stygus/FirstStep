@@ -11,7 +11,8 @@ import 'package:firststep/providers/userProvider.dart';
 import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rive/rive.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:rive/rive.dart' as rive;
 
 void switchToApp(User user, BuildContext context) async {
   user
@@ -67,13 +68,12 @@ class Start extends ConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: 50),
-            SizedBox(width: 250, height: 250, child: Placeholder()),
+            Image.asset('assets/images/logod.png', height: 240, width: 240),
             SizedBox(height: 50),
             GestureDetector(
               onTap: () {
@@ -85,10 +85,16 @@ class Start extends ConsumerWidget {
               child: SizedBox(
                 width: 100,
                 height: 100,
-                child: ColoredBox(color: Colors.blue),
+                child: Image.asset(
+                  'assets/images/rko.png',
+                  width: double.infinity,
+                  height: 120,
+
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 40),
             GestureDetector(
               onTap: () {
                 switchToApp(user, context);
@@ -96,91 +102,48 @@ class Start extends ConsumerWidget {
               child: SizedBox(
                 width: 100,
                 height: 100,
-                child: ColoredBox(color: Colors.red),
+                child: Image.asset(
+                  'assets/images/porada.png',
+                  width: double.infinity,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-
-            SizedBox(height: 50),
-            TextButton(
-              onPressed: () {
-                user.signOut();
-              },
-              child: Text('Wyloguj się'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class testowy extends ConsumerWidget {
-  const testowy({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 50),
-            FilledButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => StepusWidget()),
-                );
-              },
-              child: Text('Test'),
-            ),
-            SizedBox(height: 50),
+            Spacer(),
             Container(
-              width: 250,
-              height: 250,
-              child: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Transform.rotate(
-                      angle: 45 * math.pi / 180,
-                      child: ClipPath(
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          color: const Color.fromARGB(
-                            255,
-                            244,
-                            225,
-                            54,
-                          ), // Pierwszy kontener (na spodzie)
+              width: double.infinity,
+              child: InkWell(
+                onTap: () {
+                  switchToApp(user, context);
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/linia5.png',
+                      width: double.infinity,
+                      height: 120,
+
+                      fit: BoxFit.cover,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40.0),
+                      child: Center(
+                        child: Text(
+                          'Przejdź do aplikacji',
+                          style: GoogleFonts.itim(
+                            fontSize: 32,
+                            fontWeight: FontWeight.values[3],
+                            color: Colors.white,
+                            height: 1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Transform.rotate(
-                      angle: 45 * math.pi / 180,
-                      child: ClipPath(
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.red, // Pierwszy kontener (na spodzie)
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 50),
-            TextButton(
-              onPressed: () async {
-                final user = ref.watch(userProvider.notifier);
-                debugPrint(user.nickname);
-              },
-              child: Text('Testowy przycisk'),
             ),
           ],
         ),
@@ -188,3 +151,79 @@ class testowy extends ConsumerWidget {
     );
   }
 }
+
+// class testowy extends ConsumerWidget {
+//   const testowy({super.key});
+
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return Scaffold(
+//       resizeToAvoidBottomInset: false,
+//       body: Center(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.center,
+//           children: [
+//             SizedBox(height: 50),
+//             FilledButton(
+//               onPressed: () {
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(builder: (context) => StepusWidget()),
+//                 );
+//               },
+//               child: Text('Test'),
+//             ),
+//             SizedBox(height: 50),
+//             Container(
+//               width: 250,
+//               height: 250,
+//               child: Stack(
+//                 children: [
+//                   Align(
+//                     alignment: Alignment.centerLeft,
+//                     child: Transform.rotate(
+//                       angle: 45 * math.pi / 180,
+//                       child: ClipPath(
+//                         child: Container(
+//                           width: 100,
+//                           height: 100,
+//                           color: const Color.fromARGB(
+//                             255,
+//                             244,
+//                             225,
+//                             54,
+//                           ), // Pierwszy kontener (na spodzie)
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                   Align(
+//                     alignment: Alignment.topCenter,
+//                     child: Transform.rotate(
+//                       angle: 45 * math.pi / 180,
+//                       child: ClipPath(
+//                         child: Container(
+//                           width: 100,
+//                           height: 100,
+//                           color: Colors.red, // Pierwszy kontener (na spodzie)
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             SizedBox(height: 50),
+//             TextButton(
+//               onPressed: () async {
+//                 final user = ref.watch(userProvider.notifier);
+//                 debugPrint(user.nickname);
+//               },
+//               child: Text('Testowy przycisk'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
