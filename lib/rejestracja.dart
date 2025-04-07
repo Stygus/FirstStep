@@ -30,9 +30,9 @@ class Rejestracja extends ConsumerWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0x101010),
+        backgroundColor: Color(0xFF101010),
       ),
-      backgroundColor: Color(0x101010),
+      backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
           SizedBox(

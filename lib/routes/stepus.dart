@@ -59,27 +59,33 @@ class StepusWidget extends ConsumerWidget {
             controller: _scrollController,
             child: Column(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Container(
-                    color: Color(0xFF181818),
-                    child: SizedBox(
-                      width:
-                          MediaQuery.of(context).size.width *
-                          0.6, // 80% of screen width
-                      height:
-                          MediaQuery.of(context).size.width *
-                          0.6, // 80% of screen height
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Container(
+                      color: Color.fromARGB(255, 78, 77, 77),
+                      child: SizedBox(
+                        width:
+                            MediaQuery.of(context).size.width *
+                            0.6, // 80% of screen width
+                        height:
+                            MediaQuery.of(context).size.width *
+                            0.6, // 80% of screen height
 
-                      child: StepusAnimation(),
+                        child: StepusAnimation(),
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 5),
 
-                SizedBox(height: 400, child: Chat()),
+                SizedBox(height: 300, child: Chat()),
 
-                chatPrompter(controller: _promptControler),
+                Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: chatPrompter(controller: _promptControler),
+                ),
               ],
             ),
           ),
