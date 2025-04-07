@@ -68,85 +68,88 @@ class Start extends ConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 50),
-            Image.asset('assets/images/logod.png', height: 240, width: 240),
-            SizedBox(height: 50),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => StepusWidget()),
-                );
-              },
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset(
-                  'assets/images/rko.png',
-                  width: double.infinity,
-                  height: 120,
-
-                  fit: BoxFit.cover,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 50),
+          Image.asset('assets/images/logod.png', height: 240, width: 240),
+          SizedBox(height: 50),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => StepusWidget()),
+              );
+            },
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Image.asset(
+                    'assets/images/rko.png',
+                    width: double.infinity,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(height: 40),
-            GestureDetector(
-              onTap: () {
-                switchToApp(user, context);
-              },
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset(
-                  'assets/images/porada.png',
-                  width: double.infinity,
-                  height: 120,
-                  fit: BoxFit.cover,
+                Text(
+                  'Panel RKO', // Przeniesiono tekst pod zdjęcie
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.values[4],
+                    color: Colors.white,
+                    height: 2,
+                  ),
                 ),
-              ),
+              ],
             ),
-            Spacer(),
-            Container(
-              width: double.infinity,
-              child: InkWell(
-                onTap: () {
-                  switchToApp(user, context);
-                },
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/linia5.png',
-                      width: double.infinity,
-                      height: 120,
-
-                      fit: BoxFit.cover,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.0),
-                      child: Center(
-                        child: Text(
-                          'Przejdź do aplikacji',
-                          style: GoogleFonts.itim(
-                            fontSize: 32,
-                            fontWeight: FontWeight.values[3],
-                            color: Colors.white,
-                            height: 1,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+          ),
+          SizedBox(height: 20),
+          GestureDetector(
+            onTap: () {
+              switchToApp(user, context);
+            },
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Image.asset(
+                    'assets/images/porada.png',
+                    width: double.infinity,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
+                Text(
+                  'Szybka Porada',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.values[4],
+                    color: Colors.white,
+                    height: 2,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Spacer(),
+          Text(
+            'Przejdź do aplikacji',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              height: 1,
+            ),
+          ),
+          Image.asset(
+            'assets/images/liniaOG.png',
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ],
       ),
     );
   }
