@@ -72,8 +72,8 @@ class Start extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 50),
-          Image.asset('assets/images/logod.png', height: 240, width: 240),
-          SizedBox(height: 50),
+          Image.asset('assets/images/logod.png', height: 300, width: 300),
+          SizedBox(height: 60),
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -95,7 +95,7 @@ class Start extends ConsumerWidget {
                 ),
                 Text(
                   'Panel RKO', // Przeniesiono tekst pod zdjęcie
-                  style: TextStyle(
+                  style: GoogleFonts.itim(
                     fontSize: 24,
                     fontWeight: FontWeight.values[4],
                     color: Colors.white,
@@ -110,6 +110,7 @@ class Start extends ConsumerWidget {
             onTap: () {
               switchToApp(user, context);
             },
+
             child: Column(
               children: [
                 SizedBox(
@@ -124,7 +125,7 @@ class Start extends ConsumerWidget {
                 ),
                 Text(
                   'Szybka Porada',
-                  style: TextStyle(
+                  style: GoogleFonts.itim(
                     fontSize: 24,
                     fontWeight: FontWeight.values[4],
                     color: Colors.white,
@@ -135,19 +136,33 @@ class Start extends ConsumerWidget {
             ),
           ),
           Spacer(),
-          Text(
-            'Przejdź do aplikacji',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Logowanie(),
+                ), // Przeniesienie do logowania
+              );
+            },
+            child: Column(
+              children: [
+                Text(
+                  'Przejdź do aplikacji',
+                  style: GoogleFonts.itim(
+                    fontSize: 32,
+                    fontWeight: FontWeight.values[3],
+                    color: Colors.white,
+                    height: 1,
+                  ),
+                ),
+                Image.asset(
+                  'assets/images/liniaOG.png',
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ],
             ),
-          ),
-          Image.asset(
-            'assets/images/liniaOG.png',
-            width: double.infinity,
-            fit: BoxFit.cover,
           ),
         ],
       ),
