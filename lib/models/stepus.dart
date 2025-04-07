@@ -253,6 +253,7 @@ class _StepusAnimationState extends ConsumerState<StepusAnimation> {
               );
             });
           },
+
           child: RiveAnimation.direct(
             riveFile,
             alignment: Alignment.center,

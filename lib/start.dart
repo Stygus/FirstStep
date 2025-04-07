@@ -8,6 +8,7 @@ import 'package:firststep/models/user.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
+import 'package:firststep/rko.dart';
 import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,17 +69,20 @@ class Start extends ConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Color(0xFF1E1E1E), // Kolor tła dla start.dart
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: 50),
-          Image.asset('assets/images/logod.png', height: 300, width: 300),
-          SizedBox(height: 60),
+          SizedBox(height: 30),
+          Image.asset('assets/images/logod.png', height: 240, width: 240),
+          SizedBox(height: 40),
           GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => StepusWidget()),
+                MaterialPageRoute(
+                  builder: (context) => RKO(),
+                ), // Poprawiono nawigację do RKO
               );
             },
             child: Column(
@@ -108,7 +112,10 @@ class Start extends ConsumerWidget {
           SizedBox(height: 20),
           GestureDetector(
             onTap: () {
-              switchToApp(user, context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => StepusWidget()),
+              );
             },
 
             child: Column(

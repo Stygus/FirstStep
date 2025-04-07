@@ -19,8 +19,10 @@ class _ChatBubbleState extends State<ChatBubble> {
       decoration: BoxDecoration(
         color:
             widget.isUser
-                ? const Color.fromARGB(255, 255, 89, 89)
-                : Colors.grey[800],
+                ? Colors.grey[800]?.withOpacity(
+                  0.5,
+                ) // Zmieniono na biały przeźroczysty
+                : Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

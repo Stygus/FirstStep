@@ -33,8 +33,8 @@ class chatPrompter extends ConsumerWidget {
       cursorColor: Colors.white54,
       cursorHeight: 20.0,
       cursorWidth: 2.0,
-      maxLines: 5,
-      minLines: 3,
+      maxLines: 4, // Zmniejszono maksymalną liczbę linii
+      minLines: 2, // Zmniejszono minimalną liczbę linii
       controller: controller,
       style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
@@ -42,7 +42,10 @@ class chatPrompter extends ConsumerWidget {
         errorStyle: TextStyle(color: Colors.red, fontSize: 12),
         hintText: 'Zadaj pytanie...',
         hintStyle: TextStyle(color: Colors.white54),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: 8.0,
+        ), // Zmniejszono padding
         filled: true,
         floatingLabelStyle: TextStyle(color: Colors.white54),
         suffixIcon: Padding(

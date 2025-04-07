@@ -60,7 +60,7 @@ class Logowanie extends ConsumerWidget {
           children: [
             Text(
               'Logowanie',
-              style: GoogleFonts.roboto(
+              style: GoogleFonts.itim(
                 fontSize: 32,
                 fontWeight: FontWeight.values[3],
                 color: Colors.white,
@@ -69,9 +69,9 @@ class Logowanie extends ConsumerWidget {
             ),
           ],
         ),
-        backgroundColor: Color(0x101010),
+        backgroundColor: Color(0xFF101010),
       ),
-      backgroundColor: Color(0x101010),
+      backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
           SizedBox(
@@ -171,7 +171,7 @@ class Logowanie extends ConsumerWidget {
                           // Tekst na przycisku
                           Text(
                             'Zaloguj',
-                            style: TextStyle(
+                            style: GoogleFonts.itim(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -196,7 +196,7 @@ class Logowanie extends ConsumerWidget {
                       },
                       child: Text(
                         'Nie masz konta? \n Zarejestruj się',
-                        style: TextStyle(color: Colors.white),
+                        style: GoogleFonts.itim(color: Colors.white),
                       ),
                     ),
                   ),
