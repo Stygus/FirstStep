@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:encrypt/encrypt.dart' as enc;
 
 // Tworzenie niestandardowego HttpClient
 HttpClient httpClient =
@@ -82,11 +82,11 @@ class User extends ChangeNotifier {
   ) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/login');
     User? user;
-
-    // Szyfrowanie hasła za pomocą JWT
-    final jwtKey = dotenv.env['JWT_SECRET_KEY']!;
-    final jwt = JWT({'password': password});
-    final String hashedPassword = jwt.sign(SecretKey(jwtKey));
+    final key = enc.Key.fromUtf8(dotenv.env['SECRET_KEY']!);
+    enc.Encrypter encrypt = enc.Encrypter(enc.AES(key));
+    final hashedPassword =
+        encrypt.encrypt(password, iv: enc.IV.fromLength(16)).base64;
+    debugPrint(hashedPassword);
 
     // Obtain shared preferences.
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -94,7 +94,7 @@ class User extends ChangeNotifier {
       final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': hashedPassword}),
+        body: jsonEncode({'email': email, 'password': password}),
       );
       // debugPrint(response.body);
       if (response.statusCode == 200) {
@@ -122,9 +122,11 @@ class User extends ChangeNotifier {
   Future<void> signUp(String email, String password, String nickname) async {
     final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/register');
     try {
-      final jwtKey = dotenv.env['JWT_SECRET_KEY']!;
-      final jwt = JWT({'password': password});
-      final String hashedPassword = jwt.sign(SecretKey(jwtKey));
+      final key = enc.Key.fromUtf8(dotenv.env['SECRET_KEY']!);
+      enc.Encrypter encrypt = enc.Encrypter(enc.AES(key));
+      final hashedPassword =
+          encrypt.encrypt(password, iv: enc.IV.fromLength(16)).toString();
+
       final response = await client.post(
         url,
         headers: {'Content-Type': 'application/json'},
