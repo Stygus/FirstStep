@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class RKO extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Ustawiono czarne tło
+      backgroundColor: Color(0xFF101010),
       appBar: AppBar(
-        backgroundColor: Colors.black, // Dopasowano kolor tła
-        elevation: 0, // Usunięto cień
+        backgroundColor: Color(0xFF101010),
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // Strzałka powrotu
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context); // Powrót do poprzedniego ekranu
+            Navigator.pop(context);
           },
         ),
       ),
@@ -19,20 +20,26 @@ class RKO extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/logod.png', // Dodano zdjęcie logod.png
-              height: 200,
-              width: 200,
-            ),
-            SizedBox(height: 20),
             Text(
-              'Już wkrótce', // Dodano duży napis
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
+              textAlign: TextAlign.center,
+              'Rozpocznij proces RKO',
+              style: GoogleFonts.itim(
+                fontSize: 45,
+                fontWeight: FontWeight.values[4],
                 color: Colors.white,
               ),
             ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double imageSize = constraints.maxWidth * 0.7;
+                return Image.asset(
+                  'assets/images/rko1.png',
+                  height: imageSize,
+                  width: imageSize,
+                );
+              },
+            ),
+            SizedBox(height: 20),
           ],
         ),
       ),
