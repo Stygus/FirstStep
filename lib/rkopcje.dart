@@ -48,7 +48,15 @@ class RkOpcje extends StatelessWidget {
               ),
             ),
             SizedBox(height: 80),
-
+            Text(
+              textAlign: TextAlign.center,
+              'Dzieci do 5 roku życia',
+              style: GoogleFonts.itim(
+                fontSize: 24,
+                fontWeight: FontWeight.values[4],
+                color: Colors.white,
+              ),
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -68,6 +76,15 @@ class RkOpcje extends StatelessWidget {
               ),
             ),
             SizedBox(height: 80),
+            Text(
+              textAlign: TextAlign.center,
+              'Niemowlaki',
+              style: GoogleFonts.itim(
+                fontSize: 24,
+                fontWeight: FontWeight.values[4],
+                color: Colors.white,
+              ),
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.push(

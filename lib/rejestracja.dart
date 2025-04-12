@@ -36,7 +36,7 @@ class Rejestracja extends ConsumerWidget {
       body: Column(
         children: [
           SizedBox(
-            height: 80, // Define a fixed height
+            height: 80,
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
               fit: BoxFit.scaleDown,
@@ -57,9 +57,8 @@ class Rejestracja extends ConsumerWidget {
                   ),
                   SizedBox(height: 20),
 
-                  // Tytuł aplikacji
-                  SizedBox(height: 20), // Zwiększono odstęp
-                  // Pole do wpisania nazwy konta
+                  SizedBox(height: 20),
+
                   TextField(
                     controller: nicknameController,
                     decoration: InputDecoration(
@@ -74,7 +73,7 @@ class Rejestracja extends ConsumerWidget {
                     style: TextStyle(color: Colors.black),
                   ),
                   SizedBox(height: 20),
-                  // Pole do wpisania adresu e-mail
+
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -88,8 +87,8 @@ class Rejestracja extends ConsumerWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 20), // Dodano odstęp
-                  // Pole do wpisania hasła
+                  SizedBox(height: 20),
+
                   TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
@@ -105,18 +104,15 @@ class Rejestracja extends ConsumerWidget {
                     obscureText: true,
                   ),
                   SizedBox(height: 24),
-                  // Przycisk logowania
+
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Akcja po naciśnięciu przycisku
                         user.signUp(
                           emailController.text,
                           passwordController.text,
                           nicknameController.text,
                         );
-
-                        // przejście do menu głównego
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -139,7 +135,7 @@ class Rejestracja extends ConsumerWidget {
                     ),
                   ),
                   SizedBox(height: 24),
-                  // Link do logowania
+
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacement(
