@@ -22,7 +22,7 @@ class RkOpcje extends StatelessWidget {
           children: [
             Text(
               textAlign: TextAlign.center,
-              'Rozpocznij proces RKO',
+              'Dorośli i starsze dzieci',
               style: GoogleFonts.itim(
                 fontSize: 24,
                 fontWeight: FontWeight.values[4],
@@ -38,7 +38,7 @@ class RkOpcje extends StatelessWidget {
               },
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  double imageSize = constraints.maxWidth * 0.7;
+                  double imageSize = constraints.maxWidth * 0.4;
                   return Image.asset(
                     'assets/images/dorosli.png',
                     height: imageSize,
@@ -47,7 +47,46 @@ class RkOpcje extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 80),
+
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RkOpcje()),
+                );
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  double imageSize = constraints.maxWidth * 0.4;
+                  return Image.asset(
+                    'assets/images/dzieckom.png',
+                    height: imageSize,
+                    width: imageSize,
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 80),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RkOpcje()),
+                );
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  double imageSize = constraints.maxWidth * 0.4;
+                  return Image.asset(
+                    'assets/images/niemowlak.png',
+                    height: imageSize,
+                    width: imageSize,
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 70),
           ],
         ),
       ),
