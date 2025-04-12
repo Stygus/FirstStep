@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'rkopcje.dart'; // Import widgetu rkopcje.dart
 
-class RKO extends StatelessWidget {
+class RkOpcje extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +24,7 @@ class RKO extends StatelessWidget {
               textAlign: TextAlign.center,
               'Rozpocznij proces RKO',
               style: GoogleFonts.itim(
-                fontSize: 45,
+                fontSize: 24,
                 fontWeight: FontWeight.values[4],
                 color: Colors.white,
               ),
@@ -41,7 +40,7 @@ class RKO extends StatelessWidget {
                 builder: (context, constraints) {
                   double imageSize = constraints.maxWidth * 0.7;
                   return Image.asset(
-                    'assets/images/rko1.png',
+                    'assets/images/dorosli.png',
                     height: imageSize,
                     width: imageSize,
                   );
