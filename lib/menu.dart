@@ -73,34 +73,49 @@ class Menu extends StatelessWidget {
                       children: [
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: ClipPath(
-                              child: Container(
-                                width: 100,
-                                height: 100,
-                                color: const Color.fromARGB(
-                                  255,
-                                  244,
-                                  225,
-                                  54,
-                                ), // Pierwszy kontener (na spodzie)
-                              ),
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size =
+                                    constraints.maxWidth *
+                                    0.6; // Set size relative to parent width
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/apteka.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.topCenter,
                           child: ClipPath(
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/rkob.png'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size =
+                                    constraints.maxWidth *
+                                    0.6; // Set size relative to parent width
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/rkob.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -111,7 +126,7 @@ class Menu extends StatelessWidget {
                               builder: (context, constraints) {
                                 double size =
                                     constraints.maxWidth *
-                                    0.5; // Increased size to 50% of parent width
+                                    0.6; // Increased size to 50% of parent width
                                 return Container(
                                   width: size,
                                   height: size,
@@ -130,14 +145,24 @@ class Menu extends StatelessWidget {
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              color:
-                                  Colors.blue, // Trzeci kontener (na wierzchu)
-                            ),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size =
+                                  constraints.maxWidth *
+                                  0.6; // Set size relative to parent width
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/kursy.png', // Replace with your image path
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
