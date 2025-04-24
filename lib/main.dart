@@ -18,7 +18,7 @@ void main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(home: MyApp()),
+      child: MaterialApp(home: MyApp()), // Aplikacja mobilna
     ),
   );
 }
