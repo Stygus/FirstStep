@@ -66,12 +66,8 @@ class StepusWidget extends ConsumerWidget {
                     child: Container(
                       color: Color.fromARGB(255, 78, 77, 77),
                       child: SizedBox(
-                        width:
-                            MediaQuery.of(context).size.width *
-                            0.6, // 80% of screen width
-                        height:
-                            MediaQuery.of(context).size.width *
-                            0.6, // 80% of screen height
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        height: MediaQuery.of(context).size.width * 0.6,
 
                         child: StepusAnimation(),
                       ),

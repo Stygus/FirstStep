@@ -30,9 +30,9 @@ class Menu extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: Color(0x101010),
+        backgroundColor: Color(0xFF101010),
       ),
-      backgroundColor: Color(0x101010),
+      backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
           SizedBox(
@@ -73,58 +73,96 @@ class Menu extends StatelessWidget {
                       children: [
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: ClipPath(
-                              child: Container(
-                                width: 100,
-                                height: 100,
-                                color: const Color.fromARGB(
-                                  255,
-                                  244,
-                                  225,
-                                  54,
-                                ), // Pierwszy kontener (na spodzie)
-                              ),
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size =
+                                    constraints.maxWidth *
+                                    0.6; // Set size relative to parent width
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/apteka.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.topCenter,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: ClipPath(
-                              child: Container(
-                                width: 100,
-                                height: 100,
-                                color:
-                                    Colors
-                                        .red, // Pierwszy kontener (na spodzie)
-                              ),
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size =
+                                    constraints.maxWidth *
+                                    0.6; // Set size relative to parent width
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/rkob.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.bottomCenter,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              color: Colors.green, // Drugi kontener (na środku)
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size =
+                                    constraints.maxWidth *
+                                    0.6; // Increased size to 50% of parent width
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/poradab.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              color:
-                                  Colors.blue, // Trzeci kontener (na wierzchu)
-                            ),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size =
+                                  constraints.maxWidth *
+                                  0.6; // Set size relative to parent width
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/kursy.png', // Replace with your image path
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
