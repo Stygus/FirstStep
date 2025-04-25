@@ -43,108 +43,60 @@ class Menu extends StatelessWidget {
             ),
           ),
           Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Już wkrótce!',
-                    style: GoogleFonts.roboto(
-                      fontSize: 32,
-                      fontWeight: FontWeight.values[3],
-                      color: Colors.white,
-                      height: 1,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  5, // Updated to 5 images
+                  (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(
+                      width: 150, // Square size
+                      height: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: AssetImage(
+                            'assets/images/rko${index + 1}.png',
+                          ),
+                          // Replace with your image paths
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Image.asset(
-                    'assets/images/logod.png',
-                    height: 180,
-                    width: 180,
-                  ),
-                  SizedBox(height: 20),
+                ),
+              ),
+            ),
+          ),
 
-                  // Tytuł aplikacji
-                  Container(
-                    width: 250,
-                    height: 250,
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size =
-                                    constraints.maxWidth *
-                                    0.6; // Set size relative to parent width
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/apteka.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size =
-                                    constraints.maxWidth *
-                                    0.6; // Set size relative to parent width
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/rkob.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size =
-                                    constraints.maxWidth *
-                                    0.6; // Increased size to 50% of parent width
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/poradab.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Już wkrótce!',
+                  style: GoogleFonts.roboto(
+                    fontSize: 32,
+                    fontWeight: FontWeight.values[3],
+                    color: Colors.white,
+                    height: 1,
+                  ),
+                ),
+                SizedBox(height: 10),
+
+                SizedBox(height: 20),
+
+                // Tytuł aplikacji
+                Container(
+                  width: 250,
+                  height: 250,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               double size =
@@ -156,7 +108,7 @@ class Menu extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                     image: AssetImage(
-                                      'assets/images/kursy.png', // Replace with your image path
+                                      'assets/images/apteka.png',
                                     ),
                                     fit: BoxFit.cover,
                                   ),
@@ -165,11 +117,79 @@ class Menu extends StatelessWidget {
                             },
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: ClipPath(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size =
+                                  constraints.maxWidth *
+                                  0.6; // Set size relative to parent width
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/images/rkob.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ClipPath(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size =
+                                  constraints.maxWidth *
+                                  0.6; // Increased size to 50% of parent width
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/poradab.png',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            double size =
+                                constraints.maxWidth *
+                                0.6; // Set size relative to parent width
+                            return Container(
+                              width: size,
+                              height: size,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'assets/images/kursy.png', // Replace with your image path
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
