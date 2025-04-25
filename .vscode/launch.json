@@ -1,0 +1,32 @@
+{
+  // Użyj funkcji IntelliSense, aby uzyskać informacje o możliwych atrybutach.
+  // Najedź kursorem, aby wyświetlić opisy istniejących atrybutów.
+  // Aby uzyskać więcej informacji, odwiedź stronę: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Chrome with Flutter",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_web.dart",
+      "args": ["-d", "chrome"]
+    },
+    {
+      "name": "firststep",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "firststep (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "firststep (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
+}

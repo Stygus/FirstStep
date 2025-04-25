@@ -1,14 +1,27 @@
+import 'package:firststep/logowanie.dart';
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
 
-class Rejestracja extends StatelessWidget {
+class Rejestracja extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final passwordController = TextEditingController();
+    final emailController = TextEditingController();
+    final nicknameController = TextEditingController();
+    final user = ref.watch(userProvider);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           'Rejestracja',
           style: GoogleFonts.roboto(
@@ -17,13 +30,13 @@ class Rejestracja extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0x101010),
+        backgroundColor: Color(0xFF101010),
       ),
-      backgroundColor: Color(0x101010),
+      backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
           SizedBox(
-            height: 80, // Define a fixed height
+            height: 80,
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
               fit: BoxFit.scaleDown,
@@ -43,11 +56,11 @@ class Rejestracja extends StatelessWidget {
                     width: 180,
                   ),
                   SizedBox(height: 20),
-                  // Tytuł aplikacji
 
-                  SizedBox(height: 20), // Zwiększono odstęp
-                  // Pole do wpisania nazwy konta
+                  SizedBox(height: 20),
+
                   TextField(
+                    controller: nicknameController,
                     decoration: InputDecoration(
                       labelText: 'Nazwa konta*',
                       labelStyle: TextStyle(color: Colors.black),
@@ -60,8 +73,9 @@ class Rejestracja extends StatelessWidget {
                     style: TextStyle(color: Colors.black),
                   ),
                   SizedBox(height: 20),
-                  // Pole do wpisania adresu e-mail
+
                   TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: 'Adres e-mail',
                       labelStyle: TextStyle(color: Colors.black),
@@ -73,9 +87,10 @@ class Rejestracja extends StatelessWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 20), // Dodano odstęp
-                  // Pole do wpisania hasła
+                  SizedBox(height: 20),
+
                   TextField(
+                    controller: passwordController,
                     decoration: InputDecoration(
                       labelText: 'Hasło',
                       labelStyle: TextStyle(color: Colors.black),
@@ -89,25 +104,25 @@ class Rejestracja extends StatelessWidget {
                     obscureText: true,
                   ),
                   SizedBox(height: 24),
-                  // Przycisk logowania
+
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Akcja po naciśnięciu przycisku
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Przycisk logowania kliknięty!')),
+                        user.signUp(
+                          emailController.text,
+                          passwordController.text,
+                          nicknameController.text,
                         );
-
-                        // przejście do menu głównego
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
                       ),
                       child: Text(
                         'Zarejestruj',
@@ -120,10 +135,13 @@ class Rejestracja extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 24),
-                  // Link do logowania
+
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/logowanie');
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Logowanie()),
+                      );
                     },
                     child: Text(
                       'Masz już konto? \n Zaloguj się',
@@ -133,7 +151,7 @@ class Rejestracja extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

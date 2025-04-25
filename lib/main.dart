@@ -1,12 +1,26 @@
 import 'package:english_words/english_words.dart';
+import 'package:firststep/menu.dart';
+import 'package:firststep/providers/animationsProvider.dart';
+import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'logowanie.dart' as logowanie;
+import 'package:rive/rive.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'logowanie.dart';
 import 'rejestracja.dart';
-import 'menu.dart' as menu;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  final container = ProviderContainer();
+  container.read(animationsProvider);
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(home: MyApp()), // Aplikacja mobilna
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,54 +28,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return ProviderScope(
       child: MaterialApp(
+        themeAnimationStyle: AnimationStyle(
+          duration: Duration(milliseconds: 500),
+        ),
         title: 'FirstStep',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-          scaffoldBackgroundColor: Color(0xFF1E1E1E),
         ),
-        // Ekran startowy
-        home: logowanie.Logowanie(),
-        routes: {
-          '/logowanie': (context) => logowanie.Logowanie(),
-          '/rejestracja': (context) => Rejestracja(),
-          '/menu': (context) => menu.Menu(),
-        },
-      ),
-    );
-  }
-}
-
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Column(
-        children: [
-          Text(appState.current.asLowerCase),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/logowanie');
-            },
-            child: Text('Logowanie'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/rejestracja');
-            },
-            child: Text('Rejestracja'),
-          ),
-        ],
+        home: Menu(),
       ),
     );
   }
