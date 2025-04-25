@@ -115,7 +115,8 @@ class _AppPageState extends ConsumerState<AppPage> {
                                   scrollDirection: Axis.horizontal,
                                   itemCount: coursesList.courses.length,
                                   itemBuilder: (context, index) {
-                                    final course = coursesList.courses[index];
+                                    final course =
+                                        coursesList.bestCourses[index];
                                     return Padding(
                                       padding: const EdgeInsets.only(
                                         right: 16.0,
@@ -170,6 +171,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                 try {
                   await courses.getAllCoursesFromApi(
                     await user.getToken() ?? '',
+                    user.nickname,
                   );
                   debugPrint('Courses: ${courses.courses.length}');
                 } catch (e, stack) {
@@ -196,189 +198,6 @@ class _AppPageState extends ConsumerState<AppPage> {
         ),
       ),
     );
-  }
-}
-
-class CourseCard extends StatelessWidget {
-  final Course course;
-
-  const CourseCard({Key? key, required this.course}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 500, // szerokość na sztywno
-      height: 300, // wysokość na sztywno (zwiększona)
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        margin: EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 38, 38, 38),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          course.title,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          course.description,
-                          style: TextStyle(
-                            color: Colors.grey[300],
-                            fontSize: 14,
-                          ),
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.visibility, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            '${course.studentCount}',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.yellow, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            '5.0', // Placeholder for ratings
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Status',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                      ),
-                      Text(
-                        course.status,
-                        style: TextStyle(
-                          color: _getStatusColor(course.status),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'poziom trudności',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                      ),
-                      Text(
-                        course.difficultyLevel,
-                        style: TextStyle(
-                          color: _getDifficultyColor(course.difficultyLevel),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                    ),
-                    child: Text(
-                      'Edytuj',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _buildCategoryChip('Java'),
-                  _buildCategoryChip('Programowanie'),
-                  _buildCategoryChip('Backend'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryChip(String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(label, style: TextStyle(color: Colors.white, fontSize: 12)),
-    );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toUpperCase()) {
-      case 'PUBLISHED':
-        return Colors.green;
-      case 'DRAFT':
-        return Colors.orange;
-      case 'ARCHIVED':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toUpperCase()) {
-      case 'BASIC':
-        return Colors.green;
-      case 'INTERMEDIATE':
-        return Colors.orange;
-      case 'ADVANCED':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }
 
