@@ -9,67 +9,91 @@ class Menu extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        toolbarHeight: 0,
         automaticallyImplyLeading: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Menu główne',
-              style: GoogleFonts.roboto(
-                fontSize: 32,
-                fontWeight: FontWeight.values[3],
-                color: Colors.white,
-                height: 1,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Color(0xFF101010),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
-          SizedBox(
-            height: 80,
-            child: rive.RiveAnimation.asset(
-              'assets/Animacje/neonowy_puls.riv',
-              fit: BoxFit.scaleDown,
+          Container(
+            height: 100,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Witaj w menu głównym xyz!',
+                      style: GoogleFonts.itim(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.width * (3 / 16),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        alignment: Alignment.bottomCenter,
+                        image: AssetImage('assets/images/linia.png'),
+                        fit: BoxFit.fill,
+                        isAntiAlias: false,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+          Container(
+            // child: SizedBox(
+            //   height: 100,
+            //   child: Image.asset(
+            //     'assets/images/linia.png',
+            // //     fit: BoxFit.scaleDown,
+            // //   ),
+            // ),
           ),
           Center(
             child: SizedBox(
               height: 250,
-              child: PageView.builder(
-                itemCount: 3,
-                controller: PageController(viewportFraction: 1.0),
-                itemBuilder: (context, index) {
-                  String imagePath = 'assets/images/add${index + 1}.png';
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
+              child: Container(
+                color: Color(0xFF1D1D1D),
+                child: PageView.builder(
+                  itemCount: 3,
+                  controller: PageController(viewportFraction: 1.0),
+                  itemBuilder: (context, index) {
+                    String imagePath = 'assets/images/add${index + 1}.png';
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/add1.png',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
                       ),
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/images/add1.png',
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -79,22 +103,11 @@ class Menu extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Już wkrótce!',
-                  style: GoogleFonts.roboto(
-                    fontSize: 32,
-                    fontWeight: FontWeight.values[3],
-                    color: Colors.white,
-                    height: 1,
-                  ),
-                ),
-                SizedBox(height: 10),
-
-                SizedBox(height: 20),
+                SizedBox(height: 15),
 
                 Container(
-                  width: 250,
-                  height: 250,
+                  width: MediaQuery.of(context).size.width * 1,
+                  height: MediaQuery.of(context).size.width * 1,
                   child: Stack(
                     children: [
                       Align(
@@ -102,7 +115,7 @@ class Menu extends StatelessWidget {
                         child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.6;
+                              double size = constraints.maxWidth * 0.5;
                               return Container(
                                 width: size,
                                 height: size,
@@ -124,7 +137,7 @@ class Menu extends StatelessWidget {
                         child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.6;
+                              double size = constraints.maxWidth * 0.5;
                               return Container(
                                 width: size,
                                 height: size,
@@ -144,9 +157,7 @@ class Menu extends StatelessWidget {
                         child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              double size =
-                                  constraints.maxWidth *
-                                  0.6; // Increased size to 50% of parent width
+                              double size = constraints.maxWidth * 0.5;
                               return Container(
                                 width: size,
                                 height: size,
@@ -167,17 +178,13 @@ class Menu extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            double size =
-                                constraints.maxWidth *
-                                0.6; // Set size relative to parent width
+                            double size = constraints.maxWidth * 0.5;
                             return Container(
                               width: size,
                               height: size,
                               decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: AssetImage(
-                                    'assets/images/kursy.png', // Replace with your image path
-                                  ),
+                                  image: AssetImage('assets/images/kursy.png'),
                                   fit: BoxFit.cover,
                                 ),
                               ),
