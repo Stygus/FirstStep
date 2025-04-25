@@ -36,36 +36,40 @@ class Menu extends StatelessWidget {
       body: Column(
         children: [
           SizedBox(
-            height: 80, // Define a fixed height
+            height: 80,
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
               fit: BoxFit.scaleDown,
             ),
           ),
           Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(
-                  5, // Updated to 5 images
-                  (index) => Padding(
+            child: SizedBox(
+              height: 250,
+              child: PageView.builder(
+                itemCount: 3,
+                controller: PageController(viewportFraction: 1.0),
+                itemBuilder: (context, index) {
+                  String imagePath = 'assets/images/add${index + 1}.png';
+                  return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Container(
-                      width: 150, // Square size
-                      height: 150,
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: AssetImage(
-                            'assets/images/rko${index + 1}.png',
-                          ),
-                          // Replace with your image paths
-                          fit: BoxFit.cover,
-                        ),
+                      ),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/images/add1.png',
+                            fit: BoxFit.cover,
+                          );
+                        },
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -88,7 +92,6 @@ class Menu extends StatelessWidget {
 
                 SizedBox(height: 20),
 
-                // Tytuł aplikacji
                 Container(
                   width: 250,
                   height: 250,
@@ -99,9 +102,7 @@ class Menu extends StatelessWidget {
                         child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              double size =
-                                  constraints.maxWidth *
-                                  0.6; // Set size relative to parent width
+                              double size = constraints.maxWidth * 0.6;
                               return Container(
                                 width: size,
                                 height: size,
@@ -123,9 +124,7 @@ class Menu extends StatelessWidget {
                         child: ClipPath(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              double size =
-                                  constraints.maxWidth *
-                                  0.6; // Set size relative to parent width
+                              double size = constraints.maxWidth * 0.6;
                               return Container(
                                 width: size,
                                 height: size,
