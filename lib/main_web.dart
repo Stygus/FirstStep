@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firststep/providers/userProvider.dart';
 import 'package:firststep/webApp/welcome.dart';
 import 'package:firststep/models/user.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:firststep/webApp/appPage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +24,93 @@ void main() async {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(color: Colors.white),
+          ),
         ),
+        localizationsDelegates: [
+          FlutterQuillLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('pl'), // Polski
+          Locale('en'), // Angielski
+        ],
         home: WebHome(),
       ),
     ),
   );
+}
+
+class QuiltTests extends StatefulWidget {
+  const QuiltTests({super.key});
+
+  @override
+  State<QuiltTests> createState() => QuiltTestsState();
+}
+
+class QuiltTestsState extends State<QuiltTests> {
+  final QuillController _controller = QuillController.basic();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Quilt Tests')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Quilt Tests'),
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                final data = jsonEncode(
+                  _controller.document.toDelta().toJson(),
+                );
+                debugPrint('Document data: $data');
+              },
+              child: const Text('Test'),
+            ),
+            Row(
+              children: [
+                QuillSimpleToolbar(
+                  controller: _controller,
+                  config: QuillSimpleToolbarConfig(
+                    showInlineCode: false,
+                    showSuperscript: false,
+                    showFontFamily: false,
+                    showSubscript: false,
+                    showHeaderStyle: false,
+                    showFontSize: false,
+                    showAlignmentButtons: true,
+                    showBackgroundColorButton: true,
+                    showListBullets: true,
+                    showListCheck: true,
+                    showListNumbers: true,
+                    // showSearchButton: true,
+                  ),
+                ),
+              ],
+            ),
+
+            QuillEditor(
+              controller: _controller,
+              scrollController: ScrollController(),
+              focusNode: FocusNode(),
+              config: QuillEditorConfig(
+                autoFocus: true,
+                expands: false,
+                padding: EdgeInsets.zero,
+                enableSelectionToolbar: true,
+                enableInteractiveSelection: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 final loginProvider = StateProvider<bool>((ref) => true);

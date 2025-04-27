@@ -40,6 +40,8 @@ dependencies:
   rive: ^0.13.20
   flutter_dotenv: ^5.2.1
   encrypt: ^5.0.3
+  flutter_colorpicker: ^1.1.0
+  flutter_quill: ^11.4.0
 
 dev_dependencies:
   flutter_test:

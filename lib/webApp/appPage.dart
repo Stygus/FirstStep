@@ -20,6 +20,21 @@ class _AppPageState extends ConsumerState<AppPage> {
   final ScrollController _horizontalController =
       ScrollController(); // dodaj to pole
 
+  void getCourses() async {
+    final courses = ref.read(coursesProvider);
+    final user = ref.read(userProvider);
+    try {
+      await courses.getAllCoursesFromApi(
+        await user.getToken() ?? '',
+        user.nickname,
+      );
+      debugPrint('Courses: ${courses.courses.length}');
+    } catch (e, stack) {
+      debugPrint('Błąd pobierania kursów: $e');
+      debugPrintStack(stackTrace: stack);
+    }
+  }
+
   @override
   void dispose() {
     _horizontalController.dispose();
@@ -31,6 +46,7 @@ class _AppPageState extends ConsumerState<AppPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = ref.read(userProvider);
+      getCourses();
     });
   }
 
@@ -83,67 +99,61 @@ class _AppPageState extends ConsumerState<AppPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  SizedBox(
-                    height: 320,
-                    child:
-                        user.id == '-1'
-                            ? Center(
-                              child: Text(
-                                'Zaloguj się, aby zobaczyć kursy',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            )
-                            : coursesList.courses.isEmpty
-                            ? Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            )
-                            : Listener(
-                              onPointerSignal: (pointerSignal) {
-                                if (pointerSignal is PointerScrollEvent) {
-                                  _horizontalController.jumpTo(
-                                    _horizontalController.offset +
-                                        pointerSignal.scrollDelta.dy * 2,
-                                  );
-                                }
+                  user.id == '-1'
+                      ? Center(
+                        child: Text(
+                          'Zaloguj się, aby zobaczyć kursy',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
+                      : coursesList.courses.isEmpty
+                      ? Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                      : SizedBox(
+                        height: 300, // Wysokość kontenera dostosowana do karty
+                        child: Listener(
+                          onPointerSignal: (pointerSignal) {
+                            if (pointerSignal is PointerScrollEvent) {
+                              _horizontalController.jumpTo(
+                                _horizontalController.offset +
+                                    pointerSignal.scrollDelta.dy * 2,
+                              );
+                            }
+                          },
+                          child: ScrollConfiguration(
+                            behavior: _CustomScrollBehavior(),
+                            child: ListView.builder(
+                              controller: _horizontalController,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: coursesList.courses.length,
+                              itemBuilder: (context, index) {
+                                final course = coursesList.bestCourses[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 16.0),
+                                  child: CourseCard(course: course),
+                                );
                               },
-                              child: ScrollConfiguration(
-                                behavior: _CustomScrollBehavior(),
-                                child: ListView.builder(
-                                  controller: _horizontalController,
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: coursesList.courses.length,
-                                  itemBuilder: (context, index) {
-                                    final course =
-                                        coursesList.bestCourses[index];
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 16.0,
-                                      ),
-                                      child: CourseCard(course: course),
-                                    );
-                                  },
-                                ),
-                              ),
                             ),
-                  ),
+                          ),
+                        ),
+                      ),
                 ],
               ),
             ),
           ),
-          Flexible(flex: 2, child: Container(color: Colors.red)),
+          Flexible(flex: 0, child: Container(color: Colors.red)),
         ],
       ),
 
       drawer: Drawer(
-        backgroundColor: Color.fromARGB(87, 26, 26, 26),
+        backgroundColor: Color.fromARGB(199, 26, 26, 26),
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 44, 44, 44),
+                color: const Color.fromARGB(178, 44, 44, 44),
               ),
               child: Center(
                 child: Text(
