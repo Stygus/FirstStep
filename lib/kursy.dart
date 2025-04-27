@@ -20,6 +20,7 @@ class KursyPage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+            SizedBox(height: 60),
             Image.asset('assets/images/logod.png', height: 200, width: 200),
           ],
         ),
