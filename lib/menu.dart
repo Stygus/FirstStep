@@ -72,7 +72,7 @@ class Menu extends StatelessWidget {
                   itemCount: 3,
                   controller: PageController(viewportFraction: 1.0),
                   itemBuilder: (context, index) {
-                    String imagePath = 'assets/images/add${index + 1}.png';
+                    String imagePath = 'assets/images/addr${index + 1}.png';
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Container(
