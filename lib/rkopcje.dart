@@ -47,7 +47,7 @@ class RkOpcje extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 80),
+            SizedBox(height: 65),
             Text(
               textAlign: TextAlign.center,
               'Dzieci do 5 roku życia',
@@ -75,7 +75,7 @@ class RkOpcje extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 80),
+            SizedBox(height: 65),
             Text(
               textAlign: TextAlign.center,
               'Niemowlaki',
@@ -103,7 +103,6 @@ class RkOpcje extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(height: 70),
           ],
         ),
       ),

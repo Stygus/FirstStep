@@ -1,7 +1,10 @@
+import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
 import 'dart:math' as math;
+import 'rko.dart';
+import 'apteczka.dart';
 
 class Menu extends StatelessWidget {
   @override
@@ -54,15 +57,7 @@ class Menu extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            // child: SizedBox(
-            //   height: 100,
-            //   child: Image.asset(
-            //     'assets/images/linia.png',
-            // //     fit: BoxFit.scaleDown,
-            // //   ),
-            // ),
-          ),
+
           Center(
             child: SizedBox(
               height: 250,
@@ -112,49 +107,110 @@ class Menu extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: ClipPath(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.5;
-                              return Container(
-                                width: size,
-                                height: size,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      'assets/images/apteka.png',
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ApteczkaPage(),
+                              ),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/apteka.png',
+                                      ),
+                                      fit: BoxFit.cover,
                                     ),
-                                    fit: BoxFit.cover,
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.topCenter,
-                        child: ClipPath(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.5;
-                              return Container(
-                                width: size,
-                                height: size,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/rkob.png'),
-                                    fit: BoxFit.cover,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RKO()),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/rkob.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: ClipPath(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StepusWidget(),
+                              ),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/poradab.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          // Dodano GestureDetector
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => KursyPage(),
+                              ), // Przejście do KursyPage
+                            );
+                          },
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               double size = constraints.maxWidth * 0.5;
@@ -164,7 +220,7 @@ class Menu extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                     image: AssetImage(
-                                      'assets/images/poradab.png',
+                                      'assets/images/kursy.png',
                                     ),
                                     fit: BoxFit.cover,
                                   ),
@@ -172,24 +228,6 @@ class Menu extends StatelessWidget {
                               );
                             },
                           ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double size = constraints.maxWidth * 0.5;
-                            return Container(
-                              width: size,
-                              height: size,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/kursy.png'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ],
