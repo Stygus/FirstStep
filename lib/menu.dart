@@ -5,6 +5,7 @@ import 'package:rive/rive.dart' as rive;
 import 'dart:math' as math;
 import 'rko.dart';
 import 'apteczka.dart';
+import 'kursy.dart';
 
 class Menu extends StatelessWidget {
   @override
