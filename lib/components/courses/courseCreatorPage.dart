@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as Math;
 
 import 'package:firststep/components/courses/RichTextFormatter.dart';
+import 'package:firststep/components/courses/videoControls.dart';
 import 'package:firststep/models/courses/courses.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart' as colorPicker;
+import 'package:video_player/video_player.dart';
 
 // Funkcja pomocnicza do konwersji niepoprawnego formatu JSON do poprawnego
 
@@ -124,6 +126,8 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
   final FocusNode _focusNode = FocusNode();
   late TextEditingController _textController;
   final QuillController _controller = QuillController.basic();
+  VideoPlayerController? _videoPlayerController;
+  bool _isVideoInitialized = false;
 
   @override
   void initState() {
@@ -140,18 +144,91 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
     if (widget.courseElements.type == 'TEXT') {
       try {
         final json = widget.courseElements.content;
-
         _controller.document = Document.fromJson(jsonDecode(json));
       } catch (e) {
         debugPrint('Błąd przy ustawianiu treści QuillEditor: $e');
       }
     }
+
+    // Inicjalizacja kontrolera wideo tutaj, a nie w didChangeDependencies
+    if (widget.courseElements.type == 'VIDEO') {
+      _initializeVideoPlayer();
+    }
+  }
+
+  void _initializeVideoPlayer() {
+    if (_isVideoInitialized) return;
+
+    try {
+      final String contentUrl = widget.courseElements.content;
+
+      // Sprawdzanie, czy URL wskazuje na plik wideo, a nie obraz lub inny format
+      final bool isVideo = _isVideoUrl(contentUrl);
+
+      if (!isVideo) {
+        // Jeśli to nie jest plik wideo, wyświetl placeholder obrazu
+        setState(() {
+          _isVideoInitialized = false;
+        });
+        debugPrint('URL nie wskazuje na plik wideo: $contentUrl');
+        return;
+      }
+
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(contentUrl),
+        formatHint: VideoFormat.hls,
+      );
+
+      _videoPlayerController!
+          .initialize()
+          .then((_) {
+            // Upewnij się, że widget jest wciąż zamontowany
+            if (mounted) {
+              setState(() {
+                _isVideoInitialized = true;
+              });
+            }
+          })
+          .catchError((error) {
+            debugPrint('Błąd inicjalizacji wideo: $error');
+          });
+    } catch (e) {
+      debugPrint('Błąd podczas tworzenia kontrolera wideo: $e');
+    }
+  }
+
+  // Sprawdza, czy URL wskazuje na plik wideo na podstawie rozszerzenia
+  bool _isVideoUrl(String url) {
+    final Uri? uri = Uri.tryParse(url);
+    if (uri == null) return false;
+
+    final String path = uri.path.toLowerCase();
+    final List<String> videoExtensions = [
+      '.mp4',
+      '.webm',
+      '.ogg',
+      '.mov',
+      '.avi',
+      '.m3u8',
+      '.mpd',
+    ];
+
+    return videoExtensions.any((ext) => path.endsWith(ext));
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Usuwamy inicjalizację wideo z didChangeDependencies
+  }
+
   void dispose() {
     _focusNode.dispose();
     _textController.dispose();
+    // Zwalnianie zasobów kontrolera wideo
+    if (_videoPlayerController != null) {
+      _videoPlayerController!.dispose();
+    }
     super.dispose();
   }
 
@@ -180,6 +257,59 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
   @override
   Widget build(BuildContext context) {
     switch (widget.courseElements.type) {
+      case 'VIDEO':
+        // Standardowa obsługa dla prawidłowego pliku wideo
+        if (_videoPlayerController == null || !_isVideoInitialized) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Ładowanie wideo...',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        // Kontynuacja tylko jeśli kontroler jest zainicjalizowany
+        return SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(20),
+                height: 500, // Dodana stała wysokość 300 pikseli
+                child: AspectRatio(
+                  aspectRatio: _videoPlayerController!.value.aspectRatio,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: <Widget>[
+                      VideoPlayer(_videoPlayerController!),
+                      ControlsOverlay(
+                        controller: _videoPlayerController!,
+                        videoUrl: widget.courseElements.content,
+                      ),
+                      VideoProgressIndicator(
+                        colors: VideoProgressColors(
+                          playedColor: Colors.green,
+                          backgroundColor: Colors.grey,
+                        ),
+                        _videoPlayerController!,
+                        allowScrubbing: true,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
       case 'HEADER':
         return Focus(
           onKeyEvent: (node, event) {
