@@ -1,3 +1,4 @@
+import 'package:firststep/webview_page.dart';
 import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,7 @@ import 'dart:math' as math;
 import 'rko.dart';
 import 'apteczka.dart';
 import 'kursy.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Menu extends StatelessWidget {
   @override
@@ -71,20 +73,49 @@ class Menu extends StatelessWidget {
                     String imagePath = 'assets/images/addr${index + 1}.png';
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Image.asset(
-                          imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/images/add1.png',
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () async {
+                          Uri url;
+                          if (index == 1) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/dieta-i-ruch/',
                             );
-                          },
+                          } else if (index == 2) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/palenie/',
+                            );
+                          } else {
+                            return;
+                          }
+
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Nie można otworzyć linku: $url'),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Image.asset(
+                            imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/images/add1.png',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     );
