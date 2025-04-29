@@ -189,14 +189,13 @@ class _FullScreeenedControlsState extends State<FullScreeenedControls> {
                             ),
                           ),
                           child: Slider(
-                            value: _playbackRate,
-                            min: 0.25,
-                            max: 2.0,
+                            value: widget.controller.value.volume,
+                            min: 0.0,
+                            max: 1.0,
                             divisions: 7,
                             onChanged: (value) {
                               setState(() {
-                                _playbackRate = value;
-                                widget.controller.setPlaybackSpeed(value);
+                                widget.controller.setVolume(value);
                               });
                             },
                           ),
