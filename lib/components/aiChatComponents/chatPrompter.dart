@@ -76,9 +76,9 @@ class chatPrompter extends ConsumerWidget {
         ),
         suffixStyle: TextStyle(color: Colors.white54),
         labelStyle: TextStyle(color: Colors.white54),
-        fillColor: Color(0x1e1e1e),
-        focusColor: Color(0x1e1e1e),
-        hoverColor: Color(0x1e1e1e),
+        fillColor: Color(0x001e1e1e),
+        focusColor: Color(0x001e1e1e),
+        hoverColor: Color(0x001e1e1e),
         enabled: true,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),

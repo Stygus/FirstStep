@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ApteczkaPage extends StatefulWidget {
+  const ApteczkaPage({super.key});
+
   @override
   _ApteczkaPageState createState() => _ApteczkaPageState();
 }
@@ -30,7 +32,7 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
       backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
-          Container(
+          SizedBox(
             height: 100,
             child: Stack(
               children: [

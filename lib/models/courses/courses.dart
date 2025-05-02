@@ -179,21 +179,73 @@ class CourseElements {
 
 class CourseElementsList extends ChangeNotifier {
   List<CourseElements> courseElements = [];
+  List<CourseElements> initialCourseElements = [];
+  Map<int, List<CourseElements>> courseElementsHistory = {};
+
+  int historyIndex = 0;
+
   bool isLoading = false;
   String? error;
 
-  void addCourseElement(CourseElements element) {
+  // Dodaję licznik przebudowy, który pomoże w wymuszeniu odświeżenia widgetów
+  int _rebuildCounter = 0;
+  int get rebuildCounter => _rebuildCounter;
+
+  void addCourseElement(CourseElements element, int index) {
+    for (int i = index; i < courseElements.length; i++) {
+      courseElements[i].order = i + 1;
+    }
+
     courseElements.add(element);
+    courseElements.sort((a, b) => a.order.compareTo(b.order));
+
+    courseElementsHistory[courseElementsHistory.length +
+        1] = List<CourseElements>.from(courseElements);
+
+    notifyListeners();
+  }
+
+  void backToPreviousState() {
+    historyIndex++;
+    if (courseElementsHistory.isNotEmpty) {
+      courseElements =
+          courseElementsHistory[courseElementsHistory.length - historyIndex]!;
+      notifyListeners();
+    }
+  }
+
+  void forwardToNextState() {
+    historyIndex--;
+    if (courseElementsHistory.isNotEmpty) {
+      courseElements =
+          courseElementsHistory[courseElementsHistory.length - historyIndex]!;
+      notifyListeners();
+    }
+  }
+
+  void undoAllChanges() {
+    courseElements = initialCourseElements.toList();
+    courseElementsHistory.clear();
+    courseElementsHistory[1] = List<CourseElements>.from(courseElements);
     notifyListeners();
   }
 
   void removeCourseElement(int id) {
     debugPrint('Removing course element with ID: $id');
-    // Sprawdzenie, czy element istnieje przed usunięciem
 
+    // Usunięcie elementu z listy
     courseElements.removeWhere((element) => element.id == id);
+
+    courseElementsHistory[courseElementsHistory.length +
+        1] = List<CourseElements>.from(courseElements);
+
+    // Ponowne uporządkowanie pozostałych elementów
     reOrderCourseElements();
 
+    // Zwiększamy licznik przebudowy, co wymusi odświeżenie wszystkich widgetów
+    _rebuildCounter++;
+
+    // Powiadomienie słuchaczy o zmianie
     notifyListeners();
   }
 
@@ -214,10 +266,10 @@ class CourseElementsList extends ChangeNotifier {
       debugPrint('Fetching course elements for course ID: $id');
       if (token is Future) {
         debugPrint('Token is a Future, resolving...');
-        token = await token;
+        token = token;
       }
 
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         error = 'Token is null or empty';
         isLoading = false;
         notifyListeners();
@@ -231,7 +283,7 @@ class CourseElementsList extends ChangeNotifier {
       debugPrint('Token: ${token.substring(0, Math.min(20, token.length))}...');
 
       final url = Uri.parse(
-        dotenv.env['SERVER_URL']! + '/courses/' + id + '/elements',
+        '${dotenv.env['SERVER_URL']!}/courses/$id/elements',
       );
 
       debugPrint('Sending request to: $url');
@@ -254,6 +306,9 @@ class CourseElementsList extends ChangeNotifier {
           debugPrint(courseElements[0].style?.color.toString());
         }
         courseElements.sort((a, b) => a.order.compareTo(b.order));
+        initialCourseElements = courseElements.toList();
+        courseElementsHistory.clear();
+        courseElementsHistory = {1: courseElements};
         isLoading = false;
         notifyListeners();
       } else {
@@ -277,7 +332,7 @@ class CourseElementsList extends ChangeNotifier {
       notifyListeners();
 
       if (token is Future) {
-        token = await token;
+        token = token;
       }
 
       if (!token.startsWith('Bearer ')) {
@@ -285,7 +340,7 @@ class CourseElementsList extends ChangeNotifier {
       }
 
       final url = Uri.parse(
-        dotenv.env['SERVER_URL']! + '/courses/' + id + '/elements',
+        '${dotenv.env['SERVER_URL']!}/courses/$id/elements',
       );
 
       // Przygotowanie elementów kursu do wysłania
@@ -422,7 +477,7 @@ class CourseList extends ChangeNotifier {
 
   Future<void> getAllCoursesFromApi(String token, String name) async {
     token = 'Bearer $token';
-    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/courses/' + name);
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/$name');
     final response = await http.get(
       url,
       headers: {'accept': 'application/json', 'Authorization': token},
@@ -463,7 +518,7 @@ class CourseCard extends ConsumerWidget {
     showCourseDialog(context, course);
   }
 
-  const CourseCard({Key? key, required this.course}) : super(key: key);
+  const CourseCard({super.key, required this.course});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

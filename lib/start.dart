@@ -1,19 +1,12 @@
-import 'dart:math' as math;
-
-import 'package:firststep/components/aiChatComponents/chatPrompter.dart';
 import 'package:firststep/logowanie.dart';
 import 'package:firststep/menu.dart';
-import 'package:firststep/models/stepus.dart';
 import 'package:firststep/models/user.dart';
-import 'package:firststep/providers/animationsProvider.dart';
-import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:firststep/rko.dart';
 import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rive/rive.dart' as rive;
 
 void switchToApp(User user, BuildContext context) async {
   user

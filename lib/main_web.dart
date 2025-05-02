@@ -116,6 +116,8 @@ class QuiltTestsState extends State<QuiltTests> {
 final loginProvider = StateProvider<bool>((ref) => true);
 
 class WebHome extends ConsumerStatefulWidget {
+  const WebHome({super.key});
+
   @override
   ConsumerState<WebHome> createState() => _WebHomeState();
 }
@@ -147,7 +149,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
                       'Wykryto logowanie',
                       style: TextStyle(color: Colors.white),
                     ),
-                    content: Container(
+                    content: SizedBox(
                       height: 100,
                       child: Column(
                         children: [
@@ -157,7 +159,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
                             textAlign: TextAlign.center,
                           ),
                           Text(
-                            '${user.nickname}',
+                            user.nickname,
                             style: TextStyle(
                               color: const Color.fromARGB(255, 255, 0, 0),
                             ),
@@ -184,7 +186,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
                             vertical: 10,
                           ),
                         ).copyWith(
-                          overlayColor: MaterialStateProperty.all(
+                          overlayColor: WidgetStateProperty.all(
                             const Color.fromARGB(19, 255, 0, 0),
                           ),
                         ),
@@ -216,7 +218,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
                             vertical: 10,
                           ),
                         ).copyWith(
-                          overlayColor: MaterialStateProperty.all(
+                          overlayColor: WidgetStateProperty.all(
                             const Color.fromARGB(19, 255, 0, 0),
                           ),
                         ),
@@ -261,7 +263,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: 300,
               height: 300,
               child: Image.asset('assets/images/logoBig.png'),

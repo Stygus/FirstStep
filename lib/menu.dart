@@ -10,6 +10,8 @@ import 'kursy.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Menu extends StatelessWidget {
+  const Menu({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +25,7 @@ class Menu extends StatelessWidget {
       backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
-          Container(
+          SizedBox(
             height: 100,
             child: Stack(
               children: [
@@ -132,7 +134,7 @@ class Menu extends StatelessWidget {
               children: [
                 SizedBox(height: 15),
 
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width * 1,
                   height: MediaQuery.of(context).size.width * 1,
                   child: Stack(

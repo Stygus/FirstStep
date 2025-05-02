@@ -77,7 +77,7 @@ class Stepus extends ChangeNotifier {
 
       final String messageJson = jsonEncode({"messages": chatHistory});
 
-      final url = Uri.parse(dotenv.env['SERVER_URL']! + '/ai/ask');
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/ai/ask');
 
       // Tworzenie niestandardowego HttpClient
       HttpClient httpClient =
@@ -190,7 +190,7 @@ class _MessageState extends ConsumerState<Message> {
 }
 
 class StepusAnimation extends ConsumerStatefulWidget {
-  StepusAnimation({super.key});
+  const StepusAnimation({super.key});
 
   @override
   ConsumerState<StepusAnimation> createState() => _StepusAnimationState();

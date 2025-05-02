@@ -7,6 +7,8 @@ import 'package:rive/rive.dart' as rive;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Logowanie extends ConsumerWidget {
+  const Logowanie({super.key});
+
   @override
   @override
   Widget build(BuildContext context, WidgetRef ref) {

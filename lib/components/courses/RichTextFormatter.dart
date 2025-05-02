@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 class RichTextRenderer extends StatefulWidget {
   final String jsonContent;
 
-  const RichTextRenderer({Key? key, required this.jsonContent})
-    : super(key: key);
+  const RichTextRenderer({super.key, required this.jsonContent});
 
   @override
   State<RichTextRenderer> createState() => _RichTextRendererState();
