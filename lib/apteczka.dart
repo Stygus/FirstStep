@@ -1,3 +1,4 @@
+import 'package:firststep/apteczkav2.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,14 +13,17 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
   String? _selectedOption; // Wybrana opcja z listy
 
   final List<Map<String, dynamic>> _options = [
-    {'title': 'Apteczka na wyjazd w góry', 'icon': Icons.terrain},
-    {'title': 'Apteczka na wyjście na plażę', 'icon': Icons.beach_access},
+    {'title': 'Apteczka górska', 'icon': Icons.terrain},
+    {'title': 'Apteczka plażowa', 'icon': Icons.beach_access},
     {'title': 'Apteczka samochodowa', 'icon': Icons.directions_car},
-    {'title': 'Apteczka domowa', 'icon': Icons.home},
+    {
+      'title': 'Apteczka rowerowa',
+      'icon': Icons.pedal_bike,
+    }, // Zamieniona opcja
     {'title': 'Apteczka podróżna', 'icon': Icons.flight},
     {'title': 'Apteczka sportowa', 'icon': Icons.sports_soccer},
     {'title': 'Apteczka codzienna', 'icon': Icons.local_hospital},
-    {'title': 'Apteczka rowerowa', 'icon': Icons.pedal_bike}, // Nowa opcja
+    {'title': 'Apteczka domowa', 'icon': Icons.home}, // Zamieniona opcja
   ];
 
   @override
@@ -91,9 +95,14 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
                         _selectedOption = option['title'];
                       });
 
-                      // Wyświetlenie SnackBar po wyborze
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Wybrano: ${option['title']}')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ApteczkaV2Page(
+                                selectedApteczka: option['title'],
+                              ),
+                        ),
                       );
                     },
                     child: Container(
