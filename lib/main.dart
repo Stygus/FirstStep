@@ -1,3 +1,4 @@
+import 'package:firststep/menu.dart';
 import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: Start(),
+        home: Menu(),
       ),
     );
   }

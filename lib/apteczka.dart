@@ -18,10 +18,8 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
     {'title': 'Apteczka domowa', 'icon': Icons.home},
     {'title': 'Apteczka podróżna', 'icon': Icons.flight},
     {'title': 'Apteczka sportowa', 'icon': Icons.sports_soccer},
-    {
-      'title': 'Apteczka codzienna',
-      'icon': Icons.local_hospital,
-    }, // Dodano nową opcję
+    {'title': 'Apteczka codzienna', 'icon': Icons.local_hospital},
+    {'title': 'Apteczka rowerowa', 'icon': Icons.pedal_bike}, // Nowa opcja
   ];
 
   @override
@@ -74,131 +72,55 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
               ],
             ),
           ),
-
-          // Lista rozwijana
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: DropdownButtonFormField<String>(
-              dropdownColor: Color(0xFF1D1D1D),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Color(0xFF1D1D1D),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              hint: Center(
-                child: Text(
-                  'Wybierz apteczkę',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              value: _selectedOption,
-              items:
-                  _options.map((option) {
-                    return DropdownMenuItem<String>(
-                      value: option['title'],
-                      child: Row(
-                        children: [
-                          Icon(option['icon'], color: Colors.white),
-                          SizedBox(width: 10),
-                          Text(
-                            option['title'],
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedOption = value;
-                });
-
-                // Wyświetlenie SnackBar po wyborze
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Wybrano: $value')));
-              },
-            ),
-          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Color(0xFF1D1D1D),
-                  borderRadius: BorderRadius.circular(8.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
                 ),
-                child: Center(
-                  child: Text(
-                    _selectedOption ?? 'Wybrana apteczka',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Ikonki pod prostokątem
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.visibility, color: Colors.white),
-                  onPressed: () {
-                    // Podgląd zawartości
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Podgląd: ${_selectedOption ?? "Brak wybranej apteczki"}',
-                        ),
+                itemCount: _options.length,
+                itemBuilder: (context, index) {
+                  final option = _options[index];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedOption = option['title'];
+                      });
+
+                      // Wyświetlenie SnackBar po wyborze
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Wybrano: ${option['title']}')),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF1D1D1D),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.copy, color: Colors.white),
-                  onPressed: () {
-                    // Skopiowanie zawartości
-                    if (_selectedOption != null) {
-                      // Clipboard.setData(ClipboardData(text: _selectedOption));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Skopiowano: $_selectedOption')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Brak zawartości do skopiowania'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.share, color: Colors.white),
-                  onPressed: () {
-                    // Udostępnienie zawartości
-                    if (_selectedOption != null) {
-                      // Share.share('Wybrana apteczka: $_selectedOption');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Brak zawartości do udostępnienia'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(option['icon'], color: Colors.white, size: 40),
+                          SizedBox(height: 10),
+                          Text(
+                            option['title'],
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -206,3 +128,87 @@ class _ApteczkaPageState extends State<ApteczkaPage> {
     );
   }
 }
+
+// Expande(
+//             child: Padding(
+//               padding: const EdgeInsets.all(16.0),
+//               child: Container(
+//                 width: double.infinity,
+//                 decoration: BoxDecoration(
+//                   color: Color(0xFF1D1D1D),
+//                   borderRadius: BorderRadius.circular(8.0),
+//                 ),
+//                 child: Center(
+//                   child: Text(
+//                     _selectedOption ?? 'Wybrana apteczka',
+//                     style: TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 18,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                     textAlign: TextAlign.center,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           // Ikonki pod prostokątem
+//           Padding(
+//             padding: const EdgeInsets.symmetric(vertical: 16.0),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//               children: [
+//                 IconButton(
+//                   icon: Icon(Icons.visibility, color: Colors.white),
+//                   onPressed: () {
+//                     // Podgląd zawartości
+//                     ScaffoldMessenger.of(context).showSnackBar(
+//                       SnackBar(
+//                         content: Text(
+//                           'Podgląd: ${_selectedOption ?? "Brak wybranej apteczki"}',
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//                 IconButton(
+//                   icon: Icon(Icons.copy, color: Colors.white),
+//                   onPressed: () {
+//                     // Skopiowanie zawartości
+//                     if (_selectedOption != null) {
+//                       // Clipboard.setData(ClipboardData(text: _selectedOption));
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         SnackBar(content: Text('Skopiowano: $_selectedOption')),
+//                       );
+//                     } else {
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         SnackBar(
+//                           content: Text('Brak zawartości do skopiowania'),
+//                         ),
+//                       );
+//                     }
+//                   },
+//                 ),
+//                 IconButton(
+//                   icon: Icon(Icons.share, color: Colors.white),
+//                   onPressed: () {
+//                     // Udostępnienie zawartości
+//                     if (_selectedOption != null) {
+//                       // Share.share('Wybrana apteczka: $_selectedOption');
+//                     } else {
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         SnackBar(
+//                           content: Text('Brak zawartości do udostępnienia'),
+//                         ),
+//                       );
+//                     }
+//                   },
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
