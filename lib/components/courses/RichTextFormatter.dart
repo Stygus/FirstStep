@@ -14,6 +14,10 @@ class RichTextRenderer extends StatefulWidget {
 
 class _RichTextRendererState extends State<RichTextRenderer> {
   List<dynamic> _parsedContent = [];
+  // Dodajemy zmienną do śledzenia aktualnego typu listy
+  String? _currentListType;
+  // Licznik dla list numerowanych
+  int _orderedListCounter = 1;
 
   @override
   void initState() {
@@ -54,14 +58,266 @@ class _RichTextRendererState extends State<RichTextRenderer> {
       );
     }
 
-    return SelectableText.rich(
-      TextSpan(children: _buildTextSpans(_parsedContent)),
-      style: const TextStyle(color: Colors.white, fontSize: 16),
+    return _buildRichTextContent();
+  }
+
+  Widget _buildRichTextContent() {
+    List<Widget> contentWidgets = [];
+    _currentListType = null;
+    _orderedListCounter = 1;
+
+    List<Map<String, dynamic>> paragraphs = _groupIntoParagraphs();
+
+    for (var paragraph in paragraphs) {
+      Widget paragraphWidget = _buildParagraphWidget(paragraph);
+      contentWidgets.add(paragraphWidget);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: contentWidgets,
     );
   }
 
-  List<TextSpan> _buildTextSpans(List<dynamic> deltaOperations) {
+  List<Map<String, dynamic>> _groupIntoParagraphs() {
+    List<Map<String, dynamic>> paragraphs = [];
+    Map<String, dynamic> currentParagraph = {
+      'content': <dynamic>[],
+      'attributes': <String, dynamic>{},
+    };
+
+    for (int i = 0; i < _parsedContent.length; i++) {
+      var operation = _parsedContent[i];
+      if (operation is! Map<String, dynamic>) continue;
+
+      String? text = operation['insert']?.toString();
+      if (text == null) continue;
+
+      Map<String, dynamic>? attributes =
+          operation['attributes'] as Map<String, dynamic>?;
+
+      // Jeśli to jest tylko znak nowej linii z atrybutami (np. header)
+      if (text == '\n' &&
+          attributes != null &&
+          currentParagraph['content'].isNotEmpty) {
+        // Przypisz atrybuty do całego paragrafu
+        currentParagraph['attributes'] = attributes;
+        paragraphs.add(Map<String, dynamic>.from(currentParagraph));
+        currentParagraph = {
+          'content': <dynamic>[],
+          'attributes': <String, dynamic>{},
+        };
+        continue;
+      }
+
+      // Standardowa obsługa: jeśli tekst zawiera \n, dzielimy na linie
+      if (text.contains('\n')) {
+        var lines = text.split('\n');
+        for (int j = 0; j < lines.length; j++) {
+          String line = lines[j];
+          if (line.isNotEmpty) {
+            var lineOp = Map<String, dynamic>.from(operation);
+            lineOp['insert'] = line;
+            currentParagraph['content'].add(lineOp);
+          }
+          if (j < lines.length - 1) {
+            paragraphs.add(Map<String, dynamic>.from(currentParagraph));
+            currentParagraph = {
+              'content': <dynamic>[],
+              'attributes': <String, dynamic>{},
+            };
+          }
+        }
+      } else {
+        currentParagraph['content'].add(operation);
+      }
+    }
+    if ((currentParagraph['content'] as List).isNotEmpty) {
+      paragraphs.add(currentParagraph);
+    }
+    return paragraphs;
+  }
+
+  Widget _buildParagraphWidget(Map<String, dynamic> paragraph) {
+    List<dynamic> content = paragraph['content'];
+    Map<String, dynamic>? attributes = paragraph['attributes'];
+
+    // Przekazujemy atrybuty paragrafu do _buildTextSpans
+    TextSpan paragraphSpan = TextSpan(
+      children: _buildTextSpans(content, paragraphAttributes: attributes),
+    );
+
+    // Ustawienia podstawowe
+    TextAlign textAlign = TextAlign.start;
+
+    // Konfiguracja wyrównania tekstu
+    if (attributes != null && attributes['align'] != null) {
+      switch (attributes['align'].toString()) {
+        case 'justify':
+          textAlign = TextAlign.justify;
+          break;
+        case 'center':
+          textAlign = TextAlign.center;
+          break;
+        case 'right':
+          textAlign = TextAlign.right;
+          break;
+        default:
+          textAlign = TextAlign.start;
+      }
+    }
+
+    // Blok kodu
+    if (attributes != null && attributes['code-block'] == true) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: Colors.black45,
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: SelectableText.rich(
+          paragraphSpan,
+          style: const TextStyle(
+            fontFamily: 'monospace',
+            color: Colors.lightGreenAccent,
+            fontSize: 16.0,
+          ),
+        ),
+      );
+    }
+
+    // Listy
+    Widget? prefixWidget;
+    if (attributes != null && attributes['list'] != null) {
+      String listType = attributes['list'].toString();
+
+      // Reset licznika przy zmianie typu listy
+      if (_currentListType != listType) {
+        if (listType == 'ordered') {
+          _orderedListCounter = 1;
+        }
+        _currentListType = listType;
+      }
+
+      switch (listType) {
+        case 'ordered':
+          prefixWidget = Container(
+            width: 24.0,
+            margin: const EdgeInsets.only(right: 8.0),
+            child: Text(
+              '${_orderedListCounter++}.',
+              style: const TextStyle(color: Colors.white, fontSize: 16.0),
+              textAlign: TextAlign.right,
+            ),
+          );
+          break;
+        case 'bullet':
+          prefixWidget = Container(
+            width: 24.0,
+            margin: const EdgeInsets.only(right: 8.0),
+            child: const Text(
+              '•',
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+              textAlign: TextAlign.center,
+            ),
+          );
+          break;
+        case 'checked':
+          prefixWidget = Container(
+            width: 24.0,
+            margin: const EdgeInsets.only(right: 8.0),
+            child: const Icon(Icons.check_box, color: Colors.white, size: 16.0),
+          );
+          break;
+        case 'unchecked':
+          prefixWidget = Container(
+            width: 24.0,
+            margin: const EdgeInsets.only(right: 8.0),
+            child: const Icon(
+              Icons.check_box_outline_blank,
+              color: Colors.white,
+              size: 16.0,
+            ),
+          );
+          break;
+      }
+    } else {
+      _currentListType = null;
+    }
+
+    // Styl nagłówka dla całego paragrafu (jeśli jest header)
+    TextStyle paragraphStyle = _buildTextStyle(attributes);
+
+    // Jeśli mamy prefix (lista), używamy Row do połączenia elementów
+    if (prefixWidget != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            prefixWidget,
+            Expanded(
+              child: SelectableText.rich(
+                paragraphSpan,
+                textAlign: textAlign,
+                style: paragraphStyle,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Jeśli to nagłówek, opakuj w ConstrainedBox + FittedBox, aby szerokość była dopasowana do tekstu, ale nie większa niż 80% ekranu
+    if (attributes != null && attributes['header'] != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.8,
+          ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: SelectableText.rich(
+              paragraphSpan,
+              textAlign: textAlign,
+              style: paragraphStyle,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Standardowy paragraf
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: SelectableText.rich(
+        paragraphSpan,
+        textAlign: textAlign,
+        style: paragraphStyle,
+      ),
+    );
+  }
+
+  List<TextSpan> _buildTextSpans(
+    List<dynamic> deltaOperations, {
+    Map<String, dynamic>? paragraphAttributes,
+  }) {
     List<TextSpan> spans = [];
+
+    // Najpierw usuwamy entery z końca zawartości
+    if (deltaOperations.isNotEmpty) {
+      var lastOperation = deltaOperations.last;
+      if (lastOperation is Map<String, dynamic> &&
+          lastOperation['insert'] is String &&
+          lastOperation['insert'].toString().endsWith('\n')) {
+        lastOperation['insert'] =
+            lastOperation['insert'].toString().trimRight();
+      }
+    }
 
     for (var operation in deltaOperations) {
       if (operation is! Map<String, dynamic>) continue;
@@ -74,9 +330,21 @@ class _RichTextRendererState extends State<RichTextRenderer> {
         text = text.replaceAll('\\n', '\n');
       }
 
+      // Usuwamy dodatkowe entery z końca tekstu
+      if (operation == deltaOperations.last) {
+        text = text.trimRight();
+      }
+
       // Pozyskiwanie atrybutów formatowania
       Map<String, dynamic>? attributes =
           operation['attributes'] as Map<String, dynamic>?;
+
+      // Jeśli nie ma atrybutu header w tym fragmencie, a jest w paragrafie, kopiujemy go
+      if ((attributes == null || !attributes.containsKey('header')) &&
+          paragraphAttributes != null &&
+          paragraphAttributes['header'] != null) {
+        attributes = {...?attributes, 'header': paragraphAttributes['header']};
+      }
 
       // Tworzenie stylu tekstu na podstawie atrybutów
       TextStyle style = _buildTextStyle(attributes);
@@ -88,7 +356,7 @@ class _RichTextRendererState extends State<RichTextRenderer> {
   }
 
   TextStyle _buildTextStyle(Map<String, dynamic>? attributes) {
-    TextStyle style = const TextStyle(color: Colors.white, fontSize: 16.0);
+    TextStyle style = const TextStyle(color: Colors.white, fontSize: 20.0);
 
     if (attributes == null) return style;
 
@@ -159,30 +427,22 @@ class _RichTextRendererState extends State<RichTextRenderer> {
               ? attributes['header']
               : int.tryParse(attributes['header'].toString()) ?? 0;
 
-      double fontSize = 16.0;
-      FontWeight fontWeight = FontWeight.normal;
+      double fontSize = 20.0;
+      FontWeight fontWeight = FontWeight.bold;
 
       switch (headerLevel) {
         case 1:
-          fontSize = 32.0;
-          fontWeight = FontWeight.bold;
+          fontSize = 26.0;
           break;
         case 2:
-          fontSize = 28.0;
-          fontWeight = FontWeight.bold;
+          fontSize = 32.0;
           break;
         case 3:
-          fontSize = 24.0;
-          fontWeight = FontWeight.bold;
+          fontSize = 38.0;
           break;
-        case 4:
+        default:
           fontSize = 20.0;
-          fontWeight = FontWeight.bold;
-          break;
-        case 5:
-          fontSize = 18.0;
-          fontWeight = FontWeight.bold;
-          break;
+          fontWeight = FontWeight.normal;
       }
 
       style = style.copyWith(fontSize: fontSize, fontWeight: fontWeight);
@@ -193,12 +453,12 @@ class _RichTextRendererState extends State<RichTextRenderer> {
       String script = attributes['script'].toString();
       if (script == 'super') {
         style = style.copyWith(
-          fontSize: (style.fontSize ?? 16.0) * 0.8,
+          fontSize: (style.fontSize ?? 20.0) * 0.8,
           height: 0.5,
         );
       } else if (script == 'sub') {
         style = style.copyWith(
-          fontSize: (style.fontSize ?? 16.0) * 0.8,
+          fontSize: (style.fontSize ?? 20.0) * 0.8,
           height: 2.0,
         );
       }

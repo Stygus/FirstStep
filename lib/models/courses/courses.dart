@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'dart:math' as Math;
 import 'package:firststep/components/courses/courseCreatorPage.dart';
 import 'package:firststep/components/courses/showCourse.dart';
-import 'package:firststep/models/user.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -192,41 +190,120 @@ class CourseElementsList extends ChangeNotifier {
   int get rebuildCounter => _rebuildCounter;
 
   void addCourseElement(CourseElements element, int index) {
-    for (int i = index; i < courseElements.length; i++) {
-      courseElements[i].order = i + 1;
+    // Ustawiamy order elementu zgodnie z pozycją, gdzie ma być wstawiony
+    element.order = index;
+
+    // Przesuwamy order dla wszystkich elementów, które mają order >= index
+    for (int i = 0; i < courseElements.length; i++) {
+      if (courseElements[i].order >= index) {
+        courseElements[i].order += 1;
+      }
     }
 
+    // Dodajemy nowy element do listy
     courseElements.add(element);
+
+    // Sortujemy elementy według order, aby zachować poprawną kolejność
     courseElements.sort((a, b) => a.order.compareTo(b.order));
 
+    // Zapisujemy stan do historii
     courseElementsHistory[courseElementsHistory.length +
         1] = List<CourseElements>.from(courseElements);
+
+    // Zwiększamy licznik przebudowy, aby wymusić odświeżenie widgetów
+    _rebuildCounter++;
 
     notifyListeners();
   }
 
   void backToPreviousState() {
+    // Zwiększamy indeks historii, aby cofnąć się wstecz
     historyIndex++;
-    if (courseElementsHistory.isNotEmpty) {
-      courseElements =
-          courseElementsHistory[courseElementsHistory.length - historyIndex]!;
-      notifyListeners();
+
+    // Sprawdzamy, czy istnieje element historii o żądanym indeksie
+    final targetHistoryIndex = courseElementsHistory.length - historyIndex;
+
+    if (courseElementsHistory.isNotEmpty &&
+        courseElementsHistory.containsKey(targetHistoryIndex) &&
+        courseElementsHistory[targetHistoryIndex] != null) {
+      // Bezpieczne pobranie elementu z historii
+      final historicElements = courseElementsHistory[targetHistoryIndex];
+      if (historicElements != null && historicElements.isNotEmpty) {
+        courseElements = List<CourseElements>.from(historicElements);
+        _rebuildCounter++; // Zwiększamy licznik przebudowy
+        notifyListeners();
+      } else {
+        // Cofamy zmianę indeksu, ponieważ nie znaleźliśmy prawidłowej historii
+        historyIndex--;
+        debugPrint(
+          'Nie znaleziono poprawnej historii dla indeksu $targetHistoryIndex',
+        );
+      }
+    } else {
+      // Cofamy zmianę indeksu, ponieważ przekroczyliśmy zakres dostępnej historii
+      historyIndex--;
+      debugPrint(
+        'Przekroczono zakres historii: $historyIndex, max: ${courseElementsHistory.length}',
+      );
     }
   }
 
   void forwardToNextState() {
+    // Sprawdzamy, czy możemy przejść naprzód w historii
+    if (historyIndex <= 1) {
+      debugPrint('Już jesteśmy na najnowszym stanie historii');
+      return;
+    }
+
+    // Zmniejszamy indeks historii, aby przejść do przodu
     historyIndex--;
-    if (courseElementsHistory.isNotEmpty) {
-      courseElements =
-          courseElementsHistory[courseElementsHistory.length - historyIndex]!;
-      notifyListeners();
+
+    // Sprawdzamy, czy istnieje element historii o żądanym indeksie
+    final targetHistoryIndex = courseElementsHistory.length - historyIndex;
+
+    if (courseElementsHistory.isNotEmpty &&
+        courseElementsHistory.containsKey(targetHistoryIndex) &&
+        courseElementsHistory[targetHistoryIndex] != null) {
+      // Bezpieczne pobranie elementu z historii
+      final historicElements = courseElementsHistory[targetHistoryIndex];
+      if (historicElements != null && historicElements.isNotEmpty) {
+        courseElements = List<CourseElements>.from(historicElements);
+        _rebuildCounter++; // Zwiększamy licznik przebudowy
+        notifyListeners();
+      } else {
+        // Przywracamy poprzedni indeks, ponieważ nie znaleźliśmy prawidłowej historii
+        historyIndex++;
+        debugPrint(
+          'Nie znaleziono poprawnej historii dla indeksu $targetHistoryIndex',
+        );
+      }
+    } else {
+      // Przywracamy poprzedni indeks, ponieważ przekroczyliśmy zakres dostępnej historii
+      historyIndex++;
+      debugPrint('Nieprawidłowy indeks historii: $targetHistoryIndex');
     }
   }
 
   void undoAllChanges() {
-    courseElements = initialCourseElements.toList();
+    // Sprawdzamy, czy mamy początkowy stan do przywrócenia
+    if (initialCourseElements.isEmpty) {
+      debugPrint('Brak początkowego stanu do przywrócenia');
+      return;
+    }
+
+    // Przywracamy stan początkowy
+    courseElements = List<CourseElements>.from(initialCourseElements);
+
+    // Resetujemy historię
     courseElementsHistory.clear();
     courseElementsHistory[1] = List<CourseElements>.from(courseElements);
+
+    // Resetujemy indeks historii
+    historyIndex = 0;
+
+    // Zwiększamy licznik przebudowy
+    _rebuildCounter++;
+
     notifyListeners();
   }
 
@@ -308,7 +385,9 @@ class CourseElementsList extends ChangeNotifier {
         courseElements.sort((a, b) => a.order.compareTo(b.order));
         initialCourseElements = courseElements.toList();
         courseElementsHistory.clear();
-        courseElementsHistory = {1: courseElements};
+        courseElementsHistory[courseElementsHistory.length +
+            1] = List<CourseElements>.from(courseElements);
+
         isLoading = false;
         notifyListeners();
       } else {

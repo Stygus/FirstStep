@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StepusWidget extends ConsumerWidget {
   StepusWidget({super.key});
-  final TextEditingController? _promptControler = TextEditingController();
+  final TextEditingController _promptControler = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {

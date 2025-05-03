@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:math' as Math;
-
 import 'package:firststep/components/courses/RichTextFormatter.dart';
+import 'package:firststep/components/courses/addElementButton.dart';
 import 'package:firststep/components/courses/videoControls.dart';
 import 'package:firststep/models/courses/courses.dart';
 import 'package:firststep/providers/coursesProvider.dart';
@@ -16,7 +15,7 @@ import 'package:video_player/video_player.dart';
 // Funkcja pomocnicza do konwersji niepoprawnego formatu JSON do poprawnego
 
 class CourseCreator extends ConsumerStatefulWidget {
-  CourseCreator({super.key});
+  const CourseCreator({super.key});
 
   @override
   ConsumerState<CourseCreator> createState() => _CourseCreatorState();
@@ -98,55 +97,55 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
                 itemBuilder: (context, index) {
                   final element = courseElements.courseElements[index];
 
-                  // Obsługa pojedynczego elementu
                   return Stack(
                     key: ValueKey(
                       'course_element_${element.id}_${courseElements.rebuildCounter}',
                     ),
                     children: [
                       // Dodaj przycisk do usuwania elementu
-                      Positioned(
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            // Dodaj logikę usuwania elementu
-                            courseElements.removeCourseElement(element.id);
-
-                            // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
-                            _CourseElementWidgetState.resetVideoControllers();
-                          },
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                        child: Column(
+                          children: [
+                            Card(
+                              color: const Color.fromARGB(22, 45, 45, 45),
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 16,
+                              ),
+                              child: CourseElementWidget(
+                                key: ValueKey(
+                                  'widget_${element.id}_${courseElements.rebuildCounter}',
+                                ),
+                                courseElements: element,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                        child: Card(
-                          color: const Color.fromARGB(22, 45, 45, 45),
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 16,
-                          ),
-                          child: CourseElementWidget(
-                            key: ValueKey(
-                              'widget_${element.id}_${courseElements.rebuildCounter}',
-                            ),
-                            courseElements: element,
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        right: 0,
+                        child: Center(
+                          child: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              // Dodaj logikę usuwania elementu
+                              courseElements.removeCourseElement(element.id);
+
+                              // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
+                              _CourseElementWidgetState.resetVideoControllers();
+                            },
                           ),
                         ),
                       ),
                     ],
                   );
-                  // Obsługa grupy elementów tekstowych
                 },
                 itemCount: courseElements.courseElements.length,
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Dodaj logikę dodawania nowego elementu
-              },
-              child: const Text('Dodaj nowy element'),
             ),
           ],
         ),
@@ -155,24 +154,26 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
   }
 }
 
-class CourseElementWidget extends StatefulWidget {
+class CourseElementWidget extends ConsumerStatefulWidget {
   const CourseElementWidget({super.key, required this.courseElements});
   final CourseElements courseElements;
 
   @override
-  State<CourseElementWidget> createState() => _CourseElementWidgetState();
+  ConsumerState<CourseElementWidget> createState() =>
+      _CourseElementWidgetState();
 }
 
-class _CourseElementWidgetState extends State<CourseElementWidget> {
+class _CourseElementWidgetState extends ConsumerState<CourseElementWidget> {
   String action = '';
   final FocusNode _focusNode = FocusNode();
   late TextEditingController _textController;
   final QuillController _controller = QuillController.basic();
   VideoPlayerController? _videoPlayerController;
   bool _isVideoInitialized = false;
-  // Dodajemy unikalny identyfikator dla każdego widżetu wideo
-  final String _videoId = DateTime.now().millisecondsSinceEpoch.toString();
-
+  bool hovering = false;
+  bool hoveringTop =
+      false; // Dodana zmienna do śledzenia najechania na górny obszar
+  bool hoveringBottom = false; // Dodana zmienna do śledzenia na dolny obszar
   // Statyczna mapa do przechowywania kontrolerów wideo
   static final Map<String, VideoPlayerController> _videoControllers = {};
 
@@ -206,18 +207,46 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
     });
   }
 
+  void _setHeaderSelectionFromDoc() {
+    final delta = _controller.document.toDelta().toJson();
+    int offset = 0;
+    for (final op in delta) {
+      if (op is Map &&
+          op['attributes'] != null &&
+          op['attributes']['header'] != null) {
+        // Ustaw selection na początek tego nagłówka
+        _controller.updateSelection(
+          TextSelection.collapsed(offset: offset),
+          ChangeSource.local,
+        );
+        // Ustaw styl nagłówka
+        // Get the header level from the delta
+        final int headerLevel = op['attributes']['header'];
+        // Apply the correct header attribute based on the level
+        if (headerLevel == 1) {
+          _controller.formatSelection(Attribute.h1);
+        } else if (headerLevel == 2) {
+          _controller.formatSelection(Attribute.h2);
+        } else if (headerLevel == 3) {
+          _controller.formatSelection(Attribute.h3);
+        }
+        break;
+      }
+      if (op is Map && op['insert'] is String) {
+        offset += (op['insert'] as String).length;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController(
       text: widget.courseElements.content,
     );
-    // Dodanie listenera do kontrolera tekstu
     _textController.addListener(() {
       widget.courseElements.content = _textController.text;
     });
-
-    // Próba ustawienia treści dla edytora QuillEditor
     if (widget.courseElements.type == 'TEXT') {
       try {
         final json = widget.courseElements.content;
@@ -226,8 +255,17 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
         debugPrint('Błąd przy ustawianiu treści QuillEditor: $e');
       }
     }
-
-    // Inicjalizacja kontrolera wideo tutaj, a nie w didChangeDependencies
+    if (widget.courseElements.type == 'HEADER') {
+      try {
+        final json = widget.courseElements.content;
+        _controller.document = Document.fromJson(jsonDecode(json));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _setHeaderSelectionFromDoc();
+        });
+      } catch (e) {
+        debugPrint('Błąd przy ustawianiu treści QuillEditor: $e');
+      }
+    }
     if (widget.courseElements.type == 'VIDEO') {
       _initializeVideoPlayer();
     }
@@ -374,34 +412,73 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final courseElements = ref.watch(courseElementsProvider);
+
     switch (widget.courseElements.type) {
       case 'VIDEO':
         // Standardowa obsługa dla prawidłowego pliku wideo
         if (_videoPlayerController == null || !_isVideoInitialized) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(
-                    'Ładowanie wideo...',
-                    style: TextStyle(color: Colors.white),
+          return MouseRegion(
+            onEnter: (_) => setState(() => hovering = true),
+            onExit: (_) => setState(() => hovering = false),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add, color: Colors.blue),
+                  onPressed: () {},
+                ),
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text(
+                          'Ładowanie wideo...',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }
         // Kontynuacja tylko jeśli kontroler jest zainicjalizowany
-        return SingleChildScrollView(
+        return IntrinsicWidth(
           child: Column(
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(20),
-                height: 500, // Dodana stała wysokość 300 pikseli
+              // Górny przycisk dodawania przed elementem - osobny MouseRegion zamiast InkWell
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() => hoveringTop = true);
+                },
+                onExit: (_) {
+                  setState(() => hoveringTop = false);
+                },
+                child: SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child:
+                      hoveringTop
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder: widget.courseElements.order,
+                              courseId: widget.courseElements.courseId,
+                            ),
+                          )
+                          : const SizedBox(),
+                ),
+              ),
+
+              SizedBox(
+                width: 500,
                 child: AspectRatio(
                   aspectRatio: _videoPlayerController!.value.aspectRatio,
                   child: Stack(
@@ -424,428 +501,673 @@ class _CourseElementWidgetState extends State<CourseElementWidget> {
                   ),
                 ),
               ),
+              // Dodajemy przycisk do dodawania elementu poniżej wideo
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() => hovering = true);
+                },
+                onExit: (_) {
+                  setState(() => hovering = false);
+                },
+                child: SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child:
+                      hovering
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder:
+                                  widget.courseElements.order + 1,
+                              courseId: widget.courseElements.courseId,
+                            ),
+                          )
+                          : const SizedBox(),
+                ),
+              ),
             ],
           ),
         );
 
       case 'HEADER':
-        return Focus(
-          onKeyEvent: (node, event) {
-            if (event is KeyDownEvent &&
-                event.logicalKey == LogicalKeyboardKey.enter &&
-                action == 'edit') {
-              setState(() {
-                widget.courseElements.style?.fontSize =
-                    widget.courseElements.style?.fontSize ?? 24.0;
-                action = '';
-              });
-              return KeyEventResult.handled;
-            }
-            return KeyEventResult.ignored;
-          },
-          child: GestureDetector(
-            onDoubleTap: action == 'edit' ? null : () => changeAction('edit'),
-            child: switch (action) {
-              'edit' => Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                // Wyświetl bottom sheet z wyborem koloru
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: const Color.fromARGB(
-                                    255,
-                                    45,
-                                    45,
-                                    45,
-                                  ),
-                                  builder: (BuildContext context) {
-                                    return DraggableScrollableSheet(
-                                      initialChildSize: 0.6,
-                                      minChildSize: 0.3,
-                                      maxChildSize: 0.9,
-                                      expand: false,
-                                      builder: (context, scrollController) {
-                                        return Column(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                16.0,
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    'Wybierz kolor',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.check,
-                                                      color: Colors.white,
-                                                    ),
-                                                    onPressed:
-                                                        () =>
-                                                            Navigator.of(
-                                                              context,
-                                                            ).pop(),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const Divider(color: Colors.grey),
-                                            Expanded(
-                                              child: SingleChildScrollView(
-                                                controller: scrollController,
-                                                child: colorPicker.ColorPicker(
-                                                  pickerColor:
-                                                      widget
-                                                          .courseElements
-                                                          .style
-                                                          ?.color ??
-                                                      Colors.white,
-                                                  onColorChanged: (
-                                                    Color color,
-                                                  ) {
-                                                    setState(() {
-                                                      widget
-                                                          .courseElements
-                                                          .style
-                                                          ?.color = color;
-                                                    });
-                                                  },
-                                                  pickerAreaHeightPercent: 0.7,
-                                                  enableAlpha: true,
-                                                  labelTypes: const [],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                              icon: Icon(
-                                Icons.circle,
-                                color:
-                                    widget.courseElements.style?.color ??
-                                    Colors.white,
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width,
+          ),
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                // Górny przycisk dodawania przed elementem - osobny MouseRegion zamiast InkWell
+                MouseRegion(
+                  onEnter: (_) {
+                    setState(() => hoveringTop = true);
+                  },
+                  onExit: (_) {
+                    setState(() => hoveringTop = false);
+                  },
+                  child: SizedBox(
+                    height: 40,
+                    width: double.infinity,
+                    child:
+                        hoveringTop
+                            ? Center(
+                              child: AddElement(
+                                courseElementOrder: widget.courseElements.order,
+                                courseId: widget.courseElements.courseId,
                               ),
-                            ),
-                            const Text(
-                              'fontSize',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            Slider(
-                              value:
-                                  widget.courseElements.style?.fontSize ?? 24.0,
-                              min: 10.0,
-                              max: 100.0,
-                              onChanged: (value) {
-                                setState(() {
-                                  widget.courseElements.style?.fontSize =
-                                      value.roundToDouble();
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              width: 40,
-                              child: TextField(
-                                cursorColor: Colors.white,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: const InputDecoration(
-                                  hintText: 'fontSize',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  border: InputBorder.none,
-                                ),
-                                controller: TextEditingController(
-                                  text:
-                                      widget.courseElements.style?.fontSize
-                                          .toString() ??
-                                      '24.0',
-                                ),
-                                onSubmitted: (value) {
-                                  setState(() {
-                                    widget.courseElements.style?.fontSize =
-                                        double.tryParse(value) ?? 24.0;
-                                    action = '';
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        ToggleButtons(
-                          fillColor: const Color.fromARGB(129, 41, 255, 77),
-                          selectedColor: const Color.fromARGB(129, 255, 41, 41),
-                          color: Colors.grey,
-                          isSelected: [
-                            widget.courseElements.style?.isBold ?? false,
-                            widget.courseElements.style?.isItalic ?? false,
-                            widget.courseElements.style?.isUnderline ?? false,
-                          ],
-                          onPressed: (index) {
-                            setState(() {
-                              switch (index) {
-                                case 0:
-                                  widget.courseElements.style?.isBold =
-                                      !(widget.courseElements.style?.isBold ??
-                                          false);
-                                  break;
-                                case 1:
-                                  widget.courseElements.style?.isItalic =
-                                      !(widget.courseElements.style?.isItalic ??
-                                          false);
-                                  break;
-                                case 2:
-                                  widget.courseElements.style?.isUnderline =
-                                      !(widget
-                                              .courseElements
-                                              .style
-                                              ?.isUnderline ??
-                                          false);
-                                  break;
-                              }
-                            });
-                          },
-                          children: const [
-                            Icon(Icons.format_bold, color: Colors.white),
-                            Icon(Icons.format_italic, color: Colors.white),
-                            Icon(Icons.format_underline, color: Colors.white),
-                          ],
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.check, color: Colors.green),
-                          onPressed: () {
-                            setState(() {
-                              action = '';
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+                            )
+                            : const SizedBox(),
                   ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: RawKeyboardListener(
-                      focusNode: _focusNode,
-                      onKey: handleKeyEvent,
-                      child: TextField(
-                        maxLength: null,
-                        maxLines: null,
-                        cursorColor: Colors.white,
-                        autofocus: true,
-                        controller: _textController,
-                        style: TextStyle(
-                          decorationColor:
-                              widget.courseElements.style?.color ??
-                              Colors.white,
-
-                          fontSize:
-                              widget.courseElements.style?.fontSize ?? 24.0,
-                          fontWeight:
-                              widget.courseElements.style?.isBold ?? false
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                          color:
-                              widget.courseElements.style?.color ??
-                              Colors.white,
-                          fontStyle:
-                              widget.courseElements.style?.isItalic ?? false
-                                  ? FontStyle.italic
-                                  : FontStyle.normal,
-                          decoration:
-                              widget.courseElements.style?.isUnderline ?? false
-                                  ? TextDecoration.underline
-                                  : null,
-                        ),
-                        onSubmitted: (value) {
-                          setState(() {
-                            action = '';
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              _ => Text(
-                widget.courseElements.content,
-                style: TextStyle(
-                  fontSize: widget.courseElements.style?.fontSize ?? 24.0,
-                  decorationStyle: TextDecorationStyle.solid,
-                  decorationColor:
-                      widget.courseElements.style?.color ?? Colors.white,
-                  fontWeight:
-                      widget.courseElements.style?.isBold ?? false
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                  color: widget.courseElements.style?.color ?? Colors.white,
-                  fontStyle:
-                      widget.courseElements.style?.isItalic ?? false
-                          ? FontStyle.italic
-                          : FontStyle.normal,
-                  decoration:
-                      widget.courseElements.style?.isUnderline ?? false
-                          ? TextDecoration.underline
-                          : null,
                 ),
-              ),
-            },
+
+                // Zawartość nagłówka z obsługą double tap - teraz jak w TEXT używamy QuillEditor
+                IntrinsicWidth(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: GestureDetector(
+                      onDoubleTap: () {
+                        setState(() {
+                          try {
+                            _controller.document = Document.fromJson(
+                              jsonDecode(widget.courseElements.content),
+                            );
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _setHeaderSelectionFromDoc();
+                            });
+                          } catch (e) {
+                            _controller.document = Document();
+                            _controller.document.insert(
+                              0,
+                              widget.courseElements.content,
+                            );
+                            debugPrint(
+                              'Inicjalizacja QuillEditor dla nagłówka: ${widget.courseElements.content}',
+                            );
+                          }
+                          action = 'edit-header';
+                        });
+                      },
+                      child:
+                          action == 'edit-header'
+                              ? SizedBox(
+                                // Dodajemy określoną wysokość dla kontenera edytora - mniejsza niż dla TEXT
+                                height:
+                                    MediaQuery.of(context).size.height * 0.4,
+                                child: Column(
+                                  children: [
+                                    // Pasek narzędzi do formatowania nagłówka - uproszczona wersja dla nagłówków
+                                    QuillSimpleToolbar(
+                                      controller: _controller,
+                                      config: QuillSimpleToolbarConfig(
+                                        headerStyleType:
+                                            HeaderStyleType.buttons,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          0,
+                                          0,
+                                          0,
+                                        ),
+                                        showInlineCode: false,
+                                        showSuperscript: false,
+                                        showFontFamily: false,
+                                        showSubscript: false,
+                                        showHeaderStyle:
+                                            true, // Wyłączamy style nagłówków w nagłówku
+                                        showFontSize:
+                                            false, // Pozostawiamy rozmiar czcionki
+                                        showAlignmentButtons: true,
+                                        showBackgroundColorButton: false,
+                                        showListBullets:
+                                            false, // Wyłączamy listy w nagłówku
+                                        showListCheck: false,
+                                        showListNumbers: false,
+                                        showCodeBlock: false,
+                                        showQuote: false,
+                                        showSearchButton: false,
+                                        showColorButton: true, // Kolor tekstu
+                                        showBoldButton: true, // Pogrubienie
+                                        showItalicButton: true, // Kursywa
+                                        showUnderLineButton:
+                                            true, // Podkreślenie
+                                        showStrikeThrough: false,
+                                        showClearFormat: true,
+                                        multiRowsDisplay:
+                                            false, // Jedna linia narzędzi
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                            255,
+                                            30,
+                                            30,
+                                            30,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade700,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: QuillEditor(
+                                          controller: _controller,
+                                          scrollController: ScrollController(),
+                                          focusNode: _focusNode,
+                                          config: QuillEditorConfig(
+                                            autoFocus: true,
+                                            expands: false,
+                                            padding: EdgeInsets.zero,
+                                            enableSelectionToolbar: true,
+                                            enableInteractiveSelection: true,
+                                            // Używamy DefaultStyles własnych definicji
+                                            customStyles: DefaultStyles(
+                                              h1: DefaultTextBlockStyle(
+                                                TextStyle(
+                                                  fontSize: 26,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(8, 0),
+                                                const VerticalSpacing(0, 8),
+                                                const BoxDecoration(),
+                                              ),
+                                              h2: DefaultTextBlockStyle(
+                                                TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(6, 0),
+                                                const VerticalSpacing(0, 6),
+                                                const BoxDecoration(),
+                                              ),
+                                              h3: DefaultTextBlockStyle(
+                                                TextStyle(
+                                                  fontSize: 38,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(4, 0),
+                                                const VerticalSpacing(0, 4),
+                                                const BoxDecoration(),
+                                              ),
+                                              paragraph: DefaultTextBlockStyle(
+                                                TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                const HorizontalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const VerticalSpacing(0, 0),
+                                                const BoxDecoration(),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    OverflowBar(
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              action = '';
+                                            });
+                                          },
+                                          child: const Text(
+                                            'Anuluj',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            try {
+                                              // Zapisz treść JSON edytora do widget.courseElements.content
+                                              final json = jsonEncode(
+                                                _controller.document
+                                                    .toDelta()
+                                                    .toJson(),
+                                              );
+
+                                              // Aktualizacja stylów nagłówka na podstawie formatowania
+                                              final plainText =
+                                                  _controller.document
+                                                      .toPlainText()
+                                                      .trim();
+
+                                              setState(() {
+                                                widget.courseElements.content =
+                                                    json;
+
+                                                // Zachowujemy również poprzednie style
+                                                if (widget
+                                                        .courseElements
+                                                        .style !=
+                                                    null) {
+                                                  // Style aktualizujemy tylko jeśli już istnieją
+                                                  // Font size zostaje bez zmian, bo jest kontrolowany osobno
+                                                }
+
+                                                action = '';
+                                              });
+                                            } catch (e) {
+                                              debugPrint(
+                                                'Błąd zapisywania nagłówka: $e',
+                                              );
+                                              // W przypadku błędu, zachowujemy przynajmniej tekst
+                                              setState(() {
+                                                widget.courseElements.content =
+                                                    _controller.document
+                                                        .toPlainText()
+                                                        .trim();
+                                                action = '';
+                                              });
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                          ),
+                                          child: const Text(
+                                            'Zapisz',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                              : SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: () {
+                                  try {
+                                    // Próbujemy wyrenderować jako RichText jeśli treść jest w JSON
+                                    return RichTextRenderer(
+                                      jsonContent:
+                                          widget.courseElements.content,
+                                    );
+                                  } catch (e) {
+                                    // Jeśli nie jest w formacie JSON, wyświetlamy jako zwykły tekst
+                                    // używając IntrinsicWidth, aby tekst miał szerokość dopasowaną do zawartości
+                                    return IntrinsicWidth(
+                                      child: Text(
+                                        widget.courseElements.content,
+                                        style: TextStyle(
+                                          fontSize:
+                                              widget
+                                                  .courseElements
+                                                  .style
+                                                  ?.fontSize ??
+                                              24.0,
+                                          fontWeight:
+                                              widget
+                                                          .courseElements
+                                                          .style
+                                                          ?.isBold ??
+                                                      true
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                          color:
+                                              widget
+                                                  .courseElements
+                                                  .style
+                                                  ?.color ??
+                                              Colors.white,
+                                          fontStyle:
+                                              widget
+                                                          .courseElements
+                                                          .style
+                                                          ?.isItalic ??
+                                                      false
+                                                  ? FontStyle.italic
+                                                  : FontStyle.normal,
+                                          decoration:
+                                              widget
+                                                          .courseElements
+                                                          .style
+                                                          ?.isUnderline ??
+                                                      false
+                                                  ? TextDecoration.underline
+                                                  : null,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }(),
+                              ),
+                    ),
+                  ),
+                ),
+
+                // Dolny przycisk dodawania po elemencie - osobny MouseRegion zamiast InkWell
+                MouseRegion(
+                  onEnter: (_) {
+                    setState(() => hoveringBottom = true);
+                  },
+                  onExit: (_) {
+                    setState(() => hoveringBottom = false);
+                  },
+                  child: SizedBox(
+                    height: 40,
+                    width: double.infinity,
+                    child:
+                        hoveringBottom
+                            ? Center(
+                              child: AddElement(
+                                courseElementOrder:
+                                    widget.courseElements.order + 1,
+                                courseId: widget.courseElements.courseId,
+                              ),
+                            )
+                            : const SizedBox(),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       case 'TEXT':
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            onDoubleTap: () {
-              // Umożliwia edycję tekstu po podwójnym kliknięciu
-              setState(() {
-                action = 'edit-rich-text';
-              });
-            },
-            child:
-                action == 'edit-rich-text'
-                    ? SizedBox(
-                      // Dodajemy określoną wysokość dla kontenera edytora
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: Column(
-                        children: [
-                          // Pasek narzędzi do formatowania tekstu
-                          QuillSimpleToolbar(
-                            controller: _controller,
-                            config: QuillSimpleToolbarConfig(
-                              showInlineCode: false,
-                              showSuperscript: false,
-                              showFontFamily: false,
-                              showSubscript: false,
-                              showHeaderStyle: false,
-                              showFontSize: true,
-                              showAlignmentButtons: true,
-                              showBackgroundColorButton: true,
-                              showListBullets: true,
-                              showListCheck: true,
-                              showListNumbers: true,
-                              // showSearchButton: true,
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width,
+          ),
+          child: Column(
+            children: [
+              // Górny przycisk dodawania przed elementem - osobny MouseRegion zamiast InkWell
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() => hoveringTop = true);
+                },
+                onExit: (_) {
+                  setState(() => hoveringTop = false);
+                },
+                child: SizedBox(
+                  height: 40,
+                  width: double.infinity,
+                  child:
+                      hoveringTop
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder: widget.courseElements.order,
+                              courseId: widget.courseElements.courseId,
+                            ),
+                          )
+                          : const SizedBox(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    // Umożliwia edycję tekstu po podwójnym kliknięciu
+                    setState(() {
+                      action = 'edit-rich-text';
+                    });
+                  },
+                  child:
+                      action == 'edit-rich-text'
+                          ? SizedBox(
+                            // Dodajemy określoną wysokość dla kontenera edytora
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Column(
+                              children: [
+                                // Pasek narzędzi do formatowania tekstu
+                                QuillSimpleToolbar(
+                                  controller: _controller,
+                                  config: QuillSimpleToolbarConfig(
+                                    showInlineCode: false,
+                                    showSuperscript: false,
+                                    showFontFamily: false,
+                                    showSubscript: false,
+                                    showHeaderStyle: false,
+                                    showFontSize: true,
+                                    showAlignmentButtons: true,
+                                    showBackgroundColorButton: true,
+                                    showListBullets: true,
+                                    showListCheck: true,
+                                    showListNumbers: true,
+                                    // showSearchButton: true,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        30,
+                                        30,
+                                        30,
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.grey.shade700,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: QuillEditor(
+                                      controller: _controller,
+                                      scrollController: ScrollController(),
+                                      focusNode: FocusNode(),
+                                      config: QuillEditorConfig(
+                                        autoFocus: true,
+                                        expands: false,
+
+                                        padding: EdgeInsets.zero,
+                                        enableSelectionToolbar: true,
+                                        enableInteractiveSelection: true,
+                                        customStyles: DefaultStyles(
+                                          // Ustawienie zerowego marginesu na końcu paragrafów
+                                          paragraph: DefaultTextBlockStyle(
+                                            const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.white,
+                                            ),
+                                            const HorizontalSpacing(0, 0),
+                                            const VerticalSpacing(0, 0),
+                                            const VerticalSpacing(0, 0),
+                                            const BoxDecoration(
+                                              color: Colors.transparent,
+                                            ),
+                                          ),
+                                          // Usuwamy dodatkową przestrzeń na końcu dokumentu
+                                          lists: DefaultListBlockStyle(
+                                            const TextStyle(
+                                              fontSize: 14.0,
+                                              color: Colors.white,
+                                            ),
+                                            const HorizontalSpacing(0, 0),
+                                            const VerticalSpacing(0, 0),
+                                            const VerticalSpacing(0, 0),
+                                            null,
+                                            null,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                OverflowBar(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          action = '';
+                                        });
+                                      },
+                                      child: const Text(
+                                        'Anuluj',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // Zapisz treść JSON edytora do widget.courseElements.content
+                                        final json = jsonEncode(
+                                          _controller.document
+                                              .toDelta()
+                                              .toJson(),
+                                        );
+                                        setState(() {
+                                          widget.courseElements.content = json;
+                                          action = '';
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                      ),
+                                      child: const Text(
+                                        'Zapisz',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                          : SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: RichTextRenderer(
+                              jsonContent: widget.courseElements.content,
                             ),
                           ),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 30, 30, 30),
-                                border: Border.all(color: Colors.grey.shade700),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              padding: const EdgeInsets.all(8.0),
-                              child: QuillEditor(
-                                controller: _controller,
-                                scrollController: ScrollController(),
-                                focusNode: FocusNode(),
-                                config: QuillEditorConfig(
-                                  autoFocus: true,
-                                  expands: false,
-                                  padding: EdgeInsets.zero,
-                                  enableSelectionToolbar: true,
-                                  enableInteractiveSelection: true,
-                                ),
-                              ),
+                ),
+              ),
+              // Dolny przycisk dodawania po elemencie - osobny MouseRegion zamiast InkWell
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() => hoveringBottom = true);
+                },
+                onExit: (_) {
+                  setState(() => hoveringBottom = false);
+                },
+                child: SizedBox(
+                  height: 40,
+                  width: double.infinity,
+                  child:
+                      hoveringBottom
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder:
+                                  widget.courseElements.order + 1,
+                              courseId: widget.courseElements.courseId,
                             ),
-                          ),
-                          OverflowBar(
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    action = '';
-                                  });
-                                },
-                                child: const Text(
-                                  'Anuluj',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Zapisz treść JSON edytora do widget.courseElements.content
-                                  final json = jsonEncode(
-                                    _controller.document.toDelta().toJson(),
-                                  );
-                                  setState(() {
-                                    widget.courseElements.content = json;
-                                    action = '';
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                ),
-                                child: const Text('Zapisz'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                    : RichTextRenderer(
-                      jsonContent: widget.courseElements.content,
-                    ),
+                          )
+                          : const SizedBox(),
+                ),
+              ),
+            ],
           ),
         );
       case 'IMAGE':
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
+        // Kompletnie nowa implementacja dla obrazów z użyciem ConstrainedBox zamiast IntrinsicWidth
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.courseElements.additionalData.containsKey('caption') &&
-                  widget.courseElements.additionalData['caption'] != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    widget.courseElements.additionalData['caption'],
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
+              // Górny przycisk dodawania
+              MouseRegion(
+                onEnter: (_) => setState(() => hoveringTop = true),
+                onExit: (_) => setState(() => hoveringTop = false),
+                child: SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child:
+                      hoveringTop
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder: widget.courseElements.order,
+                              courseId: widget.courseElements.courseId,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
                 ),
-              Image.network(
-                widget.courseElements.content,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: double.infinity,
-                    height: 150,
-                    color: Colors.grey[700],
-                    child: const Center(
-                      child: Icon(Icons.error, color: Colors.red),
+              ),
+
+              // Zawartość obrazu
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Column(
+                  children: [
+                    if (widget.courseElements.additionalData.containsKey(
+                          'caption',
+                        ) &&
+                        widget.courseElements.additionalData['caption'] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          widget.courseElements.additionalData['caption'],
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        widget.courseElements.content,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 300,
+                            height: 150,
+                            color: Colors.grey[700],
+                            child: const Center(
+                              child: Icon(Icons.error, color: Colors.red),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            width: 300,
+                            height: 150,
+                            color: Colors.grey[800],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    width: double.infinity,
-                    height: 150,
-                    color: Colors.grey[800],
-                    child: const Center(child: CircularProgressIndicator()),
-                  );
-                },
+                  ],
+                ),
+              ),
+
+              // Dolny przycisk dodawania
+              MouseRegion(
+                onEnter: (_) => setState(() => hoveringBottom = true),
+                onExit: (_) => setState(() => hoveringBottom = false),
+                child: SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child:
+                      hoveringBottom
+                          ? Center(
+                            child: AddElement(
+                              courseElementOrder:
+                                  widget.courseElements.order + 1,
+                              courseId: widget.courseElements.courseId,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+                ),
               ),
             ],
           ),

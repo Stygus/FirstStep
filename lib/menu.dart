@@ -1,9 +1,6 @@
-import 'package:firststep/webview_page.dart';
 import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rive/rive.dart' as rive;
-import 'dart:math' as math;
 import 'rko.dart';
 import 'apteczka.dart';
 import 'kursy.dart';

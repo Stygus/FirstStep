@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:firststep/main_web.dart';
 import 'package:firststep/models/courses/courses.dart';
+import 'package:firststep/models/files.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/gestures.dart';
@@ -175,19 +176,8 @@ class _AppPageState extends ConsumerState<AppPage> {
               leading: Icon(Icons.settings),
               title: Text('Settings', style: TextStyle(color: Colors.white)),
               onTap: () async {
-                // Navigator.pop(context);
-
-                final courses = ref.read(coursesProvider);
-                try {
-                  await courses.getAllCoursesFromApi(
-                    await user.getToken() ?? '',
-                    user.nickname,
-                  );
-                  debugPrint('Courses: ${courses.courses.length}');
-                } catch (e, stack) {
-                  debugPrint('Błąd pobierania kursów: $e');
-                  debugPrintStack(stackTrace: stack);
-                }
+                final file = FileList(files: [], ref: ref);
+                await file.fetchFiles();
               },
             ),
             ListTile(
