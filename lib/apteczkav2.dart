@@ -163,105 +163,121 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
                         : ListView.builder(
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8.0,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF1D1D1D),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // Zdjęcie elementu
-                                    _items[index]['image'] != null
-                                        ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8.0,
+                            return GestureDetector(
+                              onTap:
+                                  () => _viewItemDetails(
+                                    _items[index],
+                                  ), // Wyświetlanie szczegółów po kliknięciu
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0,
+                                ), // Zmniejszony odstęp między elementami
+                                child: Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF1D1D1D),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Zdjęcie elementu
+                                      _items[index]['image'] != null
+                                          ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              8.0,
+                                            ),
+                                            child: Image.asset(
+                                              _items[index]['image'],
+                                              width: 50,
+                                              height: 50,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )
+                                          : Icon(
+                                            Icons.image,
+                                            color: Colors.grey,
+                                            size: 50,
                                           ),
-                                          child: Image.asset(
-                                            _items[index]['image'],
-                                            width: 50,
-                                            height: 50,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                        : Icon(
-                                          Icons.image,
-                                          color: Colors.grey,
-                                          size: 50,
+                                      SizedBox(
+                                        width: 12,
+                                      ), // Zmniejszony odstęp między zdjęciem a tekstem
+                                      // Nazwa elementu i ilość
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _items[index]['name'],
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'Ilość: ${_items[index]['quantity'] ?? 1}',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                    SizedBox(width: 16),
-                                    // Nazwa elementu
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      ),
+                                      // Dodawanie i odejmowanie ilości
+                                      Row(
                                         children: [
-                                          Text(
-                                            _items[index]['name'],
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.remove,
+                                              color: Colors.red,
                                             ),
+                                            onPressed: () {
+                                              setState(() {
+                                                if (_items[index]['quantity'] >
+                                                    1) {
+                                                  _items[index]['quantity']--;
+                                                }
+                                              });
+                                            },
                                           ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Ilość: ${_items[index]['quantity'] ?? 1}',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 14,
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.add,
+                                              color: Colors.green,
                                             ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _items[index]['quantity'] =
+                                                    (_items[index]['quantity'] ??
+                                                        1) +
+                                                    1;
+                                              });
+                                            },
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    // Dodawanie i odejmowanie ilości
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.remove,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              if (_items[index]['quantity'] >
-                                                  1) {
-                                                _items[index]['quantity']--;
-                                              }
-                                            });
-                                          },
+                                      // Przycisk usuwania
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
                                         ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.add,
-                                            color: Colors.green,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              _items[index]['quantity'] =
-                                                  (_items[index]['quantity'] ??
-                                                      1) +
-                                                  1;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                    // Przycisk usuwania
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
+                                        onPressed: () => _removeItem(index),
                                       ),
-                                      onPressed: () => _removeItem(index),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -297,61 +313,64 @@ class ItemDetailsPage extends StatelessWidget {
         backgroundColor: Color(0xFF1D1D1D),
       ),
       backgroundColor: Color(0xFF101010),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Container(
+      body: SingleChildScrollView(
+        // Dodano przewijanie
+        child: Center(
+          child: Padding(
             padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Color(0xFF1D1D1D),
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border.all(color: Colors.red, width: 2.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(Icons.medical_services, color: Colors.red, size: 50),
-                SizedBox(height: 16),
-                item['image'] != null
-                    ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.asset(
-                        item['image'],
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                    : Icon(Icons.image, color: Colors.grey, size: 200),
-                SizedBox(height: 16),
-                Text(
-                  item['name'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Color(0xFF1D1D1D),
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(color: Colors.red, width: 2.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  item['description'],
-                  style: TextStyle(
-                    color: Colors.grey[300],
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.medical_services, color: Colors.red, size: 50),
+                  SizedBox(height: 16),
+                  item['image'] != null
+                      ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.asset(
+                          item['image'],
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                      : Icon(Icons.image, color: Colors.grey, size: 200),
+                  SizedBox(height: 16),
+                  Text(
+                    item['name'],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  SizedBox(height: 8),
+                  Text(
+                    item['description'],
+                    style: TextStyle(
+                      color: Colors.grey[300],
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
