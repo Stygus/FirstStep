@@ -1,6 +1,5 @@
 import 'package:firststep/menu.dart';
 import 'package:firststep/providers/animationsProvider.dart';
-import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

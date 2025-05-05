@@ -402,9 +402,7 @@ class _CourseElementWidgetState extends ConsumerState<CourseElementWidget> {
     final delta = _controller.document.toDelta().toJson();
     int offset = 0;
     for (final op in delta) {
-      if (op is Map &&
-          op['attributes'] != null &&
-          op['attributes']['header'] != null) {
+      if (op['attributes'] != null && op['attributes']['header'] != null) {
         // Ustaw selection na początek tego nagłówka
         _controller.updateSelection(
           TextSelection.collapsed(offset: offset),
@@ -423,7 +421,7 @@ class _CourseElementWidgetState extends ConsumerState<CourseElementWidget> {
         }
         break;
       }
-      if (op is Map && op['insert'] is String) {
+      if (op['insert'] is String) {
         offset += (op['insert'] as String).length;
       }
     }

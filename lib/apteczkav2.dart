@@ -752,7 +752,7 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${widget.selectedApteczka}',
+          widget.selectedApteczka,
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Color(0xFF1D1D1D),

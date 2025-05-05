@@ -18,94 +18,99 @@ class RkOpcje extends StatelessWidget {
           },
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              textAlign: TextAlign.center,
-              'Dorośli i starsze dzieci',
-              style: GoogleFonts.itim(
-                fontSize: 24,
-                fontWeight: FontWeight.values[4],
-                color: Colors.white,
+      // Dodajemy SingleChildScrollView, aby umożliwić przewijanie zawartości
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              SizedBox(height: 20), // Zmniejszony odstęp
+              Text(
+                textAlign: TextAlign.center,
+                'Dorośli i starsze dzieci',
+                style: GoogleFonts.itim(
+                  fontSize: 24,
+                  fontWeight: FontWeight.values[4],
+                  color: Colors.white,
+                ),
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RkOpcje()),
-                );
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double imageSize = constraints.maxWidth * 0.4;
-                  return Image.asset(
+              SizedBox(height: 10), // Zmniejszony odstęp
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RkOpcje()),
+                  );
+                },
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+                  ),
+                  child: Image.asset(
                     'assets/images/dorosli.png',
-                    height: imageSize,
-                    width: imageSize,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              SizedBox(height: 30), // Zmniejszony odstęp
+              Text(
+                textAlign: TextAlign.center,
+                'Dzieci do 5 roku życia',
+                style: GoogleFonts.itim(
+                  fontSize: 24,
+                  fontWeight: FontWeight.values[4],
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 10), // Zmniejszony odstęp
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RkOpcje()),
                   );
                 },
-              ),
-            ),
-            SizedBox(height: 65),
-            Text(
-              textAlign: TextAlign.center,
-              'Dzieci do 5 roku życia',
-              style: GoogleFonts.itim(
-                fontSize: 24,
-                fontWeight: FontWeight.values[4],
-                color: Colors.white,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RkOpcje()),
-                );
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double imageSize = constraints.maxWidth * 0.4;
-                  return Image.asset(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+                  ),
+                  child: Image.asset(
                     'assets/images/dzieckom.png',
-                    height: imageSize,
-                    width: imageSize,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              SizedBox(height: 30), // Zmniejszony odstęp
+              Text(
+                textAlign: TextAlign.center,
+                'Niemowlaki',
+                style: GoogleFonts.itim(
+                  fontSize: 24,
+                  fontWeight: FontWeight.values[4],
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 10), // Zmniejszony odstęp
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RkOpcje()),
                   );
                 },
-              ),
-            ),
-            SizedBox(height: 65),
-            Text(
-              textAlign: TextAlign.center,
-              'Niemowlaki',
-              style: GoogleFonts.itim(
-                fontSize: 24,
-                fontWeight: FontWeight.values[4],
-                color: Colors.white,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RkOpcje()),
-                );
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double imageSize = constraints.maxWidth * 0.4;
-                  return Image.asset(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+                  ),
+                  child: Image.asset(
                     'assets/images/niemowlak.png',
-                    height: imageSize,
-                    width: imageSize,
-                  );
-                },
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 20), // Dodany odstęp na końcu
+            ],
+          ),
         ),
       ),
     );

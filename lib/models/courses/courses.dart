@@ -343,7 +343,7 @@ class CourseElementsList extends ChangeNotifier {
 
     // WAŻNE: NIE aktualizujemy initialCourseElements, aby system wiedział, że nastąpiła zmiana
     // Sprawdzamy czy są różnice po dodaniu
-    debugPrint('hasChanges po dodaniu elementu: ${hasChanges}');
+    debugPrint('hasChanges po dodaniu elementu: $hasChanges');
 
     // Zwiększamy licznik przebudowy, aby wymusić odświeżenie widgetów
     _rebuildCounter++;
@@ -837,165 +837,216 @@ class CourseCard extends ConsumerWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Góra karty - tytuł i statystyki
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          course.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: 80, // Ograniczenie wysokości opisu
+                          ),
+                          child: Text(
+                            course.description,
+                            style: TextStyle(
+                              color: Colors.grey[300],
+                              fontSize: 14,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.visibility, color: Colors.white, size: 16),
+                          SizedBox(width: 4),
+                          Text(
+                            '${course.studentCount}',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.yellow, size: 16),
+                          SizedBox(width: 4),
+                          Text(
+                            '5.0', // Placeholder for ratings
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 16),
+
+              // Środek karty - informacje i przyciski
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Ustawiamy wyrównanie do góry
+                children: [
+                  // Lewa kolumna ze statusem i poziomem trudności
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        course.title,
+                        'Status',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                      ),
+                      Text(
+                        course.status,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+                          color: _getStatusColor(course.status),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        course.description,
-                        style: TextStyle(color: Colors.grey[300], fontSize: 14),
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
+                        'poziom trudności',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                      ),
+                      Text(
+                        course.difficultyLevel,
+                        style: TextStyle(
+                          color: _getDifficultyColor(course.difficultyLevel),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.visibility, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          '${course.studentCount}',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.yellow, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          '5.0', // Placeholder for ratings
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Status',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                    ),
-                    Text(
-                      course.status,
-                      style: TextStyle(
-                        color: _getStatusColor(course.status),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'poziom trudności',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                    ),
-                    Text(
-                      course.difficultyLevel,
-                      style: TextStyle(
-                        color: _getDifficultyColor(course.difficultyLevel),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        final courseProvider = ref.read(coursesProvider);
-                        final courseElements = ref.read(courseElementsProvider);
-                        final token = await ref.read(userProvider).getToken();
-                        courseElements.courseElements.clear();
 
-                        courseElements.getAllCourseElementsFromApi(
-                          token as String,
-                          course.id.toString(),
-                        );
-                        courseProvider.setSelectedCourse(course);
+                  // Prawa kolumna z przyciskami
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 110, // Stała szerokość przycisków
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final courseProvider = ref.read(coursesProvider);
+                            final courseElements = ref.read(
+                              courseElementsProvider,
+                            );
+                            final token =
+                                await ref.read(userProvider).getToken();
+                            courseElements.courseElements.clear();
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseCreator(),
+                            courseElements.getAllCourseElementsFromApi(
+                              token as String,
+                              course.id.toString(),
+                            );
+                            courseProvider.setSelectedCourse(course);
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CourseCreator(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                          child: Text(
+                            'Edytuj',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'Edytuj',
-                        style: TextStyle(color: Colors.white),
+                      SizedBox(height: 8),
+                      SizedBox(
+                        width: 110, // Stała szerokość przycisków
+                        child: ElevatedButton(
+                          onPressed: () => showCourse(ref, context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              0,
+                              136,
+                              0,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                          child: Text(
+                            'Podgląd',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 16),
+
+              // Dół karty - kategorie
+              SizedBox(
+                height: 30,
+                width: double.infinity,
+                child: ClipRect(
+                  child: OverflowBox(
+                    maxHeight: 30,
+                    alignment: Alignment.centerLeft,
+                    child: SingleChildScrollView(
+                      physics: NeverScrollableScrollPhysics(),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children:
+                            course.categories.isNotEmpty
+                                ? course.categories
+                                    .take(3) // Limitowanie do 3 kategorii
+                                    .map((cat) => _buildCategoryChip(cat.name))
+                                    .toList()
+                                : [_buildCategoryChip('Brak kategorii')],
                       ),
                     ),
-                    SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () => showCourse(ref, context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 0, 136, 0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                      ),
-                      child: Text(
-                        'Podgląd',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              children:
-                  course.categories.isNotEmpty
-                      ? course.categories
-                          .map((cat) => _buildCategoryChip(cat.name))
-                          .toList()
-                      : [_buildCategoryChip('Brak kategorii')],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

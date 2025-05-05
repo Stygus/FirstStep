@@ -167,10 +167,10 @@ class AddElement extends ConsumerWidget {
       },
       icon: const Icon(Icons.add, color: Colors.blue, size: 30),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(
+        backgroundColor: WidgetStateProperty.all<Color>(
           const Color.fromARGB(255, 26, 26, 26),
         ),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
             side: const BorderSide(color: Colors.blue, width: 2),
