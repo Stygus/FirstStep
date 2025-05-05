@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 
+final Map<String, List<Map<String, dynamic>>> defaultItems = {
+  'Apteczka górska': [
+    {'name': 'Plastry różnych rozmiarów', 'quantity': 30},
+    {'name': 'Sterylne gaziki', 'quantity': 10},
+    {'name': 'Sterylne kompresy (5×5 cm)', 'quantity': 5},
+    {'name': 'Sterylne kompresy (10×10 cm)', 'quantity': 2},
+    {'name': 'Bandaże elastyczne', 'quantity': 2},
+    {'name': 'Taśma sportowa', 'quantity': 1},
+    {'name': 'Chusta trójkątna', 'quantity': 1},
+    {'name': 'Nożyczki', 'quantity': 1},
+    {'name': 'Pęseta', 'quantity': 1},
+    {'name': 'Rękawiczki jednorazowe', 'quantity': 4},
+    {'name': 'Środek odkażający', 'quantity': 10},
+    {'name': 'Folia NRC', 'quantity': 1},
+    {'name': 'Gwizdek awaryjny', 'quantity': 1},
+    {'name': 'Leki przeciwbólowe', 'quantity': 10},
+    {'name': 'Lek na chorobę wysokościową', 'quantity': 5},
+    {'name': 'Tabletki na biegunkę', 'quantity': 5},
+    {'name': 'Maść przeciwzapalna', 'quantity': 1},
+    {'name': 'Notatnik + długopis', 'quantity': 1},
+  ],
+  'Apteczka plażowa': [
+    {'name': 'Krem chłodzący po oparzeniach', 'quantity': 1},
+    {'name': 'Plastry wodoodporne', 'quantity': 10},
+    {'name': 'Opatrunek hydrożelowy', 'quantity': 2},
+    {'name': 'Środek na ukąszenia owadów', 'quantity': 1},
+    {'name': 'Chusteczki odkażające', 'quantity': 10},
+    {'name': 'Leki przeciwbólowe', 'quantity': 6},
+    {'name': 'Krem z filtrem UV', 'quantity': 1},
+    {'name': 'Rękawiczki jednorazowe', 'quantity': 2},
+    {'name': 'Leki przeciwhistaminowe', 'quantity': 5},
+    {'name': 'Mała butelka wody', 'quantity': 1},
+    {'name': 'Plastry na pęcherze', 'quantity': 5},
+  ],
+  // Dodaj pozostałe apteczki w podobny sposób...
+};
+
 class ApteczkaV2Page extends StatefulWidget {
   final String selectedApteczka;
 
@@ -14,6 +51,17 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
   List<Map<String, dynamic>> _items = []; // Lista elementów apteczki
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Dodaj domyślne elementy dla wybranej apteczki
+    if (defaultItems.containsKey(widget.selectedApteczka)) {
+      _items = List<Map<String, dynamic>>.from(
+        defaultItems[widget.selectedApteczka]!,
+      );
+    }
+  }
 
   void _addItem(String name, String description) {
     setState(() {
