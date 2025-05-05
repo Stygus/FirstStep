@@ -319,6 +319,13 @@ class ItemDetailsPage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
+              width: double.infinity,
+              constraints: BoxConstraints(
+                minHeight:
+                    MediaQuery.of(context).size.height -
+                    AppBar().preferredSize.height -
+                    MediaQuery.of(context).padding.top,
+              ),
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Color(0xFF1D1D1D),
@@ -333,7 +340,6 @@ class ItemDetailsPage extends StatelessWidget {
                 ],
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.medical_services, color: Colors.red, size: 50),
@@ -343,8 +349,8 @@ class ItemDetailsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8.0),
                         child: Image.asset(
                           item['image'],
-                          width: 200,
-                          height: 200,
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          height: MediaQuery.of(context).size.width * 0.8,
                           fit: BoxFit.cover,
                         ),
                       )
