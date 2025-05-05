@@ -1,8 +1,8 @@
 import 'dart:math' as Math;
+import 'dart:convert';
 
 import 'package:firststep/components/courses/fileSelector.dart';
 import 'package:firststep/models/courses/courses.dart';
-import 'package:firststep/models/files.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,9 +77,10 @@ class AddElement extends ConsumerWidget {
                                 order:
                                     courseElementOrder, // Order elementu pozostaje taki jak pozycja wstawienia
                                 style: ElementsStyle(),
-                                id: Math.Random().nextInt(10000),
                                 type: 'TEXT',
-                                content: '{"ops":[{"insert":"\\n"}]}',
+                                content: jsonEncode([
+                                  {"insert": "Nowy tekst\n"},
+                                ]),
                                 courseId: courseId,
                               );
 
@@ -109,8 +110,9 @@ class AddElement extends ConsumerWidget {
                                 style: ElementsStyle(),
                                 id: Math.Random().nextInt(10000),
                                 type: 'HEADER',
-                                content:
-                                    '{"ops":[{"insert":"Nowy nagłówek","attributes":{"header":1}},{"insert":"\\n"}]}',
+                                content: jsonEncode([
+                                  {"insert": "Nowy nagłówek\n"},
+                                ]),
                                 courseId: courseId,
                               );
 

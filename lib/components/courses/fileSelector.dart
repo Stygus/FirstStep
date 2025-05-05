@@ -1,8 +1,15 @@
 import 'package:firststep/models/files.dart';
 import 'package:firststep/providers/coursesProvider.dart';
+import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:io' as io; // Alias dla dart:io File
+import 'dart:typed_data';
 
 class FileCard extends StatefulWidget {
   const FileCard({super.key, required this.file, this.onTap});
@@ -135,37 +142,232 @@ class FileSelector extends ConsumerWidget {
                 fontSize: 16,
               ),
               title: const Text('Wybierz plik'),
-              content: SizedBox(
-                width: double.maxFinite,
-                height: MediaQuery.of(context).size.height * 0.7,
-                child:
-                    fileList.files.isEmpty
-                        ? const Center(child: Text('Brak dostępnych plików'))
-                        : GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                mainAxisSpacing: 10.0,
-                                crossAxisSpacing: 10.0,
-                                childAspectRatio: 1.0,
-                              ),
-                          itemCount: fileList.files.length,
-                          itemBuilder: (context, index) {
-                            return FileCard(
-                              file: fileList.files[index],
-                              onTap: () {
-                                print(
-                                  "Plik wybrany: ${fileList.files[index].filename}",
+              content: Stack(
+                children: [
+                  SizedBox(
+                    width: double.maxFinite,
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child:
+                        fileList.files.isEmpty
+                            ? const Center(
+                              child: Text('Brak dostępnych plików'),
+                            )
+                            : GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 10.0,
+                                    crossAxisSpacing: 10.0,
+                                    childAspectRatio: 1.0,
+                                  ),
+                              itemCount: fileList.files.length,
+                              itemBuilder: (context, index) {
+                                return FileCard(
+                                  file: fileList.files[index],
+                                  onTap: () {
+                                    print(
+                                      "Plik wybrany: ${fileList.files[index].filename}",
+                                    );
+                                    Navigator.of(
+                                      context,
+                                    ).pop(fileList.files[index]);
+                                  },
                                 );
-                                Navigator.of(
-                                  context,
-                                ).pop(fileList.files[index]);
                               },
-                            );
-                          },
-                        ),
+                            ),
+                  ),
+                ],
               ),
               actions: [
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      // Otwieramy selektora plików
+                      final result = await FilePicker.platform.pickFiles(
+                        type:
+                            FileType
+                                .media, // Ograniczamy do mediów (obrazów i wideo)
+                        allowMultiple: false,
+                      );
+
+                      if (result != null && result.files.isNotEmpty) {
+                        // Pokazujemy dialog z informacją o przesyłaniu
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return const AlertDialog(
+                              backgroundColor: Color.fromARGB(255, 44, 44, 44),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Przesyłanie pliku...',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+
+                        final token = await ref.read(userProvider).getToken();
+
+                        if (token == null || token.isEmpty) {
+                          if (context.mounted) {
+                            Navigator.of(
+                              context,
+                            ).pop(); // Zamykamy dialog ładowania
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Nie jesteś zalogowany.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                          return;
+                        }
+
+                        // Przesyłamy plik używając Dio
+                        final file = result.files.first;
+                        final bytes = file.bytes;
+                        final fileName = file.name;
+                        final mimeType = _getMimeType(fileName);
+
+                        // Jeśli nie mamy bajtów ale mamy ścieżkę pliku, musimy wczytać plik
+                        final filePath = file.path;
+                        Uint8List? fileBytes;
+
+                        if (bytes != null) {
+                          fileBytes = bytes;
+                        } else if (filePath != null) {
+                          // Odczytujemy plik z dysku
+                          fileBytes = await io.File(filePath).readAsBytes();
+                        }
+
+                        if (fileBytes == null) {
+                          if (context.mounted) {
+                            Navigator.of(
+                              context,
+                            ).pop(); // Zamykamy dialog ładowania
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Nie udało się odczytać pliku.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                          return;
+                        }
+
+                        // Tworzymy FormData do wysłania pliku
+                        final formData = FormData.fromMap({
+                          'file': MultipartFile.fromBytes(
+                            fileBytes,
+                            filename: fileName,
+                            contentType: MediaType.parse(mimeType),
+                          ),
+                        });
+
+                        // Wysyłamy plik
+                        final dio = Dio();
+                        final response = await dio.post(
+                          '${dotenv.env['SERVER_URL']!}/files/upload',
+                          data: formData,
+                          options: Options(
+                            headers: {
+                              'Authorization':
+                                  token.startsWith('Bearer ')
+                                      ? token
+                                      : 'Bearer $token',
+                              'accept': 'application/json',
+                            },
+                          ),
+                        );
+
+                        if (context.mounted) {
+                          Navigator.of(
+                            context,
+                          ).pop(); // Zamykamy dialog ładowania
+                        }
+
+                        if (response.statusCode == 200 ||
+                            response.statusCode == 201) {
+                          // Plik został przesłany pomyślnie
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Plik został pomyślnie przesłany!',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+
+                            // Zamykamy dialog ładowania
+                            Navigator.of(
+                              context,
+                            ).pop(); // Zamykamy dialog wyboru pliku
+
+                            // Odświeżamy listę plików i pokazujemy nowy dialog z odświeżoną listą
+                            if (context.mounted) {
+                              // Krótkie opóźnienie, aby API mogło przetworzyć plik
+                              await Future.delayed(
+                                const Duration(milliseconds: 500),
+                              );
+
+                              // Pobieramy nowo dodany plik z API
+                              final uploadedFileData = response.data;
+                              debugPrint(
+                                'Upload response data: $uploadedFileData',
+                              );
+
+                              // Otwieramy dialog z odświeżoną listą plików
+                              final selectedFile = await _showAlert(
+                                context,
+                                ref,
+                              );
+                              if (selectedFile != null &&
+                                  onFileSelected != null) {
+                                onFileSelected!(selectedFile);
+                              }
+                            }
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Błąd podczas przesyłania pliku: ${response.statusCode}',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        Navigator.of(
+                          context,
+                        ).pop(); // Zamykamy dialog ładowania jeśli jest otwarty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Wystąpił błąd: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                      debugPrint('Błąd przesyłania pliku: $e');
+                    }
+                  },
+                  child: const Text(
+                    'Prześlij nowy plik',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text(
@@ -225,5 +427,20 @@ class FileSelector extends ConsumerWidget {
         }
       },
     );
+  }
+}
+
+String _getMimeType(String fileName) {
+  final extension = fileName.split('.').last.toLowerCase();
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'mp4':
+      return 'video/mp4';
+    default:
+      return 'application/octet-stream';
   }
 }
