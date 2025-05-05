@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firststep/providers/userProvider.dart';
@@ -72,7 +73,7 @@ class FileList {
         throw Exception('User token is required to fetch files');
       }
 
-      final url = Uri.parse('http://localhost:3000/files');
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/files');
       final response = await http.get(
         url,
         headers: {
@@ -90,6 +91,38 @@ class FileList {
       }
     } catch (e) {
       print('Error fetching files: $e');
+      rethrow; // Rzucamy wyjątek ponownie, aby wywołujący mógł go obsłużyć
+    }
+  }
+
+  Future<void> uploadFile(String filePath) async {
+    try {
+      if (ref == null) {
+        throw Exception('WidgetRef is required to upload files');
+      }
+
+      final user = ref!.read(userProvider);
+      final token = await user.getToken();
+
+      if (token == null) {
+        throw Exception('User token is required to upload files');
+      }
+
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/files/upload');
+      final request =
+          http.MultipartRequest('POST', url)
+            ..headers['Authorization'] = 'Bearer $token'
+            ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('File uploaded successfully!');
+      } else {
+        throw Exception('Failed to upload file: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error uploading file: $e');
       rethrow; // Rzucamy wyjątek ponownie, aby wywołujący mógł go obsłużyć
     }
   }

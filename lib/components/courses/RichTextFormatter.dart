@@ -73,9 +73,12 @@ class _RichTextRendererState extends State<RichTextRenderer> {
       contentWidgets.add(paragraphWidget);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: contentWidgets,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: contentWidgets,
+      ),
     );
   }
 
@@ -255,6 +258,7 @@ class _RichTextRendererState extends State<RichTextRenderer> {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
+          mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             prefixWidget,
@@ -270,30 +274,23 @@ class _RichTextRendererState extends State<RichTextRenderer> {
       );
     }
 
-    // Jeśli to nagłówek, opakuj w ConstrainedBox + FittedBox, aby szerokość była dopasowana do tekstu, ale nie większa niż 80% ekranu
+    // Jeśli to nagłówek, dostosowujemy szerokość
     if (attributes != null && attributes['header'] != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.8,
-          ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: SelectableText.rich(
-              paragraphSpan,
-              textAlign: textAlign,
-              style: paragraphStyle,
-            ),
-          ),
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        child: SelectableText.rich(
+          paragraphSpan,
+          textAlign: textAlign,
+          style: paragraphStyle,
         ),
       );
     }
 
     // Standardowy paragraf
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: SelectableText.rich(
         paragraphSpan,
         textAlign: textAlign,

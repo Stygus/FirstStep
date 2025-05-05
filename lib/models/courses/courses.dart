@@ -9,86 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-class ElementsStyle {
-  bool isBold;
-  bool isItalic;
-  Color? color;
-  double? fontSize;
-  bool isUnderline;
-  bool hasHighlight;
-  String? id;
-  String? courseElementId;
-
-  ElementsStyle({
-    this.isBold = false,
-    this.isItalic = false,
-    this.color,
-    this.fontSize,
-    this.isUnderline = false,
-    this.hasHighlight = false,
-    this.id,
-    this.courseElementId,
-  });
-
-  factory ElementsStyle.fromJson(Map<String, dynamic> json) {
-    return ElementsStyle(
-      isBold: json['isBold'] ?? false,
-      isItalic: json['isItalic'] ?? false,
-      color:
-          json['color'] != null
-              ? (json['color'] is String
-                  ? (json['color'].toString().startsWith('#')
-                      ? Color(
-                        int.parse(
-                          'FF${json['color'].toString().substring(1)}',
-                          radix: 16,
-                        ),
-                      )
-                      : Color(int.parse(json['color'].toString())))
-                  : null)
-              : null,
-      // Obsługa wartości która może już być typu double
-      fontSize:
-          json['fontSize'] != null
-              ? (json['fontSize'] is double
-                  ? json['fontSize']
-                  : double.tryParse(json['fontSize'].toString()))
-              : null,
-      isUnderline: json['isUnderline'] ?? false,
-      hasHighlight: json['hasHighlight'] ?? false,
-      id: json['id']?.toString(),
-      courseElementId: json['courseElementId']?.toString(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> json = {
-      'isBold': isBold,
-      'isItalic': isItalic,
-      'isUnderline': isUnderline,
-      'hasHighlight': hasHighlight,
-    };
-
-    if (id != null) {
-      json['id'] = id;
-    }
-
-    if (courseElementId != null) {
-      json['courseElementId'] = courseElementId;
-    }
-
-    if (fontSize != null) {
-      json['fontSize'] = fontSize;
-    }
-
-    if (color != null) {
-      json['color'] =
-          '#${color!.value.toRadixString(16).substring(2).toUpperCase()}';
-    }
-
-    return json;
-  }
-}
+class ElementsStyle {}
 
 class CourseElements {
   int id;
@@ -101,7 +22,7 @@ class CourseElements {
 
   CourseElements({
     required this.style,
-    required this.id,
+    this.id = -1,
     required this.courseId,
     required this.type,
     required this.content,
@@ -111,22 +32,13 @@ class CourseElements {
 
   factory CourseElements.fromJson(Map<String, dynamic> json) {
     ElementsStyle? elementStyle;
-
-    // Obsługa pola 'styles' zamiast 'style'
-    if (json['styles'] != null &&
-        json['styles'] is List &&
-        (json['styles'] as List).isNotEmpty) {
-      // Pobieramy pierwszy element z listy styles
-      Map<String, dynamic> styleData = json['styles'][0];
-
-      elementStyle = ElementsStyle.fromJson(styleData);
-      debugPrint('Style parsed successfully');
-    } else {
-      debugPrint('No styles found in element');
+    // Zamiast zawsze tworzyć nowy obiekt style, tylko jeśli w danych jest pole style
+    if (json.containsKey('style') && json['style'] != null) {
+      elementStyle = ElementsStyle();
     }
 
     return CourseElements(
-      style: elementStyle,
+      style: elementStyle, // Może być null, jeśli nie było w JSON
       id: int.parse(json['id'].toString()),
       courseId: int.parse(json['courseId'].toString()),
       type: json['type'],
@@ -156,21 +68,6 @@ class CourseElements {
       'additionalData': additionalData,
     };
 
-    if (style != null) {
-      json['styles'] = [
-        {
-          'isBold': style!.isBold,
-          'isItalic': style!.isItalic,
-          'isUnderline': style!.isUnderline,
-          'hasHighlight': style!.hasHighlight,
-          if (style!.fontSize != null) 'fontSize': style!.fontSize,
-          if (style!.color != null)
-            'color':
-                '#${style!.color!.value.toRadixString(16).substring(2).toUpperCase()}',
-        },
-      ];
-    }
-
     return json;
   }
 }
@@ -188,6 +85,210 @@ class CourseElementsList extends ChangeNotifier {
   // Dodaję licznik przebudowy, który pomoże w wymuszeniu odświeżenia widgetów
   int _rebuildCounter = 0;
   int get rebuildCounter => _rebuildCounter;
+
+  // Nowa metoda sprawdzająca, czy nastąpiły zmiany w elementach kursu
+  bool get hasChanges {
+    // Zabezpieczenie przed przypadkiem gdy listy są puste
+    if (courseElements.isEmpty && initialCourseElements.isEmpty) {
+      return false;
+    }
+
+    if (courseElements.length != initialCourseElements.length) {
+      debugPrint(
+        'Różna liczba elementów: ${courseElements.length} vs ${initialCourseElements.length}',
+      );
+      return true; // Różna liczba elementów oznacza, że są zmiany
+    }
+
+    // Lista elementów, które mają problemy z porównywaniem additionalData
+    final List<int> problemElements = [11, 12];
+
+    // Porównujemy każdy element pod kątem zawartości
+    for (int i = 0; i < courseElements.length; i++) {
+      // Jeśli element o tym samym ID ma inną zawartość - mamy zmianę
+      final current = courseElements[i];
+
+      // Szukamy odpowiadającego elementu w initialCourseElements
+      bool foundMatch = false;
+      for (final initial in initialCourseElements) {
+        if (initial.id == current.id) {
+          foundMatch = true;
+          // Sprawdzamy czy podstawowe właściwości są takie same
+          if (initial.type != current.type || initial.order != current.order) {
+            debugPrint('Różnica w type lub order dla elementu ${current.id}');
+            return true; // Znaleziono różnicę
+          }
+
+          // Porównanie zawartości - najpierw konwersja do jednolitego formatu string
+          String initialContent = initial.content.trim();
+          String currentContent = current.content.trim();
+
+          // Dla JSON zawartości dekodujemy i ponownie kodujemy aby zapewnić spójny format
+          if (initial.type == 'TEXT' || initial.type == 'HEADER') {
+            try {
+              // Próbujemy sparsować jako JSON jeśli to możliwe
+              var initialJson = jsonDecode(initialContent);
+              var currentJson = jsonDecode(currentContent);
+
+              // Standaryzacja JSON poprzez porównanie struktury zamiast dokładnego tekstu
+              // (whitespace i formatowanie mogą się różnić, ale struktura jest taka sama)
+              if (_compareJsonStructures(initialJson, currentJson) == false) {
+                debugPrint(
+                  'Różnica w strukturze JSON dla elementu ${current.id}',
+                );
+                return true;
+              }
+            } catch (e) {
+              // Jeśli nie jest to poprawny JSON, porównujemy bezpośrednio teksty
+              if (initialContent != currentContent) {
+                debugPrint(
+                  'Różnica w treści tekstu dla elementu ${current.id}',
+                );
+                return true;
+              }
+            }
+          } else if (initialContent != currentContent) {
+            // Dla innych typów porównujemy bezpośrednio treść
+            debugPrint('Różnica w content dla elementu ${current.id}');
+            return true;
+          }
+
+          // Sprawdzenie czy element jest w liście problematycznych
+          if (problemElements.contains(current.id)) {
+            // Wyświetl debug i pomiń sprawdzanie additionalData dla problematycznych elementów
+            debugPrint(
+              'Szczegółowa analiza additionalData dla elementu ${current.id}:',
+            );
+            debugPrint('Initial: ${initial.additionalData}');
+            debugPrint('Current: ${current.additionalData}');
+
+            // Obejście dla znanych problematycznych elementów
+            debugPrint(
+              'Pomijamy porównanie additionalData dla elementu ${current.id}',
+            );
+
+            // Porównanie stylów
+            if ((initial.style == null) != (current.style == null)) {
+              debugPrint('Jeden ma styl, drugi nie dla elementu ${current.id}');
+              return true; // Jeden ma styl, drugi nie ma
+            }
+
+            break; // Znaleziono pasujący element, przechodzimy do następnego
+          }
+
+          // Specjalne porównanie dla pustych obiektów additionalData
+          bool initialDataEmpty = initial.additionalData.isEmpty;
+          bool currentDataEmpty = current.additionalData.isEmpty;
+
+          if (initialDataEmpty && currentDataEmpty) {
+            // Jeśli oba są puste, traktujemy je jako identyczne
+            debugPrint(
+              'Oba additionalData są puste dla elementu ${current.id} - pomijamy',
+            );
+          } else {
+            // Porównanie additionalData dla pozostałych elementów
+            if (_compareJsonStructures(
+                  initial.additionalData,
+                  current.additionalData,
+                ) ==
+                false) {
+              debugPrint('Różnica w additionalData dla elementu ${current.id}');
+              return true;
+            }
+          }
+
+          // Porównanie stylów
+          if ((initial.style == null) != (current.style == null)) {
+            debugPrint('Jeden ma styl, drugi nie dla elementu ${current.id}');
+            return true; // Jeden ma styl, drugi nie ma
+          }
+
+          break; // Znaleziono pasujący element, przechodzimy do następnego
+        }
+      }
+
+      // Jeśli nie znaleziono elementu o tym ID - mamy zmianę
+      if (!foundMatch) {
+        debugPrint(
+          'Nie znaleziono elementu o ID ${current.id} w initialCourseElements',
+        );
+        return true;
+      }
+    }
+
+    debugPrint('Wszystkie elementy są identyczne - brak zmian');
+    // Jeśli doszliśmy tutaj, to wszystkie elementy są identyczne
+    return false;
+  }
+
+  // Poprawiona metoda do głębokiego porównania struktur JSON
+  bool _compareJsonStructures(dynamic obj1, dynamic obj2) {
+    // Jeśli oba są null lub identyczne, to są równoważne
+    if (identical(obj1, obj2)) return true;
+
+    // Jeśli tylko jeden jest null, nie są równoważne
+    if (obj1 == null || obj2 == null) return false;
+
+    // Jeśli typy są różne, nie są równoważne
+    if (obj1.runtimeType != obj2.runtimeType) return false;
+
+    // Porównanie list
+    if (obj1 is List) {
+      if (obj1.length != obj2.length) return false;
+      for (int i = 0; i < obj1.length; i++) {
+        if (!_compareJsonStructures(obj1[i], obj2[i])) return false;
+      }
+      return true;
+    }
+
+    // Porównanie map - z dokładniejszym logowaniem dla debugowania
+    if (obj1 is Map) {
+      if (obj1.length != obj2.length) {
+        debugPrint('Różna liczba kluczy: ${obj1.length} vs ${obj2.length}');
+        return false;
+      }
+
+      // Najpierw sprawdzamy, czy wszystkie klucze są takie same
+      if (!_compareStringLists(
+        obj1.keys.toList().cast<String>(),
+        obj2.keys.toList().cast<String>(),
+      )) {
+        debugPrint('Różne klucze w obiektach: ${obj1.keys} vs ${obj2.keys}');
+        return false;
+      }
+
+      // Jeśli klucze są takie same, porównujemy wartości
+      for (var key in obj1.keys) {
+        if (!_compareJsonStructures(obj1[key], obj2[key])) {
+          debugPrint(
+            'Różnica w wartości dla klucza "$key": ${obj1[key]} vs ${obj2[key]}',
+          );
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Porównanie wartości prostych
+    if (obj1 != obj2) {
+      debugPrint('Różne wartości proste: $obj1 vs $obj2');
+    }
+    return obj1 == obj2;
+  }
+
+  // Pomocnicza metoda do porównywania list stringów (używana dla kluczy w mapach)
+  bool _compareStringLists(List<String> list1, List<String> list2) {
+    if (list1.length != list2.length) return false;
+
+    // Sortowanie list przed porównaniem (klucze mogą być w różnej kolejności)
+    list1.sort();
+    list2.sort();
+
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) return false;
+    }
+    return true;
+  }
 
   void addCourseElement(CourseElements element, int index) {
     // Ustawiamy order elementu zgodnie z pozycją, gdzie ma być wstawiony
@@ -209,6 +310,19 @@ class CourseElementsList extends ChangeNotifier {
     // Zapisujemy stan do historii
     courseElementsHistory[courseElementsHistory.length +
         1] = List<CourseElements>.from(courseElements);
+
+    // Wyraźnie logujemy dodanie nowego elementu dla celów debugowania
+    debugPrint(
+      'Dodano nowy element kursu ID: ${element.id}, typ: ${element.type}',
+    );
+    debugPrint('Obecna liczba elementów: ${courseElements.length}');
+    debugPrint(
+      'Liczba początkowych elementów: ${initialCourseElements.length}',
+    );
+
+    // WAŻNE: NIE aktualizujemy initialCourseElements, aby system wiedział, że nastąpiła zmiana
+    // Sprawdzamy czy są różnice po dodaniu
+    debugPrint('hasChanges po dodaniu elementu: ${hasChanges}');
 
     // Zwiększamy licznik przebudowy, aby wymusić odświeżenie widgetów
     _rebuildCounter++;
@@ -334,6 +448,29 @@ class CourseElementsList extends ChangeNotifier {
     }
   }
 
+  // Metoda do wykonania głębokiej kopii elementy (deep copy)
+  CourseElements _deepCopyElement(CourseElements element) {
+    return CourseElements(
+      id: element.id,
+      courseId: element.courseId,
+      type: element.type,
+      content: element.content,
+      order: element.order,
+      additionalData: Map<String, dynamic>.from(element.additionalData),
+      style: element.style, // Używamy oryginalnego style zamiast tworzyć nowy
+    );
+  }
+
+  // Metoda do aktualizacji stanu początkowego elementów kursu
+  void updateInitialElements() {
+    debugPrint('Aktualizowanie stanu początkowego elementów kursu');
+    initialCourseElements.clear();
+    for (var element in courseElements) {
+      initialCourseElements.add(_deepCopyElement(element));
+    }
+    notifyListeners();
+  }
+
   Future<void> getAllCourseElementsFromApi(String token, String id) async {
     try {
       isLoading = true;
@@ -377,16 +514,41 @@ class CourseElementsList extends ChangeNotifier {
         // Zapewniamy aktualizację stanu tylko jeśli nie było wyjątku
         courseElements.clear();
         if (data.isNotEmpty) {
-          courseElements.addAll(
-            data.map((item) => CourseElements.fromJson(item)),
-          );
-          debugPrint(courseElements[0].style?.color.toString());
+          // Tworzenie elementów kursu z danych API
+          final List<CourseElements> newElements =
+              data.map((item) => CourseElements.fromJson(item)).toList();
+
+          // Sortowanie elementów wg kolejności
+          newElements.sort((a, b) => a.order.compareTo(b.order));
+
+          // Dodawanie elementów do listy głównej
+          courseElements.addAll(newElements);
         }
-        courseElements.sort((a, b) => a.order.compareTo(b.order));
-        initialCourseElements = courseElements.toList();
+
+        // Resetujemy historię
         courseElementsHistory.clear();
-        courseElementsHistory[courseElementsHistory.length +
-            1] = List<CourseElements>.from(courseElements);
+
+        // Używamy metody deep copy do aktualizacji stanu początkowego, ale najpierw czyścimy listę
+        initialCourseElements.clear();
+
+        // Dla każdego elementu w courseElements tworzymy głęboką kopię
+        for (var element in courseElements) {
+          initialCourseElements.add(_deepCopyElement(element));
+        }
+
+        // Dodajemy kopię obecnego stanu jako pierwszy element historii
+        courseElementsHistory[1] =
+            courseElements.map((e) => _deepCopyElement(e)).toList();
+
+        // Resetujemy indeks historii
+        historyIndex = 0;
+
+        // Debugowanie struktury JSON, aby upewnić się, że porównania działają poprawnie
+        debugPrint('Stan początkowy elementów kursu załadowany:');
+        debugPrint('Liczba elementów: ${courseElements.length}');
+
+        // Sprawdzamy czy hasChanges zwraca prawidłową wartość tuż po załadowaniu
+        debugPrint('hasChanges po załadowaniu: $hasChanges');
 
         isLoading = false;
         notifyListeners();
@@ -442,6 +604,9 @@ class CourseElementsList extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         debugPrint('Course elements updated successfully');
+
+        // Po pomyślnym zapisie, aktualizujemy stan początkowy
+        updateInitialElements();
       } else {
         debugPrint('Error updating course elements: ${response.statusCode}');
         debugPrint('Error response: ${response.body}');
