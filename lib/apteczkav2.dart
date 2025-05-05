@@ -899,7 +899,10 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
             child: ElevatedButton(
               onPressed: _showAddItemMenu,
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: Text('Dodaj element'),
+              child: Text(
+                'Dodaj element',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
