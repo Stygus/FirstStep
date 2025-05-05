@@ -15,19 +15,106 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  void _addItem() {
-    if (_nameController.text.isNotEmpty &&
-        _descriptionController.text.isNotEmpty) {
-      setState(() {
-        _items.add({
-          'name': _nameController.text,
-          'description': _descriptionController.text,
-          'image': 'assets/images/logod.png',
-        });
-        _nameController.clear();
-        _descriptionController.clear();
+  void _addItem(String name, String description) {
+    setState(() {
+      _items.add({
+        'name': name,
+        'description': description,
+        'image': 'assets/images/logod.png', // Tymczasowe zdjęcie
+        'quantity': 1, // Domyślna ilość
       });
-    }
+    });
+  }
+
+  void _showAddItemMenu() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Color(0xFF1D1D1D),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Dodaj element',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _nameController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Nazwa elementu',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Color(0xFF2D2D2D),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: _descriptionController,
+                style: TextStyle(color: Colors.white),
+                maxLines: 4, // Dodano więcej miejsca na opis
+                decoration: InputDecoration(
+                  hintText: 'Opis elementu',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Color(0xFF2D2D2D),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  if (_nameController.text.isNotEmpty &&
+                      _descriptionController.text.isNotEmpty) {
+                    _addItem(_nameController.text, _descriptionController.text);
+                    _nameController.clear();
+                    _descriptionController.clear();
+                    Navigator.pop(context); // Zamknij menu
+                  }
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: Text('Dodaj'),
+              ),
+              SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  // Tymczasowe miejsce na dodawanie zdjęcia
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Dodawanie zdjęcia wkrótce!')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                child: Text('Dodaj zdjęcie'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _removeItem(int index) {
@@ -76,28 +163,106 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
                         : ListView.builder(
                           itemCount: _items.length,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              onTap: () => _viewItemDetails(_items[index]),
-                              leading:
-                                  _items[index]['image'] != null
-                                      ? Image.asset(
-                                        _items[index]['image'],
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                      )
-                                      : Icon(Icons.image, color: Colors.grey),
-                              title: Text(
-                                _items[index]['name'],
-                                style: TextStyle(color: Colors.white),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
                               ),
-                              subtitle: Text(
-                                _items[index]['description'],
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _removeItem(index),
+                              child: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF1D1D1D),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Zdjęcie elementu
+                                    _items[index]['image'] != null
+                                        ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8.0,
+                                          ),
+                                          child: Image.asset(
+                                            _items[index]['image'],
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                        : Icon(
+                                          Icons.image,
+                                          color: Colors.grey,
+                                          size: 50,
+                                        ),
+                                    SizedBox(width: 16),
+                                    // Nazwa elementu
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            _items[index]['name'],
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Ilość: ${_items[index]['quantity'] ?? 1}',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Dodawanie i odejmowanie ilości
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.remove,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              if (_items[index]['quantity'] >
+                                                  1) {
+                                                _items[index]['quantity']--;
+                                              }
+                                            });
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.add,
+                                            color: Colors.green,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _items[index]['quantity'] =
+                                                  (_items[index]['quantity'] ??
+                                                      1) +
+                                                  1;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    // Przycisk usuwania
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () => _removeItem(index),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -107,46 +272,10 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _nameController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Nazwa elementu',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Color(0xFF1D1D1D),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextField(
-                  controller: _descriptionController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Opis elementu',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Color(0xFF1D1D1D),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: _addItem,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: Text('Dodaj'),
-                ),
-              ],
+            child: ElevatedButton(
+              onPressed: _showAddItemMenu,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: Text('Dodaj element'),
             ),
           ),
         ],
@@ -191,7 +320,6 @@ class ItemDetailsPage extends StatelessWidget {
               children: [
                 Icon(Icons.medical_services, color: Colors.red, size: 50),
                 SizedBox(height: 16),
-
                 item['image'] != null
                     ? ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
@@ -204,7 +332,6 @@ class ItemDetailsPage extends StatelessWidget {
                     )
                     : Icon(Icons.image, color: Colors.grey, size: 200),
                 SizedBox(height: 16),
-
                 Text(
                   item['name'],
                   style: TextStyle(
@@ -215,7 +342,6 @@ class ItemDetailsPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 8),
-
                 Text(
                   item['description'],
                   style: TextStyle(
@@ -224,37 +350,6 @@ class ItemDetailsPage extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                   ),
                   textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(Icons.edit, color: Colors.white),
-                      label: Text('Edytuj'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
-                      label: Text('Powrót'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
