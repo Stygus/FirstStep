@@ -39,6 +39,17 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
   void dispose() {
     // Czyszczenie wszystkich kontrolerów wideo przy zamykaniu strony
     _CourseElementWidgetState.disposeAllVideoControllers();
+
+    // Bezpieczna obsługa przerwania operacji asynchronicznych i odśmiecanie zasobów
+    try {
+      // Dodatkowe zabezpieczenie przed próbami aktualizacji UI po usunięciu widgetu
+      final courseElements = ref.read(courseElementsProvider);
+      courseElements.isLoading =
+          false; // Zatrzymujemy wszelkie trwające operacje ładowania
+    } catch (e) {
+      debugPrint('Błąd podczas sprzątania przy zamykaniu widoku: $e');
+    }
+
     super.dispose();
   }
 
@@ -51,16 +62,22 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
     // aby upewnić się, że hasChanges zwraca prawidłową wartość
     bool hasChanges = false;
 
-    // Sprawdzamy, czy lista elementów kursu nie jest pusta
-    if (courseElements.courseElements.isNotEmpty &&
-        courseElements.initialCourseElements.isNotEmpty) {
-      hasChanges = courseElements.hasChanges;
+    // Sprawdzamy zmiany w kursie niezależnie od tego, czy lista jest pusta
+    // Usunięcie wszystkich elementów także jest zmianą, którą trzeba zapisać
+    if (courseElements.initialCourseElements.isNotEmpty) {
+      // Jeśli początkowo były elementy, to każda zmiana (w tym usunięcie wszystkich) powinna być wykrywalna
+      hasChanges =
+          courseElements.hasChanges ||
+          (courseElements.initialCourseElements.isNotEmpty &&
+              courseElements.courseElements.isEmpty);
       debugPrint(
         'Stan zmian: $hasChanges (initialElements: ${courseElements.initialCourseElements.length}, currentElements: ${courseElements.courseElements.length})',
       );
     } else {
+      // Jeśli początkowo nie było elementów, sprawdź czy dodano jakieś
+      hasChanges = courseElements.courseElements.isNotEmpty;
       debugPrint(
-        'Lista elementów kursu jest pusta, ustawiamy hasChanges=false',
+        'Lista początkowa pusta, sprawdzamy czy dodano elementy: $hasChanges',
       );
     }
 
@@ -101,10 +118,28 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
             icon: const Icon(Icons.save),
             onPressed:
                 hasChanges
-                    ? () async => courseElements.addAllCourseElementToApi(
-                      await ref.read(userProvider).getToken() ?? '',
-                      courseElements.courseElements[0].courseId.toString(),
-                    )
+                    ? () async {
+                      await courseElements.addAllCourseElementToApi(
+                        await ref.read(userProvider).getToken() ?? '',
+                        courseElements.courseElements.isEmpty
+                            ? ref
+                                    .read(coursesProvider)
+                                    .selectedCourse
+                                    ?.id
+                                    .toString() ??
+                                "0"
+                            : courseElements.courseElements[0].courseId
+                                .toString(),
+                      );
+
+                      // Jawne wywołanie resetowania stanu zmian
+                      courseElements.resetChanges();
+
+                      // Wymuszamy odświeżenie widoku po zapisie
+                      setState(() {
+                        // setState wymusi przebudowanie widgetu i ponowne obliczenie hasChanges
+                      });
+                    }
                     : null,
             color: hasChanges ? Colors.blue : Colors.grey,
           ),
@@ -112,55 +147,121 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
       ),
       body: Stack(
         children: [
-          ListView.builder(
-            key: ValueKey('course_list_${courseElements.rebuildCounter}'),
-            itemBuilder: (context, index) {
-              final element = courseElements.courseElements[index];
-
-              return Stack(
-                key: ValueKey(
-                  'course_element_${element.id}_${courseElements.rebuildCounter}',
-                ),
+          // Wyświetl komunikat o pustej liście i duży przycisk dodawania gdy nie ma elementów
+          if (courseElements.courseElements.isEmpty)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: Card(
-                      color: const Color.fromARGB(22, 45, 45, 45),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      child: CourseElementWidget(
-                        key: ValueKey(
-                          'widget_${element.id}_${courseElements.rebuildCounter}',
-                        ),
-                        courseElements: element,
-                      ),
+                  const Text(
+                    'Kurs nie ma jeszcze elementów',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    child: Center(
-                      child: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          // Dodaj logikę usuwania elementu
-                          courseElements.removeCourseElement(element.id);
-
-                          // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
-                          _CourseElementWidgetState.resetVideoControllers();
-                        },
-                      ),
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(100),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(100),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
+                    child: IconButton(
+                      iconSize: 48,
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      onPressed: () {
+                        // Dodaj pierwszy element kursu
+                        if (ref.read(coursesProvider).selectedCourse != null) {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              45,
+                              45,
+                              45,
+                            ),
+                            builder:
+                                (context) => AddElement(
+                                  courseElementOrder: 0,
+                                  courseId:
+                                      ref
+                                          .read(coursesProvider)
+                                          .selectedCourse!
+                                          .id,
+                                ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Kliknij aby dodać pierwszy element',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                 ],
-              );
-            },
-            itemCount: courseElements.courseElements.length,
-          ),
+              ),
+            )
+          else
+            ListView.builder(
+              key: ValueKey('course_list_${courseElements.rebuildCounter}'),
+              itemBuilder: (context, index) {
+                final element = courseElements.courseElements[index];
+
+                return Stack(
+                  key: ValueKey(
+                    'course_element_${element.id}_${courseElements.rebuildCounter}',
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      child: Card(
+                        color: const Color.fromARGB(22, 45, 45, 45),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                        child: CourseElementWidget(
+                          key: ValueKey(
+                            'widget_${element.id}_${courseElements.rebuildCounter}',
+                          ),
+                          courseElements: element,
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      top: 0,
+                      bottom: 0,
+                      right: 0,
+                      child: Center(
+                        child: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            // Dodaj logikę usuwania elementu
+                            courseElements.removeCourseElement(element.id);
+
+                            // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
+                            _CourseElementWidgetState.resetVideoControllers();
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+              itemCount: courseElements.courseElements.length,
+            ),
+
           hasChanges
               ? Align(
                 alignment: Alignment.bottomRight,
@@ -191,8 +292,15 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
                       onPressed:
                           () async => courseElements.addAllCourseElementToApi(
                             await ref.read(userProvider).getToken() ?? '',
-                            courseElements.courseElements[0].courseId
-                                .toString(),
+                            courseElements.courseElements.isEmpty
+                                ? ref
+                                        .read(coursesProvider)
+                                        .selectedCourse
+                                        ?.id
+                                        .toString() ??
+                                    "0"
+                                : courseElements.courseElements[0].courseId
+                                    .toString(),
                           ),
                     ),
                   ),
@@ -488,12 +596,31 @@ class _CourseElementWidgetState extends ConsumerState<CourseElementWidget> {
 
   // Dodajemy funkcję do wymuszenia notyfikacji o zmianach
   void _notifyContentChanged() {
-    debugPrint('Powiadomienie o zmianie contentu: ${widget.courseElements.id}');
+    try {
+      if (!mounted) {
+        debugPrint('Widget nie jest już zamontowany - pomijamy aktualizację');
+        return;
+      }
 
-    // Używamy innej nazwy dla zmiennej lokalnej, aby uniknąć konfliktu z globalnym providerem
-    final elementsProvider = ref.read(courseElementsProvider);
-    // Upewniamy się, że zmiana będzie widoczna w CourseElementsList
-    elementsProvider.notifyListeners();
+      debugPrint(
+        'Powiadomienie o zmianie contentu: ${widget.courseElements.id}',
+      );
+
+      // Używamy Future.microtask aby odłożyć aktualizację na później
+      Future.microtask(() {
+        try {
+          if (mounted) {
+            final elementsProvider = ref.read(courseElementsProvider);
+            // Używamy bezpiecznej metody notyfikacji z SafeAsync
+            SafeAsync.notifyListeners(elementsProvider);
+          }
+        } catch (e) {
+          debugPrint('Bezpiecznie złapany błąd podczas aktualizacji UI: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('Błąd w _notifyContentChanged: $e');
+    }
   }
 
   @override

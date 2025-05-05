@@ -145,11 +145,7 @@ class AddElement extends ConsumerWidget {
                                 type: elementType,
                                 content: selectedFile.url,
                                 courseId: courseId,
-                                additionalData: {
-                                  'fileId': selectedFile.id,
-                                  'fileName': selectedFile.originalName,
-                                  'mimeType': selectedFile.mimeType,
-                                },
+                                additionalData: {},
                               );
 
                               // Przekazujemy courseElementOrder jako miejsce wstawienia

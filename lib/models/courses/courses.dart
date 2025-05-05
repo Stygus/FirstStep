@@ -9,6 +9,19 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+// Dodanie na początku pliku, po importach
+/// Klasa bezpieczeństwa do zarządzania operacjami asynchronicznymi w kontekście widgetów
+class SafeAsync {
+  /// Wywołuje notifyListeners na podanym ChangeNotifier tylko jeśli aplikacja jest w bezpiecznym stanie
+  static void notifyListeners(ChangeNotifier notifier) {
+    try {
+      notifier.notifyListeners();
+    } catch (e) {
+      debugPrint('Bezpiecznie złapany błąd notifyListeners: $e');
+    }
+  }
+}
+
 class ElementsStyle {}
 
 class CourseElements {
@@ -88,8 +101,16 @@ class CourseElementsList extends ChangeNotifier {
 
   // Nowa metoda sprawdzająca, czy nastąpiły zmiany w elementach kursu
   bool get hasChanges {
-    // Zabezpieczenie przed przypadkiem gdy listy są puste
+    // Jeśli początkowo były elementy, ale teraz ich nie ma (wszystkie zostały usunięte),
+    // to uznajemy to za zmianę
+    if (courseElements.isEmpty && initialCourseElements.isNotEmpty) {
+      debugPrint('Wszystkie elementy zostały usunięte - to jest zmiana');
+      return true;
+    }
+
+    // Jeśli początkowo nie było elementów i nadal ich nie ma, to nie ma zmian
     if (courseElements.isEmpty && initialCourseElements.isEmpty) {
+      debugPrint('Nie było i nadal nie ma żadnych elementów - brak zmian');
       return false;
     }
 
@@ -567,10 +588,27 @@ class CourseElementsList extends ChangeNotifier {
     }
   }
 
+  // Nowa metoda do jednoznacznego resetowania stanu zmian
+  void resetChanges() {
+    debugPrint('Resetowanie stanu zmian w CourseElementsList');
+    // Aktualizacja stanu początkowego
+    initialCourseElements.clear();
+    for (var element in courseElements) {
+      initialCourseElements.add(_deepCopyElement(element));
+    }
+    // Resetowanie historii
+    courseElementsHistory.clear();
+    courseElementsHistory[1] = List<CourseElements>.from(courseElements);
+    historyIndex = 0;
+    // Wymuszenie odświeżenia
+    _rebuildCounter++;
+    notifyListeners();
+  }
+
   Future<void> addAllCourseElementToApi(String token, String id) async {
     try {
       isLoading = true;
-      notifyListeners();
+      SafeAsync.notifyListeners(this);
 
       if (token is Future) {
         token = token;
@@ -583,6 +621,11 @@ class CourseElementsList extends ChangeNotifier {
       final url = Uri.parse(
         '${dotenv.env['SERVER_URL']!}/courses/$id/elements',
       );
+
+      // Sprawdzenie czy lista jest pusta - dodajemy specjalne logowanie
+      if (courseElements.isEmpty) {
+        debugPrint('Lista elementów jest pusta - zapisujemy pusty kurs');
+      }
 
       // Przygotowanie elementów kursu do wysłania
       final List<Map<String, dynamic>> elementsJson =
@@ -606,19 +649,38 @@ class CourseElementsList extends ChangeNotifier {
         debugPrint('Course elements updated successfully');
 
         // Po pomyślnym zapisie, aktualizujemy stan początkowy
-        updateInitialElements();
+        try {
+          initialCourseElements.clear();
+          for (var element in courseElements) {
+            initialCourseElements.add(_deepCopyElement(element));
+          }
+
+          // Resetujemy historię po pomyślnym zapisie
+          courseElementsHistory.clear();
+          courseElementsHistory[1] = List<CourseElements>.from(courseElements);
+          historyIndex = 0;
+
+          debugPrint(
+            'Stan początkowy i historia zaktualizowane po zapisie kursu',
+          );
+
+          // Jawnie wymuszamy odświeżenie UI i stanu hasChanges
+          _rebuildCounter++;
+        } catch (e) {
+          debugPrint('Błąd podczas aktualizacji stanu początkowego: $e');
+        }
       } else {
         debugPrint('Error updating course elements: ${response.statusCode}');
         debugPrint('Error response: ${response.body}');
         error = 'Failed to update course elements (${response.statusCode})';
-        throw Exception('Failed to update course elements');
       }
     } catch (e) {
       debugPrint('Error updating course elements: $e');
       error = 'Error: $e';
     } finally {
+      // Używamy bezpiecznej metody notyfikacji
       isLoading = false;
-      notifyListeners();
+      SafeAsync.notifyListeners(this);
     }
   }
 }
