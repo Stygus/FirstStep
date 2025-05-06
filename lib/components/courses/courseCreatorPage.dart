@@ -17,7 +17,9 @@ import 'package:video_player/video_player.dart';
 // Funkcja pomocnicza do konwersji niepoprawnego formatu JSON do poprawnego
 
 class CourseCreator extends ConsumerStatefulWidget {
-  const CourseCreator({super.key});
+  CourseCreator({super.key, required this.course});
+
+  Course course;
 
   @override
   ConsumerState<CourseCreator> createState() => _CourseCreatorState();
@@ -34,6 +36,17 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
       style: const TextStyle(color: Colors.white),
     ),
   ];
+
+  // Przenosimy stan courseEdit na poziom klasy
+  String courseEdit = "not";
+
+  // Nowa, bezpieczna metoda do aktualizacji stanu courseEdit
+  void setCourseEdit(String value) {
+    debugPrint('✅ Aktualizacja courseEdit z: $courseEdit na: $value');
+    setState(() {
+      courseEdit = value;
+    });
+  }
 
   @override
   void dispose() {
@@ -56,29 +69,16 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
   @override
   Widget build(BuildContext context) {
     final courseElements = ref.watch(courseElementsProvider);
-    debugPrint('CourseElements: ${courseElements.courseElements.length}');
 
-    // Dodajemy tutaj jawne sprawdzenie stanu CourseElementsList przy każdym budowaniu widgetu
-    // aby upewnić się, że hasChanges zwraca prawidłową wartość
     bool hasChanges = false;
 
-    // Sprawdzamy zmiany w kursie niezależnie od tego, czy lista jest pusta
-    // Usunięcie wszystkich elementów także jest zmianą, którą trzeba zapisać
     if (courseElements.initialCourseElements.isNotEmpty) {
-      // Jeśli początkowo były elementy, to każda zmiana (w tym usunięcie wszystkich) powinna być wykrywalna
       hasChanges =
           courseElements.hasChanges ||
           (courseElements.initialCourseElements.isNotEmpty &&
               courseElements.courseElements.isEmpty);
-      debugPrint(
-        'Stan zmian: $hasChanges (initialElements: ${courseElements.initialCourseElements.length}, currentElements: ${courseElements.courseElements.length})',
-      );
     } else {
-      // Jeśli początkowo nie było elementów, sprawdź czy dodano jakieś
       hasChanges = courseElements.courseElements.isNotEmpty;
-      debugPrint(
-        'Lista początkowa pusta, sprawdzamy czy dodano elementy: $hasChanges',
-      );
     }
 
     return Scaffold(
@@ -212,54 +212,399 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
               ),
             )
           else
-            ListView.builder(
-              key: ValueKey('course_list_${courseElements.rebuildCounter}'),
-              itemBuilder: (context, index) {
-                final element = courseElements.courseElements[index];
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    key: ValueKey(
+                      'course_list_${courseElements.rebuildCounter}',
+                    ),
+                    itemBuilder: (context, index) {
+                      // Jeśli to pierwszy element, wyświetlamy container
+                      if (index == 0) {
+                        return Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            height: 400,
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 45, 45, 45),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(100),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                GestureDetector(
+                                  onDoubleTap: () => setCourseEdit('title'),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child:
+                                        courseEdit == 'title'
+                                            ? TextField(
+                                              autofocus: true,
+                                              maxLines: 1,
+                                              minLines: 1,
+                                              controller: TextEditingController(
+                                                text: widget.course.title,
+                                              ),
+                                              onChanged: (value) {
+                                                widget.course.title = value;
+                                              },
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                              decoration: const InputDecoration(
+                                                hintText: 'Tytuł kursu',
+                                                hintStyle: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                                border: InputBorder.none,
+                                              ),
+                                              // Obsługa klawisza Enter - niestandardowa
+                                              keyboardType:
+                                                  TextInputType.multiline,
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                              // Używamy onSubmitted do przechwycenia zdarzenia Enter
+                                              onSubmitted: (value) {
+                                                setCourseEdit('not');
+                                              },
+                                              // Dodajemy obsługę klawisza Enter poprzez fokus
+                                              focusNode: FocusNode(
+                                                onKeyEvent: (node, event) {
+                                                  // Sprawdzamy czy to Enter bez Shifta
+                                                  if (event.logicalKey ==
+                                                          LogicalKeyboardKey
+                                                              .enter &&
+                                                      !HardwareKeyboard
+                                                          .instance
+                                                          .isShiftPressed) {
+                                                    if (event is KeyDownEvent) {
+                                                      setCourseEdit('not');
+                                                      return KeyEventResult
+                                                          .handled;
+                                                    }
+                                                  }
+                                                  return KeyEventResult.ignored;
+                                                },
+                                              ),
+                                            )
+                                            : Text(
+                                              widget.course.title,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: GestureDetector(
+                                    onDoubleTap: () {
+                                      setCourseEdit('description');
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0,
+                                        horizontal: 8.0,
+                                      ),
+                                      child:
+                                          courseEdit == 'description'
+                                              ? TextField(
+                                                autofocus: true,
+                                                maxLines: 5,
+                                                minLines: 1,
+                                                controller:
+                                                    TextEditingController(
+                                                      text:
+                                                          widget
+                                                              .course
+                                                              .description,
+                                                    ),
+                                                onChanged: (value) {
+                                                  widget.course.description =
+                                                      value;
+                                                  debugPrint(
+                                                    'Opis kursu zmieniony na: $value',
+                                                  );
+                                                },
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                                decoration:
+                                                    const InputDecoration(
+                                                      hintText: 'Opis kursu',
+                                                      hintStyle: TextStyle(
+                                                        color: Colors.grey,
+                                                      ),
+                                                      border: InputBorder.none,
+                                                    ),
+                                                // Obsługa klawisza Enter - niestandardowa
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                textInputAction:
+                                                    TextInputAction.done,
+                                                // Używamy onSubmitted do przechwycenia zdarzenia Enter
+                                                onSubmitted: (value) {
+                                                  debugPrint(
+                                                    '✅ Zatwierdzone przez Enter: $value',
+                                                  );
+                                                  setCourseEdit('not');
+                                                },
+                                                // Dodajemy obsługę klawisza Enter poprzez fokus
+                                                focusNode: FocusNode(
+                                                  onKeyEvent: (node, event) {
+                                                    // Sprawdzamy czy to Enter bez Shifta
+                                                    if (event.logicalKey ==
+                                                            LogicalKeyboardKey
+                                                                .enter &&
+                                                        !HardwareKeyboard
+                                                            .instance
+                                                            .isShiftPressed) {
+                                                      if (event
+                                                          is KeyDownEvent) {
+                                                        // Zapisujemy tekst i wyjdź z trybu edycji
+                                                        debugPrint(
+                                                          '✅ Enter wciśnięty - zapisuję i wychodzę',
+                                                        );
+                                                        setCourseEdit('not');
+                                                        return KeyEventResult
+                                                            .handled;
+                                                      }
+                                                    }
+                                                    // Dla innych klawiszy lub Shift+Enter pozwalamy na domyślne zachowanie
+                                                    return KeyEventResult
+                                                        .ignored;
+                                                  },
+                                                ),
+                                              )
+                                              : Text(
+                                                widget.course.description,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 10.0,
+                                      left: 16.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          'Status kursu: ',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        DropdownButton<String>(
+                                          value:
+                                              widget.course.status ?? 'DRAFT',
+                                          dropdownColor: const Color.fromARGB(
+                                            255,
+                                            45,
+                                            45,
+                                            45,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                          underline: Container(
+                                            height: 2,
+                                            color: Colors.blueAccent,
+                                          ),
+                                          onChanged: (String? newValue) {
+                                            if (newValue != null) {
+                                              setState(() {
+                                                widget.course.status = newValue;
+                                              });
+                                              // Update course status in provider
+                                              widget.course.status = newValue;
+                                            }
+                                          },
+                                          items:
+                                              <String>[
+                                                'DRAFT',
+                                                'PUBLISHED',
+                                                'ARCHIVED',
+                                              ].map<DropdownMenuItem<String>>((
+                                                String value,
+                                              ) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(
+                                                    value,
+                                                    style: TextStyle(
+                                                      color:
+                                                          value == 'PUBLISHED'
+                                                              ? Colors.green
+                                                              : value ==
+                                                                  'ARCHIVED'
+                                                              ? Colors.grey
+                                                              : Colors.orange,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
 
-                return Stack(
-                  key: ValueKey(
-                    'course_element_${element.id}_${courseElements.rebuildCounter}',
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      child: Card(
-                        color: const Color.fromARGB(22, 45, 45, 45),
-                        margin: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 16,
-                        ),
-                        child: CourseElementWidget(
-                          key: ValueKey(
-                            'widget_${element.id}_${courseElements.rebuildCounter}',
+                                const SizedBox(height: 15),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 16.0),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          'Poziom trudności: ',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        DropdownButton<String>(
+                                          value:
+                                              widget.course.difficultyLevel ??
+                                              'BEGINNER',
+                                          dropdownColor: const Color.fromARGB(
+                                            255,
+                                            45,
+                                            45,
+                                            45,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                          underline: Container(
+                                            height: 2,
+                                            color: Colors.blueAccent,
+                                          ),
+                                          onChanged: (String? newValue) {
+                                            if (newValue != null) {
+                                              setState(() {
+                                                widget.course.difficultyLevel =
+                                                    newValue;
+                                              });
+                                            }
+                                          },
+                                          items:
+                                              <String>[
+                                                'BEGINNER',
+                                                'INTERMEDIATE',
+                                                'ADVANCED',
+                                                'EXPERT',
+                                              ].map<DropdownMenuItem<String>>((
+                                                String value,
+                                              ) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(
+                                                    value,
+                                                    style: TextStyle(
+                                                      color:
+                                                          value == 'BEGINNER'
+                                                              ? Colors.green
+                                                              : value ==
+                                                                  'INTERMEDIATE'
+                                                              ? Colors.blue
+                                                              : value ==
+                                                                  'ADVANCED'
+                                                              ? Colors.orange
+                                                              : Colors.red,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          courseElements: element,
-                        ),
-                      ),
-                    ),
+                        );
+                      }
 
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      right: 0,
-                      child: Center(
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            // Dodaj logikę usuwania elementu
-                            courseElements.removeCourseElement(element.id);
+                      // Dla pozostałych indeksów wyświetlamy elementy kursu
+                      final element = courseElements.courseElements[index - 1];
 
-                            // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
-                            _CourseElementWidgetState.resetVideoControllers();
-                          },
+                      return Stack(
+                        key: ValueKey(
+                          'course_element_${element.id}_${courseElements.rebuildCounter}',
                         ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-              itemCount: courseElements.courseElements.length,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Card(
+                              color: const Color.fromARGB(22, 45, 45, 45),
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 16,
+                              ),
+                              child: CourseElementWidget(
+                                key: ValueKey(
+                                  'widget_${element.id}_${courseElements.rebuildCounter}',
+                                ),
+                                courseElements: element,
+                              ),
+                            ),
+                          ),
+
+                          Positioned(
+                            top: 0,
+                            bottom: 0,
+                            right: 0,
+                            child: Center(
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  // Dodaj logikę usuwania elementu
+                                  courseElements.removeCourseElement(
+                                    element.id,
+                                  );
+
+                                  // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
+                                  _CourseElementWidgetState.resetVideoControllers();
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    // +1 ponieważ pierwszy element to container
+                    itemCount: courseElements.courseElements.length + 1,
+                  ),
+                ),
+              ],
             ),
 
           hasChanges

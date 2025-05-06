@@ -748,6 +748,32 @@ class Course {
               .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'creatorId': creatorId,
+      'testId': testId,
+      'title': title,
+      'description': description,
+      'difficultyLevel': difficultyLevel,
+      'creationDate': creationDate.toIso8601String(),
+      'modificationDate': modificationDate.toIso8601String(),
+      'studentCount': studentCount,
+      'status': status,
+      'categories':
+          categories
+              .map(
+                (cat) => {
+                  'id': cat.id,
+                  'name': cat.name,
+                  'description': cat.description,
+                },
+              )
+              .toList(),
+      // Note: courseElementsList is managed separately
+    };
+  }
 }
 
 class CourseList extends ChangeNotifier {
@@ -808,6 +834,27 @@ class CourseList extends ChangeNotifier {
 
   List<Course> getAllCourses() {
     return courses;
+  }
+
+  Future<void> updateCourse(String token, int id) async {
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        courses.firstWhere((course) => course.id == id).toJson(),
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      // Aktualizacja powiodła się
+    } else {
+      throw Exception('Failed to update course');
+    }
   }
 }
 
@@ -967,7 +1014,8 @@ class CourseCard extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CourseCreator(),
+                                builder:
+                                    (context) => CourseCreator(course: course),
                               ),
                             );
                           },
