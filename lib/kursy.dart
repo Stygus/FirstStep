@@ -55,35 +55,31 @@ class KursyPage extends StatelessWidget {
               ],
             ),
           ),
-          // Prosta karuzela 2 zdjęć
+
           Center(
             child: SizedBox(
-              height: 200, // Zmniejszono wysokość, aby lepiej dopasować obrazki
+              height: 200,
               child: Container(
                 color: Color(0xFF1D1D1D),
                 child: PageView(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0), // Zmniejszono padding
+                      padding: const EdgeInsets.all(8.0),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          8.0,
-                        ), // Dodano zaokrąglenie
+                        borderRadius: BorderRadius.circular(8.0),
                         child: Image.asset(
                           'assets/images/N1.png',
-                          fit: BoxFit.contain, // Dopasowanie obrazu
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0), // Zmniejszono padding
+                      padding: const EdgeInsets.all(8.0),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          8.0,
-                        ), // Dodano zaokrąglenie
+                        borderRadius: BorderRadius.circular(8.0),
                         child: Image.asset(
                           'assets/images/N2.png',
-                          fit: BoxFit.contain, // Dopasowanie obrazu
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -100,7 +96,7 @@ class KursyPage extends StatelessWidget {
                 children: [
                   SizedBox(height: 50),
                   Text(
-                    'Kursy\n Już wkrótce!',
+                    'Kursy\n dostępne już\n wkrótce!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,

@@ -66,7 +66,7 @@ class Menu extends StatelessWidget {
               child: Container(
                 color: Color(0xFF1D1D1D),
                 child: PageView.builder(
-                  itemCount: 3,
+                  itemCount: 4, // Zmieniono na 4, aby uwzględnić addr4
                   controller: PageController(viewportFraction: 1.0),
                   itemBuilder: (context, index) {
                     String imagePath = 'assets/images/addr${index + 1}.png';
@@ -83,6 +83,10 @@ class Menu extends StatelessWidget {
                             url = Uri.parse(
                               'https://planujedlugiezycie.pl/historie/palenie/',
                             );
+                          } else if (index == 3) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/zdrowie/',
+                            ); // Dodano link dla addr4
                           } else {
                             return;
                           }
