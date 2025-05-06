@@ -7,7 +7,6 @@ import 'package:firststep/providers/animationsProvider.dart';
 import 'package:firststep/providers/stepusChatProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:rive/rive.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -77,7 +76,7 @@ class Stepus extends ChangeNotifier {
 
       final String messageJson = jsonEncode({"messages": chatHistory});
 
-      final url = Uri.parse(dotenv.env['SERVER_URL']! + '/ai/ask');
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/ai/ask');
 
       // Tworzenie niestandardowego HttpClient
       HttpClient httpClient =
@@ -190,7 +189,7 @@ class _MessageState extends ConsumerState<Message> {
 }
 
 class StepusAnimation extends ConsumerStatefulWidget {
-  StepusAnimation({super.key});
+  const StepusAnimation({super.key});
 
   @override
   ConsumerState<StepusAnimation> createState() => _StepusAnimationState();

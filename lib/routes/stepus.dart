@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StepusWidget extends ConsumerWidget {
   StepusWidget({super.key});
-  TextEditingController? _promptControler = TextEditingController();
-  ScrollController _scrollController = ScrollController();
+  final TextEditingController _promptControler = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chatHistory = ref.watch(stepusChatProvider.notifier);
@@ -18,7 +18,7 @@ class StepusWidget extends ConsumerWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Color(0x101010)),
+        iconTheme: IconThemeData(color: Color(0x00101010)),
         title: const Text(
           'Stepus',
           style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),

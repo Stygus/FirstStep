@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'rkopcje.dart'; // Import widgetu rkopcje.dart
 
 class RKO extends StatelessWidget {
+  const RKO({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

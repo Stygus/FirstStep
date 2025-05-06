@@ -1,9 +1,14 @@
+import 'package:firststep/routes/stepus.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rive/rive.dart' as rive;
-import 'dart:math' as math;
+import 'rko.dart';
+import 'apteczka.dart';
+import 'kursy.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Menu extends StatelessWidget {
+  const Menu({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +22,7 @@ class Menu extends StatelessWidget {
       backgroundColor: Color(0xFF101010),
       body: Column(
         children: [
-          Container(
+          SizedBox(
             height: 100,
             child: Stack(
               children: [
@@ -54,15 +59,7 @@ class Menu extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            // child: SizedBox(
-            //   height: 100,
-            //   child: Image.asset(
-            //     'assets/images/linia.png',
-            // //     fit: BoxFit.scaleDown,
-            // //   ),
-            // ),
-          ),
+
           Center(
             child: SizedBox(
               height: 250,
@@ -72,23 +69,52 @@ class Menu extends StatelessWidget {
                   itemCount: 3,
                   controller: PageController(viewportFraction: 1.0),
                   itemBuilder: (context, index) {
-                    String imagePath = 'assets/images/add${index + 1}.png';
+                    String imagePath = 'assets/images/addr${index + 1}.png';
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Image.asset(
-                          imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/images/add1.png',
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () async {
+                          Uri url;
+                          if (index == 1) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/dieta-i-ruch/',
                             );
-                          },
+                          } else if (index == 2) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/palenie/',
+                            );
+                          } else {
+                            return;
+                          }
+
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Nie można otworzyć linku: $url'),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Image.asset(
+                            imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/images/add1.png',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     );
@@ -105,56 +131,117 @@ class Menu extends StatelessWidget {
               children: [
                 SizedBox(height: 15),
 
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width * 1,
                   height: MediaQuery.of(context).size.width * 1,
                   child: Stack(
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: ClipPath(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.5;
-                              return Container(
-                                width: size,
-                                height: size,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      'assets/images/apteka.png',
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ApteczkaPage(),
+                              ),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/apteka.png',
+                                      ),
+                                      fit: BoxFit.cover,
                                     ),
-                                    fit: BoxFit.cover,
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.topCenter,
-                        child: ClipPath(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              double size = constraints.maxWidth * 0.5;
-                              return Container(
-                                width: size,
-                                height: size,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/rkob.png'),
-                                    fit: BoxFit.cover,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RKO()),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/rkob.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: ClipPath(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StepusWidget(),
+                              ),
+                            );
+                          },
+                          child: ClipPath(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double size = constraints.maxWidth * 0.5;
+                                return Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/poradab.png',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          // Dodano GestureDetector
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => KursyPage(),
+                              ), // Przejście do KursyPage
+                            );
+                          },
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               double size = constraints.maxWidth * 0.5;
@@ -164,7 +251,7 @@ class Menu extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                     image: AssetImage(
-                                      'assets/images/poradab.png',
+                                      'assets/images/kursy.png',
                                     ),
                                     fit: BoxFit.cover,
                                   ),
@@ -172,24 +259,6 @@ class Menu extends StatelessWidget {
                               );
                             },
                           ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double size = constraints.maxWidth * 0.5;
-                            return Container(
-                              width: size,
-                              height: size,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage('assets/images/kursy.png'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ],

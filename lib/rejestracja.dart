@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rive/rive.dart' as rive;
 
 class Rejestracja extends ConsumerWidget {
+  const Rejestracja({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final passwordController = TextEditingController();

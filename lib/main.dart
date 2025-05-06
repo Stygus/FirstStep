@@ -1,12 +1,7 @@
-import 'package:english_words/english_words.dart';
 import 'package:firststep/menu.dart';
 import 'package:firststep/providers/animationsProvider.dart';
-import 'package:firststep/start.dart';
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'logowanie.dart';
-import 'rejestracja.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {

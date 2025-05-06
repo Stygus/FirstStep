@@ -60,11 +60,7 @@ class User extends ChangeNotifier {
 
   Future<User?> authorize(String? token) async {
     // Upewnij się, że klient HTTP jest zainicjalizowany
-    if (client == null) {
-      initializeHttpClient();
-    }
-
-    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/authenticate');
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/auth/authenticate');
     try {
       final response = await client.get(
         url,
@@ -99,7 +95,7 @@ class User extends ChangeNotifier {
     String password,
     BuildContext context,
   ) async {
-    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/login');
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/auth/login');
     User? user;
     final key = enc.Key.fromUtf8(dotenv.env['SECRET_KEY']!);
     enc.Encrypter encrypt = enc.Encrypter(enc.AES(key));
@@ -144,7 +140,7 @@ class User extends ChangeNotifier {
   }
 
   Future<void> signUp(String email, String password, String nickname) async {
-    final url = Uri.parse(dotenv.env['SERVER_URL']! + '/auth/register');
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/auth/register');
     try {
       final key = enc.Key.fromUtf8(dotenv.env['SECRET_KEY']!);
       enc.Encrypter encrypt = enc.Encrypter(enc.AES(key));
