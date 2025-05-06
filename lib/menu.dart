@@ -11,6 +11,9 @@ class Menu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -18,23 +21,29 @@ class Menu extends StatelessWidget {
         automaticallyImplyLeading: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      backgroundColor: Color(0xFF101010),
+      backgroundColor: const Color(0xFF101010),
       body: Column(
         children: [
           SizedBox(
-            height: 100,
+            height: screenHeight * 0.1,
             child: Stack(
               children: [
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: EdgeInsets.only(top: screenHeight * 0.001),
                     child: Text(
                       'Witaj w menu głównym xyz!',
                       style: GoogleFonts.itim(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: screenWidth * 0.06,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -44,8 +53,8 @@ class Menu extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.width * (3 / 16),
-                    decoration: BoxDecoration(
+                    height: screenWidth * 0.1875,
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         alignment: Alignment.bottomCenter,
                         image: AssetImage('assets/images/linia.png'),
@@ -59,19 +68,18 @@ class Menu extends StatelessWidget {
               ],
             ),
           ),
-
           Center(
             child: SizedBox(
-              height: 250,
+              height: screenHeight * 0.3,
               child: Container(
-                color: Color(0xFF1D1D1D),
+                color: const Color(0xFF1D1D1D),
                 child: PageView.builder(
-                  itemCount: 4, // Zmieniono na 4, aby uwzględnić addr4
+                  itemCount: 5,
                   controller: PageController(viewportFraction: 1.0),
                   itemBuilder: (context, index) {
                     String imagePath = 'assets/images/addr${index + 1}.png';
                     return Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(screenWidth * 0.04),
                       child: GestureDetector(
                         onTap: () async {
                           Uri url;
@@ -86,7 +94,11 @@ class Menu extends StatelessWidget {
                           } else if (index == 3) {
                             url = Uri.parse(
                               'https://planujedlugiezycie.pl/historie/zdrowie/',
-                            ); // Dodano link dla addr4
+                            );
+                          } else if (index == 4) {
+                            url = Uri.parse(
+                              'https://planujedlugiezycie.pl/historie/psychika/',
+                            );
                           } else {
                             return;
                           }
@@ -107,7 +119,9 @@ class Menu extends StatelessWidget {
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(
+                              screenWidth * 0.02,
+                            ),
                           ),
                           child: Image.asset(
                             imagePath,
@@ -127,17 +141,15 @@ class Menu extends StatelessWidget {
               ),
             ),
           ),
-
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 15),
-
+                SizedBox(height: screenHeight * 0.02),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 1,
-                  height: MediaQuery.of(context).size.width * 1,
+                  width: screenWidth,
+                  height: screenWidth,
                   child: Stack(
                     children: [
                       Align(
@@ -151,24 +163,22 @@ class Menu extends StatelessWidget {
                               ),
                             );
                           },
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size = constraints.maxWidth * 0.5;
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/apteka.png',
-                                      ),
-                                      fit: BoxFit.cover,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size = constraints.maxWidth * 0.5;
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/apteka.png',
                                     ),
+                                    fit: BoxFit.cover,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -181,24 +191,20 @@ class Menu extends StatelessWidget {
                               MaterialPageRoute(builder: (context) => RKO()),
                             );
                           },
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size = constraints.maxWidth * 0.5;
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/rkob.png',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size = constraints.maxWidth * 0.5;
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/images/rkob.png'),
+                                    fit: BoxFit.cover,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -213,37 +219,34 @@ class Menu extends StatelessWidget {
                               ),
                             );
                           },
-                          child: ClipPath(
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                double size = constraints.maxWidth * 0.5;
-                                return Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/images/poradab.png',
-                                      ),
-                                      fit: BoxFit.cover,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              double size = constraints.maxWidth * 0.5;
+                              return Container(
+                                width: size,
+                                height: size,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/poradab.png',
                                     ),
+                                    fit: BoxFit.cover,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          // Dodano GestureDetector
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => KursyPage(),
-                              ), // Przejście do KursyPage
+                              ),
                             );
                           },
                           child: LayoutBuilder(
@@ -252,7 +255,7 @@ class Menu extends StatelessWidget {
                               return Container(
                                 width: size,
                                 height: size,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   image: DecorationImage(
                                     image: AssetImage(
                                       'assets/images/kursy.png',

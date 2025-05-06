@@ -4,14 +4,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 class KursyPage extends StatelessWidget {
   const KursyPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        toolbarHeight: 0,
-        automaticallyImplyLeading: true,
+        toolbarHeight: kToolbarHeight,
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -22,6 +21,18 @@ class KursyPage extends StatelessWidget {
             height: 100,
             child: Stack(
               children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ),
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
