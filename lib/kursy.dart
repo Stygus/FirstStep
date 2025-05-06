@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class KursyPage extends StatelessWidget {
   const KursyPage({super.key});
@@ -54,12 +55,50 @@ class KursyPage extends StatelessWidget {
               ],
             ),
           ),
+          // Prosta karuzela 2 zdjęć
+          Center(
+            child: SizedBox(
+              height: 200, // Zmniejszono wysokość, aby lepiej dopasować obrazki
+              child: Container(
+                color: Color(0xFF1D1D1D),
+                child: PageView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0), // Zmniejszono padding
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          8.0,
+                        ), // Dodano zaokrąglenie
+                        child: Image.asset(
+                          'assets/images/N1.png',
+                          fit: BoxFit.contain, // Dopasowanie obrazu
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0), // Zmniejszono padding
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          8.0,
+                        ), // Dodano zaokrąglenie
+                        child: Image.asset(
+                          'assets/images/N2.png',
+                          fit: BoxFit.contain, // Dopasowanie obrazu
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           Expanded(
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 20),
+                  SizedBox(height: 50),
                   Text(
                     'Kursy\n Już wkrótce!',
                     textAlign: TextAlign.center,
@@ -69,7 +108,7 @@ class KursyPage extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 60),
+                  SizedBox(height: 20),
                   Image.asset(
                     'assets/images/logod.png',
                     height: 200,
