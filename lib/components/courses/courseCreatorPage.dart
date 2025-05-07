@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:math' as Math;
 import 'package:firststep/components/courses/RichTextFormatter.dart';
 import 'package:firststep/components/courses/addElementButton.dart';
+import 'package:firststep/components/courses/courseCategory.dart';
 import 'package:firststep/components/courses/videoControls.dart';
 import 'package:firststep/models/courses/courses.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart'; // Dodany import do obsługi klawiatury
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +27,8 @@ class CourseCreator extends ConsumerStatefulWidget {
   ConsumerState<CourseCreator> createState() => _CourseCreatorState();
 }
 
-class _CourseCreatorState extends ConsumerState<CourseCreator> {
+class _CourseCreatorState extends ConsumerState<CourseCreator>
+    with SingleTickerProviderStateMixin {
   final List<TextFragment> fragments = [
     TextFragment(
       text: "Pierwsza pomoc ",
@@ -36,6 +39,14 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
       style: const TextStyle(color: Colors.white),
     ),
   ];
+
+  // Zmienne potrzebne do animacji wysuwanego kontenera
+  bool _showCategoryCreator = false;
+  TextEditingController _categoryNameController = TextEditingController();
+  TextEditingController _categoryDescController = TextEditingController();
+  late AnimationController _animationController;
+  late Animation<double> _widthAnimation;
+  late Animation<double> _heightAnimation;
 
   // Przenosimy stan courseEdit na poziom klasy
   String courseEdit = "not";
@@ -50,6 +61,11 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
 
   @override
   void dispose() {
+    // Zwolnienie kontrolera animacji
+    _animationController.dispose();
+    _categoryNameController.dispose();
+    _categoryDescController.dispose();
+
     // Czyszczenie wszystkich kontrolerów wideo przy zamykaniu strony
     _CourseElementWidgetState.disposeAllVideoControllers();
 
@@ -67,6 +83,33 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Inicjalizacja kontrolera animacji
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    // Animacja szerokości - pierwsza część animacji (0.0 - 0.5)
+    _widthAnimation = Tween<double>(begin: 0.0, end: 300.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    // Animacja wysokości - druga część animacji (0.5 - 1.0)
+    _heightAnimation = Tween<double>(begin: 0.0, end: 200.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final courseElements = ref.watch(courseElementsProvider);
 
@@ -81,610 +124,963 @@ class _CourseCreatorState extends ConsumerState<CourseCreator> {
       hasChanges = courseElements.courseElements.isNotEmpty;
     }
 
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 26, 26, 26),
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 26, 26, 26),
-        title: const Text(
-          'Course Creator',
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              courseElements.backToPreviousState();
-            },
-            icon: const Icon(Icons.undo),
-          ),
-          IconButton(
-            onPressed: () {
-              // Dodaj logikę ponownego wykonania zmian
-              courseElements.forwardToNextState();
-            },
-            icon: const Icon(Icons.redo),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.keyboard_return_rounded,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              // Dodaj logikę cofania zmian
-              courseElements.undoAllChanges();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed:
-                hasChanges
-                    ? () async {
-                      await courseElements.addAllCourseElementToApi(
-                        await ref.read(userProvider).getToken() ?? '',
-                        courseElements.courseElements.isEmpty
-                            ? ref
-                                    .read(coursesProvider)
-                                    .selectedCourse
-                                    ?.id
-                                    .toString() ??
-                                "0"
-                            : courseElements.courseElements[0].courseId
-                                .toString(),
-                      );
+    return PopScope(
+      canPop: !hasChanges,
+      onPopInvokedWithResult: (didPop, result) async {
+        // Jeśli już pozwoliliśmy na wyjście (canPop=true), nic nie robimy
+        if (didPop) {
+          ref
+              .read(coursesProvider)
+              .getAllCoursesFromApi(
+                await ref.read(userProvider).getToken() ?? '',
+                ref.read(userProvider).nickname,
+              );
+          return;
+        }
 
-                      // Jawne wywołanie resetowania stanu zmian
-                      courseElements.resetChanges();
-
-                      // Wymuszamy odświeżenie widoku po zapisie
-                      setState(() {
-                        // setState wymusi przebudowanie widgetu i ponowne obliczenie hasChanges
-                      });
-                    }
-                    : null,
-            color: hasChanges ? Colors.blue : Colors.grey,
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Wyświetl komunikat o pustej liście i duży przycisk dodawania gdy nie ma elementów
-          if (courseElements.courseElements.isEmpty)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Kurs nie ma jeszcze elementów',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+        // Jeśli są niezapisane zmiany, pokazujemy dialog potwierdzenia
+        if (hasChanges) {
+          final shouldPop = await showDialog<bool>(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  backgroundColor: const Color.fromARGB(255, 45, 45, 45),
+                  title: const Text(
+                    'Niezapisane zmiany',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  const SizedBox(height: 20),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(100),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                  content: const Text(
+                    'Masz niezapisane zmiany. Czy na pewno chcesz wyjść bez zapisywania?',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text(
+                        'Anuluj',
+                        style: TextStyle(color: Colors.blue),
+                      ),
                     ),
-                    child: IconButton(
-                      iconSize: 48,
-                      icon: const Icon(Icons.add, color: Colors.white),
-                      onPressed: () {
-                        // Dodaj pierwszy element kursu
-                        if (ref.read(coursesProvider).selectedCourse != null) {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              45,
-                              45,
-                              45,
-                            ),
-                            builder:
-                                (context) => AddElement(
-                                  courseElementOrder: 0,
-                                  courseId:
-                                      ref
-                                          .read(coursesProvider)
-                                          .selectedCourse!
-                                          .id,
-                                ),
-                          );
-                        }
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Wyjdź',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await courseElements.addAllCourseElementToApi(
+                          await ref.read(userProvider).getToken() ?? '',
+                          courseElements.courseElements.isEmpty
+                              ? ref
+                                      .read(coursesProvider)
+                                      .selectedCourse
+                                      ?.id
+                                      .toString() ??
+                                  "0"
+                              : courseElements.courseElements[0].courseId
+                                  .toString(),
+                        );
+                        if (context.mounted) Navigator.of(context).pop(true);
                       },
+                      child: const Text(
+                        'Zapisz i wyjdź',
+                        style: TextStyle(color: Colors.green),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Kliknij aby dodać pierwszy element',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ],
+                  ],
+                ),
+          );
+          if (shouldPop == true) {
+            Navigator.of(context).pop(result);
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+          title: const Text(
+            'Course Creator',
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                courseElements.backToPreviousState();
+              },
+              icon: const Icon(Icons.undo),
+            ),
+            IconButton(
+              onPressed: () {
+                // Dodaj logikę ponownego wykonania zmian
+                courseElements.forwardToNextState();
+              },
+              icon: const Icon(Icons.redo),
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.keyboard_return_rounded,
+                color: Colors.white,
               ),
-            )
-          else
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    key: ValueKey(
-                      'course_list_${courseElements.rebuildCounter}',
+              onPressed: () {
+                // Dodaj logikę cofania zmian
+                courseElements.undoAllChanges();
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed:
+                  hasChanges
+                      ? () async {
+                        await courseElements.addAllCourseElementToApi(
+                          await ref.read(userProvider).getToken() ?? '',
+                          courseElements.courseElements.isEmpty
+                              ? ref
+                                      .read(coursesProvider)
+                                      .selectedCourse
+                                      ?.id
+                                      .toString() ??
+                                  "0"
+                              : courseElements.courseElements[0].courseId
+                                  .toString(),
+                        );
+
+                        // Jawne wywołanie resetowania stanu zmian
+                        courseElements.resetChanges();
+
+                        // Wymuszamy odświeżenie widoku po zapisie
+                        setState(() {
+                          // setState wymusi przebudowanie widgetu i ponowne obliczenie hasChanges
+                        });
+                      }
+                      : null,
+              color: hasChanges ? Colors.blue : Colors.grey,
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            // Wyświetl komunikat o pustej liście i duży przycisk dodawania gdy nie ma elementów
+            if (courseElements.courseElements.isEmpty)
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Kurs nie ma jeszcze elementów',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      // Jeśli to pierwszy element, wyświetlamy container
-                      if (index == 0) {
-                        return Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.6,
-                            height: 400,
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 45, 45, 45),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(100),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  onDoubleTap: () => setCourseEdit('title'),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child:
-                                        courseEdit == 'title'
-                                            ? TextField(
-                                              autofocus: true,
-                                              maxLines: 1,
-                                              minLines: 1,
-                                              controller: TextEditingController(
-                                                text: widget.course.title,
-                                              ),
-                                              onChanged: (value) {
-                                                widget.course.title = value;
-                                              },
-                                              style: const TextStyle(
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(100),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        iconSize: 48,
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        onPressed: () {
+                          // Dodaj pierwszy element kursu
+                          if (ref.read(coursesProvider).selectedCourse !=
+                              null) {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                45,
+                                45,
+                                45,
+                              ),
+                              builder:
+                                  (context) => AddElement(
+                                    courseElementOrder: 0,
+                                    courseId:
+                                        ref
+                                            .read(coursesProvider)
+                                            .selectedCourse!
+                                            .id,
+                                  ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Kliknij aby dodać pierwszy element',
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      key: ValueKey(
+                        'course_list_${courseElements.rebuildCounter}',
+                      ),
+                      itemBuilder: (context, index) {
+                        // Jeśli to pierwszy element, wyświetlamy container
+                        if (index == 0) {
+                          return Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 45, 45, 45),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(100),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: IntrinsicHeight(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    GestureDetector(
+                                      onDoubleTap: () => setCourseEdit('title'),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child:
+                                            courseEdit == 'title'
+                                                ? TextField(
+                                                  autofocus: true,
+                                                  maxLines: 1,
+                                                  minLines: 1,
+                                                  controller:
+                                                      TextEditingController(
+                                                        text:
+                                                            widget.course.title,
+                                                      ),
+                                                  onChanged: (value) {
+                                                    widget.course.title = value;
+                                                  },
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        hintText: 'Tytuł kursu',
+                                                        hintStyle: TextStyle(
+                                                          color: Colors.grey,
+                                                        ),
+                                                        border:
+                                                            InputBorder.none,
+                                                      ),
+                                                  // Obsługa klawisza Enter - niestandardowa
+                                                  keyboardType:
+                                                      TextInputType.multiline,
+                                                  textInputAction:
+                                                      TextInputAction.done,
+                                                  // Używamy onSubmitted do przechwycenia zdarzenia Enter
+                                                  onSubmitted: (value) {
+                                                    setCourseEdit('not');
+                                                  },
+                                                  // Dodajemy obsługę klawisza Enter poprzez fokus
+                                                  focusNode: FocusNode(
+                                                    onKeyEvent: (node, event) {
+                                                      // Sprawdzamy czy to Enter bez Shifta
+                                                      if (event.logicalKey ==
+                                                              LogicalKeyboardKey
+                                                                  .enter &&
+                                                          !HardwareKeyboard
+                                                              .instance
+                                                              .isShiftPressed) {
+                                                        if (event
+                                                            is KeyDownEvent) {
+                                                          setCourseEdit('not');
+                                                          return KeyEventResult
+                                                              .handled;
+                                                        }
+                                                      }
+                                                      return KeyEventResult
+                                                          .ignored;
+                                                    },
+                                                  ),
+                                                )
+                                                : Text(
+                                                  widget.course.title,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 24,
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: GestureDetector(
+                                        onDoubleTap: () {
+                                          setCourseEdit('description');
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12.0,
+                                            horizontal: 8.0,
+                                          ),
+                                          child:
+                                              courseEdit == 'description'
+                                                  ? TextField(
+                                                    autofocus: true,
+                                                    maxLines: 5,
+                                                    minLines: 1,
+                                                    controller:
+                                                        TextEditingController(
+                                                          text:
+                                                              widget
+                                                                  .course
+                                                                  .description,
+                                                        ),
+                                                    onChanged: (value) {
+                                                      widget
+                                                          .course
+                                                          .description = value;
+                                                      debugPrint(
+                                                        'Opis kursu zmieniony na: $value',
+                                                      );
+                                                    },
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                    decoration:
+                                                        const InputDecoration(
+                                                          hintText:
+                                                              'Opis kursu',
+                                                          hintStyle: TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                          border:
+                                                              InputBorder.none,
+                                                        ),
+                                                    // Obsługa klawisza Enter - niestandardowa
+                                                    keyboardType:
+                                                        TextInputType.multiline,
+                                                    textInputAction:
+                                                        TextInputAction.done,
+                                                    // Używamy onSubmitted do przechwycenia zdarzenia Enter
+                                                    onSubmitted: (value) {
+                                                      debugPrint(
+                                                        '✅ Zatwierdzone przez Enter: $value',
+                                                      );
+                                                      setCourseEdit('not');
+                                                    },
+                                                    // Dodajemy obsługę klawisza Enter poprzez fokus
+                                                    focusNode: FocusNode(
+                                                      onKeyEvent: (
+                                                        node,
+                                                        event,
+                                                      ) {
+                                                        // Sprawdzamy czy to Enter bez Shifta
+                                                        if (event.logicalKey ==
+                                                                LogicalKeyboardKey
+                                                                    .enter &&
+                                                            !HardwareKeyboard
+                                                                .instance
+                                                                .isShiftPressed) {
+                                                          if (event
+                                                              is KeyDownEvent) {
+                                                            // Zapisujemy tekst i wyjdź z trybu edycji
+                                                            debugPrint(
+                                                              '✅ Enter wciśnięty - zapisuję i wychodzę',
+                                                            );
+                                                            setCourseEdit(
+                                                              'not',
+                                                            );
+                                                            return KeyEventResult
+                                                                .handled;
+                                                          }
+                                                        }
+                                                        // Dla innych klawiszy lub Shift+Enter pozwalamy na domyślne zachowanie
+                                                        return KeyEventResult
+                                                            .ignored;
+                                                      },
+                                                    ),
+                                                  )
+                                                  : Text(
+                                                    widget.course.description,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 10.0,
+                                          left: 16.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Status kursu: ',
+                                              style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16,
                                               ),
-                                              decoration: const InputDecoration(
-                                                hintText: 'Tytuł kursu',
-                                                hintStyle: TextStyle(
-                                                  color: Colors.grey,
-                                                ),
-                                                border: InputBorder.none,
-                                              ),
-                                              // Obsługa klawisza Enter - niestandardowa
-                                              keyboardType:
-                                                  TextInputType.multiline,
-                                              textInputAction:
-                                                  TextInputAction.done,
-                                              // Używamy onSubmitted do przechwycenia zdarzenia Enter
-                                              onSubmitted: (value) {
-                                                setCourseEdit('not');
-                                              },
-                                              // Dodajemy obsługę klawisza Enter poprzez fokus
-                                              focusNode: FocusNode(
-                                                onKeyEvent: (node, event) {
-                                                  // Sprawdzamy czy to Enter bez Shifta
-                                                  if (event.logicalKey ==
-                                                          LogicalKeyboardKey
-                                                              .enter &&
-                                                      !HardwareKeyboard
-                                                          .instance
-                                                          .isShiftPressed) {
-                                                    if (event is KeyDownEvent) {
-                                                      setCourseEdit('not');
-                                                      return KeyEventResult
-                                                          .handled;
-                                                    }
-                                                  }
-                                                  return KeyEventResult.ignored;
-                                                },
-                                              ),
-                                            )
-                                            : Text(
-                                              widget.course.title,
+                                            ),
+                                            DropdownButton<String>(
+                                              value: widget.course.status,
+                                              dropdownColor:
+                                                  const Color.fromARGB(
+                                                    255,
+                                                    45,
+                                                    45,
+                                                    45,
+                                                  ),
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 24,
+                                              ),
+                                              underline: Container(
+                                                height: 2,
+                                                color: Colors.blueAccent,
+                                              ),
+                                              onChanged: (String? newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    widget.course.status =
+                                                        newValue;
+                                                  });
+                                                  // Update course status in provider
+                                                  widget.course.status =
+                                                      newValue;
+                                                }
+                                              },
+                                              items:
+                                                  <String>[
+                                                    'DRAFT',
+                                                    'PUBLISHED',
+                                                    'ARCHIVED',
+                                                  ].map<
+                                                    DropdownMenuItem<String>
+                                                  >((String value) {
+                                                    return DropdownMenuItem<
+                                                      String
+                                                    >(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: TextStyle(
+                                                          color:
+                                                              value ==
+                                                                      'PUBLISHED'
+                                                                  ? Colors.green
+                                                                  : value ==
+                                                                      'ARCHIVED'
+                                                                  ? Colors.red
+                                                                  : Colors
+                                                                      .orange,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 15),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 16.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Poziom trudności: ',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
                                               ),
                                             ),
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Material(
-                                  color: Colors.transparent,
-                                  child: GestureDetector(
-                                    onDoubleTap: () {
-                                      setCourseEdit('description');
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0,
-                                        horizontal: 8.0,
-                                      ),
-                                      child:
-                                          courseEdit == 'description'
-                                              ? TextField(
-                                                autofocus: true,
-                                                maxLines: 5,
-                                                minLines: 1,
-                                                controller:
-                                                    TextEditingController(
-                                                      text:
-                                                          widget
-                                                              .course
-                                                              .description,
-                                                    ),
-                                                onChanged: (value) {
-                                                  widget.course.description =
-                                                      value;
-                                                  debugPrint(
-                                                    'Opis kursu zmieniony na: $value',
-                                                  );
-                                                },
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                ),
-                                                decoration:
-                                                    const InputDecoration(
-                                                      hintText: 'Opis kursu',
-                                                      hintStyle: TextStyle(
-                                                        color: Colors.grey,
-                                                      ),
-                                                      border: InputBorder.none,
-                                                    ),
-                                                // Obsługa klawisza Enter - niestandardowa
-                                                keyboardType:
-                                                    TextInputType.multiline,
-                                                textInputAction:
-                                                    TextInputAction.done,
-                                                // Używamy onSubmitted do przechwycenia zdarzenia Enter
-                                                onSubmitted: (value) {
-                                                  debugPrint(
-                                                    '✅ Zatwierdzone przez Enter: $value',
-                                                  );
-                                                  setCourseEdit('not');
-                                                },
-                                                // Dodajemy obsługę klawisza Enter poprzez fokus
-                                                focusNode: FocusNode(
-                                                  onKeyEvent: (node, event) {
-                                                    // Sprawdzamy czy to Enter bez Shifta
-                                                    if (event.logicalKey ==
-                                                            LogicalKeyboardKey
-                                                                .enter &&
-                                                        !HardwareKeyboard
-                                                            .instance
-                                                            .isShiftPressed) {
-                                                      if (event
-                                                          is KeyDownEvent) {
-                                                        // Zapisujemy tekst i wyjdź z trybu edycji
-                                                        debugPrint(
-                                                          '✅ Enter wciśnięty - zapisuję i wychodzę',
-                                                        );
-                                                        setCourseEdit('not');
-                                                        return KeyEventResult
-                                                            .handled;
-                                                      }
-                                                    }
-                                                    // Dla innych klawiszy lub Shift+Enter pozwalamy na domyślne zachowanie
-                                                    return KeyEventResult
-                                                        .ignored;
-                                                  },
-                                                ),
-                                              )
-                                              : Text(
-                                                widget.course.description,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                ),
+                                            DropdownButton<String>(
+                                              value:
+                                                  widget.course.difficultyLevel,
+                                              dropdownColor:
+                                                  const Color.fromARGB(
+                                                    255,
+                                                    45,
+                                                    45,
+                                                    45,
+                                                  ),
+                                              style: const TextStyle(
+                                                color: Colors.white,
                                               ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 10.0,
-                                      left: 16.0,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Text(
-                                          'Status kursu: ',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
+                                              underline: Container(
+                                                height: 2,
+                                                color: Colors.blueAccent,
+                                              ),
+                                              onChanged: (String? newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    widget
+                                                            .course
+                                                            .difficultyLevel =
+                                                        newValue;
+                                                  });
+                                                }
+                                              },
+                                              items:
+                                                  <String>[
+                                                    'BASIC',
+                                                    'INTERMEDIATE',
+                                                    'ADVANCED',
+                                                  ].map<
+                                                    DropdownMenuItem<String>
+                                                  >((String value) {
+                                                    return DropdownMenuItem<
+                                                      String
+                                                    >(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: TextStyle(
+                                                          color:
+                                                              value == 'BASIC'
+                                                                  ? Colors.green
+                                                                  : value ==
+                                                                      'INTERMEDIATE'
+                                                                  ? Colors
+                                                                      .orange
+                                                                  : value ==
+                                                                      'ADVANCED'
+                                                                  ? Colors.red
+                                                                  : Colors.grey,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                            ),
+                                          ],
                                         ),
-                                        DropdownButton<String>(
-                                          value:
-                                              widget.course.status ?? 'DRAFT',
-                                          dropdownColor: const Color.fromARGB(
-                                            255,
-                                            45,
-                                            45,
-                                            45,
-                                          ),
-                                          style: const TextStyle(
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: AnimatedCategoryPicker(
+                                        allCategories:
+                                            ref
+                                                .read(coursesProvider)
+                                                .categories,
+                                        selectedCategories:
+                                            widget.course.categories,
+                                        onCategorySelected: (cat) {
+                                          setState(() {
+                                            widget.course.categories = [
+                                              ...widget.course.categories,
+                                              cat,
+                                            ];
+                                          });
+                                        },
+                                        onCategoryRemoved: (cat) {
+                                          setState(() {
+                                            widget.course.categories =
+                                                widget.course.categories
+                                                    .where(
+                                                      (c) => c.id != cat.id,
+                                                    )
+                                                    .toList();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(child: SizedBox()),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        IconButton(
+                                          onPressed:
+                                              () async => widget.course
+                                                  .saveToApi(
+                                                    await ref
+                                                            .read(userProvider)
+                                                            .getToken() ??
+                                                        '',
+                                                  )
+                                                  .then(
+                                                    (value) =>
+                                                        ref
+                                                            .read(
+                                                              coursesProvider,
+                                                            )
+                                                            .updateCourses(),
+                                                  ),
+                                          icon: const Icon(
+                                            Icons.save,
                                             color: Colors.white,
                                           ),
-                                          underline: Container(
-                                            height: 2,
-                                            color: Colors.blueAccent,
-                                          ),
-                                          onChanged: (String? newValue) {
-                                            if (newValue != null) {
-                                              setState(() {
-                                                widget.course.status = newValue;
-                                              });
-                                              // Update course status in provider
-                                              widget.course.status = newValue;
-                                            }
-                                          },
-                                          items:
-                                              <String>[
-                                                'DRAFT',
-                                                'PUBLISHED',
-                                                'ARCHIVED',
-                                              ].map<DropdownMenuItem<String>>((
-                                                String value,
-                                              ) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value,
-                                                    style: TextStyle(
-                                                      color:
-                                                          value == 'PUBLISHED'
-                                                              ? Colors.green
-                                                              : value ==
-                                                                  'ARCHIVED'
-                                                              ? Colors.grey
-                                                              : Colors.orange,
-                                                    ),
-                                                  ),
-                                                );
-                                              }).toList(),
                                         ),
                                       ],
                                     ),
-                                  ),
+                                  ],
                                 ),
-
-                                const SizedBox(height: 15),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 16.0),
-                                    child: Row(
-                                      children: [
-                                        const Text(
-                                          'Poziom trudności: ',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        DropdownButton<String>(
-                                          value:
-                                              widget.course.difficultyLevel ??
-                                              'BEGINNER',
-                                          dropdownColor: const Color.fromARGB(
-                                            255,
-                                            45,
-                                            45,
-                                            45,
-                                          ),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                          underline: Container(
-                                            height: 2,
-                                            color: Colors.blueAccent,
-                                          ),
-                                          onChanged: (String? newValue) {
-                                            if (newValue != null) {
-                                              setState(() {
-                                                widget.course.difficultyLevel =
-                                                    newValue;
-                                              });
-                                            }
-                                          },
-                                          items:
-                                              <String>[
-                                                'BEGINNER',
-                                                'INTERMEDIATE',
-                                                'ADVANCED',
-                                                'EXPERT',
-                                              ].map<DropdownMenuItem<String>>((
-                                                String value,
-                                              ) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value,
-                                                    style: TextStyle(
-                                                      color:
-                                                          value == 'BEGINNER'
-                                                              ? Colors.green
-                                                              : value ==
-                                                                  'INTERMEDIATE'
-                                                              ? Colors.blue
-                                                              : value ==
-                                                                  'ADVANCED'
-                                                              ? Colors.orange
-                                                              : Colors.red,
-                                                    ),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
+                          );
+                        }
+
+                        // Dla pozostałych indeksów wyświetlamy elementy kursu
+                        final element =
+                            courseElements.courseElements[index - 1];
+
+                        return Stack(
+                          key: ValueKey(
+                            'course_element_${element.id}_${courseElements.rebuildCounter}',
                           ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              child: Card(
+                                color: const Color.fromARGB(22, 45, 45, 45),
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 16,
+                                ),
+                                child: CourseElementWidget(
+                                  key: ValueKey(
+                                    'widget_${element.id}_${courseElements.rebuildCounter}',
+                                  ),
+                                  courseElements: element,
+                                ),
+                              ),
+                            ),
+
+                            Positioned(
+                              top: 0,
+                              bottom: 0,
+                              right: 0,
+                              child: Center(
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    // Dodaj logikę usuwania elementu
+                                    courseElements.removeCourseElement(
+                                      element.id,
+                                    );
+
+                                    // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
+                                    _CourseElementWidgetState.resetVideoControllers();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         );
-                      }
+                      },
+                      itemCount: courseElements.courseElements?.length ?? 0,
+                    ),
+                  ),
+                ],
+              ),
 
-                      // Dla pozostałych indeksów wyświetlamy elementy kursu
-                      final element = courseElements.courseElements[index - 1];
+            hasChanges
+                ? Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
 
-                      return Stack(
-                        key: ValueKey(
-                          'course_element_${element.id}_${courseElements.rebuildCounter}',
-                        ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: Card(
-                              color: const Color.fromARGB(22, 45, 45, 45),
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 16,
-                              ),
-                              child: CourseElementWidget(
-                                key: ValueKey(
-                                  'widget_${element.id}_${courseElements.rebuildCounter}',
-                                ),
-                                courseElements: element,
-                              ),
-                            ),
-                          ),
-
-                          Positioned(
-                            top: 0,
-                            bottom: 0,
-                            right: 0,
-                            child: Center(
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {
-                                  // Dodaj logikę usuwania elementu
-                                  courseElements.removeCourseElement(
-                                    element.id,
-                                  );
-
-                                  // Po usunięciu elementu, wymuszamy odświeżenie wszystkich kontrolerów wideo
-                                  _CourseElementWidgetState.resetVideoControllers();
-                                },
-                              ),
-                            ),
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(50),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
                           ),
                         ],
-                      );
-                    },
-                    // +1 ponieważ pierwszy element to container
-                    itemCount: courseElements.courseElements.length + 1,
-                  ),
-                ),
-              ],
-            ),
-
-          hasChanges
-              ? Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(50),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.save,
-                        color: Colors.white,
-                        size: 50,
                       ),
-                      onPressed:
-                          () async => courseElements.addAllCourseElementToApi(
-                            await ref.read(userProvider).getToken() ?? '',
-                            courseElements.courseElements.isEmpty
-                                ? ref
-                                        .read(coursesProvider)
-                                        .selectedCourse
-                                        ?.id
-                                        .toString() ??
-                                    "0"
-                                : courseElements.courseElements[0].courseId
-                                    .toString(),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.save,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                        onPressed:
+                            () async => courseElements.addAllCourseElementToApi(
+                              await ref.read(userProvider).getToken() ?? '',
+                              courseElements.courseElements.isEmpty
+                                  ? ref
+                                          .read(coursesProvider)
+                                          .selectedCourse
+                                          ?.id
+                                          .toString() ??
+                                      "0"
+                                  : courseElements.courseElements[0].courseId
+                                      .toString(),
+                            ),
+                      ),
+                    ),
+                  ),
+                )
+                : Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(123, 99, 104, 107),
+
+                        borderRadius: BorderRadius.circular(100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(50),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
                           ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.save,
+                          color: Color.fromARGB(123, 255, 255, 255),
+                          size: 50,
+                        ),
+                        onPressed: () {
+                          debugPrint('Nie ma zmian do zapisania');
+                        },
+                      ),
                     ),
                   ),
                 ),
-              )
-              : Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(123, 99, 104, 107),
 
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(50),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.save,
-                        color: Color.fromARGB(123, 255, 255, 255),
-                        size: 50,
+            // Animowany kontener do dodawania kategorii
+            if (_showCategoryCreator)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Container(
+                      width: _widthAnimation.value,
+                      height: _heightAnimation.value,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 45, 45, 45),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(100),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
-                      onPressed: () {
-                        debugPrint('Nie ma zmian do zapisania');
-                      },
-                    ),
-                  ),
+                      padding: const EdgeInsets.all(16),
+                      child:
+                          _widthAnimation.value > 290 &&
+                                  _heightAnimation.value > 50
+                              ? SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            itemCount:
+                                                widget.course.categories.length,
+                                            itemBuilder: (context, index) {
+                                              return Container(
+                                                margin: const EdgeInsets.only(
+                                                  right: 8.0,
+                                                ),
+                                                child: Container(
+                                                  margin: const EdgeInsets.all(
+                                                    8.0,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color.fromARGB(
+                                                      255,
+                                                      65,
+                                                      65,
+                                                      65,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              8.0,
+                                                            ),
+                                                        child: Text(
+                                                          widget
+                                                              .course
+                                                              .categories[index]
+                                                              .name,
+                                                          style:
+                                                              const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      IconButton(
+                                                        onPressed: () {},
+                                                        icon: const Icon(
+                                                          Icons.check,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextField(
+                                      controller: _categoryNameController,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Nazwa kategorii',
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                        fillColor: Color.fromARGB(
+                                          255,
+                                          65,
+                                          65,
+                                          65,
+                                        ),
+                                        filled: true,
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    TextField(
+                                      controller: _categoryDescController,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Opis kategorii',
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                        fillColor: Color.fromARGB(
+                                          255,
+                                          65,
+                                          65,
+                                          65,
+                                        ),
+                                        filled: true,
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      minLines: 2,
+                                      maxLines: 3,
+                                    ),
+                                    const SizedBox(height: 15),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                        ),
+                                        onPressed: () {
+                                          // Tutaj dodajemy nową kategorię
+                                          final name =
+                                              _categoryNameController.text
+                                                  .trim();
+                                          final desc =
+                                              _categoryDescController.text
+                                                  .trim();
+
+                                          if (name.isNotEmpty) {
+                                            setState(() {
+                                              widget.course.categories = [
+                                                ...widget.course.categories,
+                                                Category(
+                                                  id: Math.Random().nextInt(
+                                                    10000,
+                                                  ),
+                                                  name: name,
+                                                  description: desc,
+                                                ),
+                                              ];
+                                              _categoryNameController.clear();
+                                              _categoryDescController.clear();
+                                              _showCategoryCreator = false;
+                                            });
+                                            _animationController.reverse();
+                                          }
+                                        },
+                                        child: const Text(
+                                          'Dodaj kategorię',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              : const SizedBox.shrink(),
+                    );
+                  },
                 ),
               ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1878,5 +2274,315 @@ class _CourseElementWidgetState extends ConsumerState<CourseElementWidget> {
           ),
         );
     }
+  }
+}
+
+class CategorySelector extends StatefulWidget {
+  final List<Category> allCategories;
+  final List<Category> selectedCategories;
+  final void Function(Category) onCategorySelected;
+  final void Function(Category) onCategoryRemoved;
+  const CategorySelector({
+    super.key,
+    required this.allCategories,
+    required this.selectedCategories,
+    required this.onCategorySelected,
+    required this.onCategoryRemoved,
+  });
+
+  @override
+  State<CategorySelector> createState() => _CategorySelectorState();
+}
+
+class _CategorySelectorState extends State<CategorySelector> {
+  bool expanded = false;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 45, 45, 45),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blueAccent, width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (!expanded)
+                IconButton(
+                  icon: const Icon(Icons.add, color: Colors.blue),
+                  onPressed: () => setState(() => expanded = true),
+                ),
+              if (expanded)
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.blue),
+                  onPressed: () => setState(() => expanded = false),
+                ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  children:
+                      widget.selectedCategories.isEmpty
+                          ? [
+                            Chip(
+                              label: const Text(
+                                'Brak kategorii',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.grey[800],
+                            ),
+                          ]
+                          : widget.selectedCategories
+                              .map(
+                                (cat) => Chip(
+                                  label: Text(
+                                    cat.name,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                  deleteIcon: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                  ),
+                                  onDeleted:
+                                      () => widget.onCategoryRemoved(cat),
+                                ),
+                              )
+                              .toList(),
+                ),
+              ),
+            ],
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children:
+                    widget.allCategories
+                        .where(
+                          (cat) => !widget.selectedCategories.contains(cat),
+                        )
+                        .map(
+                          (cat) => ActionChip(
+                            label: Text(
+                              cat.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.grey[700],
+                            onPressed: () => widget.onCategorySelected(cat),
+                          ),
+                        )
+                        .toList(),
+              ),
+            ),
+            crossFadeState:
+                expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 300),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- ZAMIANA SEKCJI KATEGORII NA ROZWIJANY PRZYCISK ---
+class AnimatedCategoryPicker extends ConsumerStatefulWidget {
+  final List<Category> allCategories;
+  final List<Category> selectedCategories;
+  final void Function(Category) onCategorySelected;
+  final void Function(Category) onCategoryRemoved;
+  const AnimatedCategoryPicker({
+    super.key,
+    required this.allCategories,
+    required this.selectedCategories,
+    required this.onCategorySelected,
+    required this.onCategoryRemoved,
+  });
+
+  @override
+  ConsumerState<AnimatedCategoryPicker> createState() =>
+      _AnimatedCategoryPickerState();
+}
+
+class _AnimatedCategoryPickerState
+    extends ConsumerState<AnimatedCategoryPicker> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+  bool expanded = false;
+
+  void _showOverlay() {
+    if (_overlayEntry != null) return;
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final Size size = renderBox.size;
+
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _hideOverlay,
+            child: Stack(
+              children: [
+                Positioned(
+                  left: offset.dx,
+                  top: offset.dy + size.height + 8,
+                  width: size.width,
+                  child: CompositedTransformFollower(
+                    link: _layerLink,
+                    showWhenUnlinked: false,
+                    offset: Offset(0, size.height + 8),
+                    child: Material(
+                      elevation: 8,
+                      borderRadius: BorderRadius.circular(16),
+                      color: const Color.fromARGB(255, 45, 45, 45),
+                      child: Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              height: 80,
+                              constraints: const BoxConstraints(maxHeight: 200),
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                padding: EdgeInsets.zero,
+                                children:
+                                    widget.allCategories
+                                        .where(
+                                          (cat) =>
+                                              !widget.selectedCategories
+                                                  .contains(cat),
+                                        )
+                                        .map(
+                                          (cat) => Padding(
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: ActionChip(
+                                              label: Text(
+                                                cat.name,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              backgroundColor: Colors.grey[700],
+                                              onPressed: () {
+                                                widget.onCategorySelected(cat);
+                                                // Odświeżenie stanu i zamknięcie overlay po wyborze
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback((_) {
+                                                      _hideOverlay();
+                                                      setState(() {});
+                                                    });
+                                              },
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                              onPressed: _hideOverlay,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    setState(() {
+      expanded = true;
+    });
+  }
+
+  void _hideOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      expanded = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _hideOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Container(
+        height: 80,
+
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(
+                expanded ? Icons.close : Icons.add,
+                color: Colors.blue,
+              ),
+              onPressed: () async {
+                if (expanded) {
+                  _hideOverlay();
+                } else {
+                  _showOverlay();
+                }
+              },
+            ),
+            Expanded(
+              child: Wrap(
+                spacing: 8,
+                children:
+                    widget.selectedCategories.isEmpty
+                        ? [
+                          Chip(
+                            label: const Text(
+                              'Brak kategorii',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.grey[800],
+                          ),
+                        ]
+                        : widget.selectedCategories
+                            .map(
+                              (cat) => Chip(
+                                label: Text(
+                                  cat.name,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: Colors.blue,
+                                deleteIcon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                ),
+                                onDeleted: () => widget.onCategoryRemoved(cat),
+                              ),
+                            )
+                            .toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

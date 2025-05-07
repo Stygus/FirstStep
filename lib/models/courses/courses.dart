@@ -699,6 +699,14 @@ class Category {
       description: json['description'],
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Category && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class Course {
@@ -774,6 +782,27 @@ class Course {
       // Note: courseElementsList is managed separately
     };
   }
+
+  Future<void> saveToApi(String token) async {
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/$id');
+    debugPrint(toJson().toString());
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(toJson()),
+      );
+      response.statusCode == 200
+          ? debugPrint('Course saved successfully')
+          : debugPrint('Failed to save course: ${response.statusCode}');
+    } catch (e) {
+      debugPrint('Error while saving course: $e');
+    }
+  }
 }
 
 class CourseList extends ChangeNotifier {
@@ -781,6 +810,27 @@ class CourseList extends ChangeNotifier {
   List<Course> bestCourses = [];
   List<Course> myCourses = [];
   Course? selectedCourse;
+  List<Category> categories = [];
+
+  Future<void> getAllCategoriesFromApi(String token) async {
+    try {
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/categories');
+      final response = await http.get(
+        url,
+        headers: {'accept': 'application/json', 'Authorization': token},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        categories = data.map((item) => Category.fromJson(item)).toList();
+        notifyListeners();
+      } else {
+        throw Exception('Failed to load categories');
+      }
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+    }
+  }
 
   void setSelectedCourse(Course course) {
     selectedCourse = course;
@@ -819,6 +869,7 @@ class CourseList extends ChangeNotifier {
       final List<dynamic> data = jsonDecode(response.body);
       courses = data.map((item) => Course.fromJson(item)).toList();
       updateCourses();
+      getAllCategoriesFromApi(token);
       notifyListeners();
     } else {
       throw Exception('Failed to load courses');
