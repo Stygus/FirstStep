@@ -1,39 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class NarzedziarPage extends StatelessWidget {
+class NarzedziarPage extends StatefulWidget {
   const NarzedziarPage({super.key});
+
+  @override
+  State<NarzedziarPage> createState() => _NarzedziarPageState();
+}
+
+class _NarzedziarPageState extends State<NarzedziarPage> {
+  final List<Map<String, String>> items = [
+    {
+      'image': 'assets/images/bandage.png',
+      'name': 'Bandaż elastyczny',
+      'description': 'Bandaż służy do stabilizacji i ochrony ran.',
+    },
+    {
+      'image': 'assets/images/scissors.png',
+      'name': 'Nożyczki ratownicze',
+      'description':
+          'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
+    },
+    {
+      'image': 'assets/images/gloves.png',
+      'name': 'Rękawiczki jednorazowe',
+      'description':
+          'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
+    },
+    {
+      'image': 'assets/images/first_aid_kit.png',
+      'name': 'Apteczka pierwszej pomocy',
+      'description':
+          'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
+    },
+  ];
+
+  // Lista statusów dla każdego przedmiotu
+  final List<bool> learnedStatus = [false, false, false, false];
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    final List<Map<String, String>> items = [
-      {
-        'image': 'assets/images/bandage.png',
-        'name': 'Bandaż elastyczny',
-        'description': 'Bandaż służy do stabilizacji i ochrony ran.',
-      },
-      {
-        'image': 'assets/images/scissors.png',
-        'name': 'Nożyczki ratownicze',
-        'description':
-            'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
-      },
-      {
-        'image': 'assets/images/gloves.png',
-        'name': 'Rękawiczki jednorazowe',
-        'description':
-            'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
-      },
-      {
-        'image': 'assets/images/first_aid_kit.png',
-        'name': 'Apteczka pierwszej pomocy',
-        'description':
-            'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
-      },
-    ];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -91,49 +99,42 @@ class NarzedziarPage extends StatelessWidget {
             ),
           ),
 
-          // PageView z przedmiotami
-          Expanded(
-            child: PageView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Stałe zdjęcie bandage.png
-                      Image.asset(
-                        'assets/images/bandage.png', // Zawsze wyświetla bandage.png
-                        height: screenHeight * 0.3,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(height: 20),
-                      // Nazwa przedmiotu
-                      Text(
-                        item['name']!,
-                        style: GoogleFonts.itim(
-                          color: Colors.white,
-                          fontSize: screenWidth * 0.06,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 10),
-                      // Opis przedmiotu
-                      Text(
-                        item['description']!,
-                        style: TextStyle(
-                          color: Colors.grey[300],
-                          fontSize: screenWidth * 0.045,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+          Column(
+            children: [
+              // Napis "Poznaj sprzęt!"
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Text(
+                  'Poznaj sprzęt!',
+                  style: GoogleFonts.itim(
+                    color: Colors.white,
+                    fontSize: screenWidth * 0.07,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
-            ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              // Zdjęcie narzędzia
+              Image.asset(
+                'assets/images/narzedziazdjecie.png',
+                height: screenHeight * 0.3,
+                fit: BoxFit.contain,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Statystyki nauczonych przedmiotów
+              Text(
+                'Nauczone przedmioty: ${learnedStatus.where((status) => status).length} / ${items.length}',
+                style: TextStyle(
+                  color: Colors.grey[300],
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ],
       ),
