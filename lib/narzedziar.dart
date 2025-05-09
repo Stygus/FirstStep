@@ -125,14 +125,94 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
               const SizedBox(height: 20),
 
               // Statystyki nauczonych przedmiotów
-              Text(
-                'Nauczone przedmioty: ${learnedStatus.where((status) => status).length} / ${items.length}',
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontSize: screenWidth * 0.05,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+              Column(
+                children: [
+                  Text(
+                    'Statystyki:',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: screenWidth * 0.06,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Nauczone przedmioty
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green, size: screenWidth * 0.08),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Nauczone: ${learnedStatus.where((status) => status).length}',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: screenWidth * 0.05,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // W trakcie nauki
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.hourglass_bottom, color: Colors.orange, size: screenWidth * 0.08),
+                      const SizedBox(width: 10),
+                      Text(
+                        'W trakcie nauki: ${items.length - learnedStatus.where((status) => status).length - learnedStatus.where((status) => !status).length}',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: screenWidth * 0.05,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Do nauczenia
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red, size: screenWidth * 0.08),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Do nauczenia: ${learnedStatus.where((status) => !status).length}',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: screenWidth * 0.05,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Pasek postępu
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: LinearProgressIndicator(
+                      value: learnedStatus.where((status) => status).length / items.length,
+                      backgroundColor: Colors.grey[800],
+                      color: Colors.green,
+                      minHeight: 10,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Postęp: ${(learnedStatus.where((status) => status).length / items.length * 100).toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ],
           ),
