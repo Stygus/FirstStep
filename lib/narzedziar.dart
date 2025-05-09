@@ -11,24 +11,24 @@ class NarzedziarPage extends StatefulWidget {
 class _NarzedziarPageState extends State<NarzedziarPage> {
   final List<Map<String, String>> items = [
     {
-      'image': 'assets/images/bandage.png',
+      'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Bandaż elastyczny',
       'description': 'Bandaż służy do stabilizacji i ochrony ran.',
     },
     {
-      'image': 'assets/images/scissors.png',
+      'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Nożyczki ratownicze',
       'description':
           'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
     },
     {
-      'image': 'assets/images/gloves.png',
+      'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Rękawiczki jednorazowe',
       'description':
           'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
     },
     {
-      'image': 'assets/images/first_aid_kit.png',
+      'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Apteczka pierwszej pomocy',
       'description':
           'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
@@ -115,11 +115,106 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                 ),
               ),
 
-              // Zdjęcie narzędzia
-              Image.asset(
-                'assets/images/narzedziazdjecie.png',
-                height: screenHeight * 0.3,
-                fit: BoxFit.contain,
+              // Zdjęcie narzędzia z obsługą kliknięcia
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: const Color(0xFF202020),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    builder: (BuildContext context) {
+                      return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Przeglądaj Fiszki',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: screenWidth * 0.06,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Lista fiszek
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: items.length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                        color: const Color(0xFF303030),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: ListTile(
+                                          leading: Image.asset(
+                                            items[index]['image']!,
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.contain,
+                                          ),
+                                          title: Text(
+                                            items[index]['name']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            items[index]['description']!,
+                                            style: const TextStyle(color: Colors.grey),
+                                          ),
+                                          trailing: PopupMenuButton<String>(
+                                            onSelected: (value) {
+                                              setState(() {
+                                                if (value == 'Nauczone') {
+                                                  learnedStatus[index] = true;
+                                                } else if (value == 'Do nauczenia') {
+                                                  learnedStatus[index] = false;
+                                                }
+                                              });
+                                            },
+                                            itemBuilder: (context) => [
+                                              const PopupMenuItem(
+                                                value: 'Nauczone',
+                                                child: Text('Nauczone'),
+                                              ),
+                                              const PopupMenuItem(
+                                                value: 'W trakcie nauki',
+                                                child: Text('W trakcie nauki'),
+                                              ),
+                                              const PopupMenuItem(
+                                                value: 'Do nauczenia',
+                                                child: Text('Do nauczenia'),
+                                              ),
+                                            ],
+                                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+                child: Image.asset(
+                  'assets/images/narzedziazdjecie.png',
+                  height: screenHeight * 0.3,
+                  fit: BoxFit.contain,
+                ),
               ),
 
               const SizedBox(height: 20),
