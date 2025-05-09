@@ -1,6 +1,5 @@
 import 'package:firststep/menu.dart';
 import 'package:firststep/providers/animationsProvider.dart';
-import 'package:firststep/narzedziar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,14 +13,7 @@ void main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const KursyPage(),
-          '/narzedziar': (context) => const NarzedziarPage(),
-          '/testy': (context) => const TestyPage(),
-        },
-      ),
+      child: MaterialApp(home: MyApp()), // Aplikacja mobilna
     ),
   );
 }

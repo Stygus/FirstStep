@@ -9,6 +9,32 @@ class NarzedziarPage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
+    final List<Map<String, String>> items = [
+      {
+        'image': 'assets/images/bandage.png',
+        'name': 'Bandaż elastyczny',
+        'description': 'Bandaż służy do stabilizacji i ochrony ran.',
+      },
+      {
+        'image': 'assets/images/scissors.png',
+        'name': 'Nożyczki ratownicze',
+        'description':
+            'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
+      },
+      {
+        'image': 'assets/images/gloves.png',
+        'name': 'Rękawiczki jednorazowe',
+        'description':
+            'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
+      },
+      {
+        'image': 'assets/images/first_aid_kit.png',
+        'name': 'Apteczka pierwszej pomocy',
+        'description':
+            'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
+      },
+    ];
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -35,7 +61,7 @@ class NarzedziarPage extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(top: screenHeight * 0.001),
                     child: Text(
-                      'Narzędzia',
+                      'Narzędzia Ratownika',
                       style: GoogleFonts.itim(
                         color: Colors.white,
                         fontSize: screenWidth * 0.06,
@@ -65,28 +91,46 @@ class NarzedziarPage extends StatelessWidget {
           ),
 
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  const Text(
-                    'Narzędzia\n dostępne już\n wkrótce!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+            child: PageView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Zdjęcie przedmiotu
+                      Image.asset(
+                        item['image']!,
+                        height: screenHeight * 0.3,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 20),
+                      // Nazwa przedmiotu
+                      Text(
+                        item['name']!,
+                        style: GoogleFonts.itim(
+                          color: Colors.white,
+                          fontSize: screenWidth * 0.06,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      // Opis przedmiotu
+                      Text(
+                        item['description']!,
+                        style: TextStyle(
+                          color: Colors.grey[300],
+                          fontSize: screenWidth * 0.045,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/images/logod.png',
-                    height: 200,
-                    width: 200,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],

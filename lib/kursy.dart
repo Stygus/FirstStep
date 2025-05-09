@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firststep/narzedziar.dart';
+import 'package:firststep/testy.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -9,7 +10,7 @@ void main() {
     routes: {
       '/': (context) => const KursyPage(),
       '/narzedziar': (context) => const NarzedziarPage(),
-      '/testy': (context) => const TestyPage(), // Jeśli istnieje
+      '/testy': (context) => const TestyPage(),
     },
   ));
 }
@@ -103,7 +104,9 @@ class KursyPage extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pushNamed('/testy');
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => const TestyPage()),
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
