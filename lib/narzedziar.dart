@@ -52,6 +52,7 @@ class NarzedziarPage extends StatelessWidget {
       backgroundColor: const Color(0xFF101010),
       body: Column(
         children: [
+          // Nagłówek z linią
           SizedBox(
             height: screenHeight * 0.1,
             child: Stack(
@@ -90,6 +91,7 @@ class NarzedziarPage extends StatelessWidget {
             ),
           ),
 
+          // PageView z przedmiotami
           Expanded(
             child: PageView.builder(
               itemCount: items.length,
@@ -100,9 +102,9 @@ class NarzedziarPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Zdjęcie przedmiotu
+                      // Stałe zdjęcie bandage.png
                       Image.asset(
-                        item['image']!,
+                        'assets/images/bandage.png', // Zawsze wyświetla bandage.png
                         height: screenHeight * 0.3,
                         fit: BoxFit.contain,
                       ),
