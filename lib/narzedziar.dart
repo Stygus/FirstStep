@@ -115,66 +115,25 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
               // Zdjęcie narzędzia z obsługą kliknięcia
               GestureDetector(
                 onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: const Color(0xFF101010),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-                    ),
-                    builder: (BuildContext context) {
-                      return ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FiszkaDetailsPage(
-                                    item: items[index],
-                                    onStatusChange: (String status) {
-                                      setState(() {
-                                        if (status == 'Nauczone') {
-                                          learnedStatus[index] = true;
-                                        } else if (status == 'Do nauczenia') {
-                                          learnedStatus[index] = false;
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
+                  // Po kliknięciu otwiera szczegóły pierwszego elementu
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => FiszkaDetailsPage(
+                            item:
+                                items[0], // Wyświetla pierwszy element z listy
+                            onStatusChange: (String status) {
+                              setState(() {
+                                if (status == 'Nauczone') {
+                                  learnedStatus[0] = true;
+                                } else if (status == 'Do nauczenia') {
+                                  learnedStatus[0] = false;
+                                }
+                              });
                             },
-                            child: Card(
-                              color: const Color(0xFF303030),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: Image.asset(
-                                  items[index]['image']!,
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.contain,
-                                ),
-                                title: Text(
-                                  items[index]['name']!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  items[index]['description']!,
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                          ),
+                    ),
                   );
                 },
                 child: Image.asset(
@@ -356,7 +315,8 @@ class FiszkaDetailsPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
+                    // Zielony przycisk z "ptaszkiem"
+                    ElevatedButton.icon(
                       onPressed: () {
                         onStatusChange('Nauczone');
                         Navigator.pop(context);
@@ -364,9 +324,12 @@ class FiszkaDetailsPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
-                      child: const Text('Nauczone'),
+                      icon: const Icon(Icons.check, color: Colors.white),
+                      label: const Text(''),
                     ),
-                    ElevatedButton(
+
+                    // Pomarańczowy przycisk z klepsydrą
+                    ElevatedButton.icon(
                       onPressed: () {
                         onStatusChange('W trakcie nauki');
                         Navigator.pop(context);
@@ -374,9 +337,12 @@ class FiszkaDetailsPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                       ),
-                      child: const Text('W trakcie nauki'),
+                      icon: const Icon(Icons.hourglass_bottom, color: Colors.white),
+                      label: const Text(''),
                     ),
-                    ElevatedButton(
+
+                    // Czerwony przycisk z "X"
+                    ElevatedButton.icon(
                       onPressed: () {
                         onStatusChange('Do nauczenia');
                         Navigator.pop(context);
@@ -384,7 +350,8 @@ class FiszkaDetailsPage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child: const Text('Do nauczenia'),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      label: const Text(''),
                     ),
                   ],
                 ),
