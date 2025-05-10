@@ -36,17 +36,9 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
   final List<String> learnedStatus = ['Do nauczenia', 'Do nauczenia', 'Do nauczenia', 'Do nauczenia'];
   int currentIndex = 0;
 
-  void _updateStatus(String status) {
+  void _updateStatus(int index, String status) {
     setState(() {
-      learnedStatus[currentIndex] = status;
-
-      // Przejdź do kolejnego elementu, jeśli istnieje
-      if (currentIndex < items.length - 1) {
-        currentIndex++;
-      } else {
-        // Jeśli to ostatni element, wróć na początek
-        currentIndex = 0;
-      }
+      learnedStatus[index] = status;
     });
   }
 
@@ -132,7 +124,8 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => FiszkaDetailsPage(
-                        item: items[currentIndex],
+                        items: items,
+                        initialIndex: currentIndex,
                         onStatusChange: _updateStatus,
                       ),
                     ),
@@ -235,18 +228,57 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
   }
 }
 
-class FiszkaDetailsPage extends StatelessWidget {
-  final Map<String, String> item;
-  final Function(String) onStatusChange;
+class FiszkaDetailsPage extends StatefulWidget {
+  final List<Map<String, String>> items;
+  final int initialIndex;
+  final Function(int, String) onStatusChange;
 
   const FiszkaDetailsPage({
     super.key,
-    required this.item,
+    required this.items,
+    required this.initialIndex,
     required this.onStatusChange,
   });
 
   @override
+  _FiszkaDetailsPageState createState() => _FiszkaDetailsPageState();
+}
+
+class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
+  late int currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    currentIndex = widget.initialIndex;
+  }
+
+  void _updateStatus(String status) {
+    widget.onStatusChange(currentIndex, status);
+
+    setState(() {
+      if (currentIndex < widget.items.length - 1) {
+        currentIndex++;
+      } else {
+        currentIndex = 0; // Wraca na początek, jeśli to ostatni element
+      }
+    });
+  }
+
+  void _goToPrevious() {
+    setState(() {
+      if (currentIndex > 0) {
+        currentIndex--;
+      } else {
+        currentIndex = widget.items.length - 1; // Wraca na ostatni element, jeśli to pierwszy
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final item = widget.items[currentIndex];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(item['name']!, style: const TextStyle(color: Colors.white)),
@@ -293,12 +325,19 @@ class FiszkaDetailsPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    // Strzałka do cofania
+                    ElevatedButton.icon(
+                      onPressed: _goToPrevious,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                      ),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      label: const Text(''),
+                    ),
+
                     // Zielony przycisk z "ptaszkiem"
                     ElevatedButton.icon(
-                      onPressed: () {
-                        onStatusChange('Nauczone');
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => _updateStatus('Nauczone'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
@@ -308,10 +347,7 @@ class FiszkaDetailsPage extends StatelessWidget {
 
                     // Pomarańczowy przycisk z klepsydrą
                     ElevatedButton.icon(
-                      onPressed: () {
-                        onStatusChange('W trakcie nauki');
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => _updateStatus('W trakcie nauki'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                       ),
@@ -321,10 +357,7 @@ class FiszkaDetailsPage extends StatelessWidget {
 
                     // Czerwony przycisk z "X"
                     ElevatedButton.icon(
-                      onPressed: () {
-                        onStatusChange('Do nauczenia');
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => _updateStatus('Do nauczenia'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
