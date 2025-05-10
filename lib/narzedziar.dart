@@ -18,24 +18,37 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Nożyczki ratownicze',
-      'description':
-          'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
+      'description': 'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
     },
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Rękawiczki jednorazowe',
-      'description':
-          'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
+      'description': 'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
     },
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Apteczka pierwszej pomocy',
-      'description':
-          'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
+      'description': 'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
     },
   ];
 
-  final List<bool> learnedStatus = [false, false, false, false];
+  final List<String> statuses = ['Do nauczenia', 'W trakcie nauki', 'Nauczone'];
+  final List<String> learnedStatus = ['Do nauczenia', 'Do nauczenia', 'Do nauczenia', 'Do nauczenia'];
+  int currentIndex = 0;
+
+  void _updateStatus(String status) {
+    setState(() {
+      learnedStatus[currentIndex] = status;
+
+      // Przejdź do kolejnego elementu, jeśli istnieje
+      if (currentIndex < items.length - 1) {
+        currentIndex++;
+      } else {
+        // Jeśli to ostatni element, wróć na początek
+        currentIndex = 0;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,29 +128,18 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
               // Zdjęcie narzędzia z obsługą kliknięcia
               GestureDetector(
                 onTap: () {
-                  // Po kliknięciu otwiera szczegóły pierwszego elementu
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => FiszkaDetailsPage(
-                            item:
-                                items[0], // Wyświetla pierwszy element z listy
-                            onStatusChange: (String status) {
-                              setState(() {
-                                if (status == 'Nauczone') {
-                                  learnedStatus[0] = true;
-                                } else if (status == 'Do nauczenia') {
-                                  learnedStatus[0] = false;
-                                }
-                              });
-                            },
-                          ),
+                      builder: (context) => FiszkaDetailsPage(
+                        item: items[currentIndex],
+                        onStatusChange: _updateStatus,
+                      ),
                     ),
                   );
                 },
                 child: Image.asset(
-                  'assets/images/narzedziazdjecie.png',
+                  items[currentIndex]['image']!,
                   height: screenHeight * 0.3,
                   fit: BoxFit.contain,
                 ),
@@ -170,7 +172,7 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Nauczone: ${learnedStatus.where((status) => status).length}',
+                        'Nauczone: ${learnedStatus.where((status) => status == 'Nauczone').length}',
                         style: TextStyle(
                           color: Colors.green,
                           fontSize: screenWidth * 0.05,
@@ -192,7 +194,7 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'W trakcie nauki: ${items.length - learnedStatus.where((status) => status).length - learnedStatus.where((status) => !status).length}',
+                        'W trakcie nauki: ${learnedStatus.where((status) => status == 'W trakcie nauki').length}',
                         style: TextStyle(
                           color: Colors.orange,
                           fontSize: screenWidth * 0.05,
@@ -214,7 +216,7 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Do nauczenia: ${learnedStatus.where((status) => !status).length}',
+                        'Do nauczenia: ${learnedStatus.where((status) => status == 'Do nauczenia').length}',
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: screenWidth * 0.05,
@@ -222,30 +224,6 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Pasek postępu
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: LinearProgressIndicator(
-                      value:
-                          learnedStatus.where((status) => status).length /
-                          items.length,
-                      backgroundColor: Colors.grey[800],
-                      color: Colors.green,
-                      minHeight: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Postęp: ${(learnedStatus.where((status) => status).length / items.length * 100).toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.045,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
