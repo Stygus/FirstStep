@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:firststep/narzedziar.dart';
-import 'package:firststep/testy.dart';
 
-void main() {
-  runApp(MaterialApp(
-    initialRoute: '/',
-    routes: {
-      '/': (context) => const KursyPage(),
-      '/narzedziar': (context) => const NarzedziarPage(),
-      '/testy': (context) => const TestyPage(),
-    },
-  ));
-}
-
-class KursyPage extends StatelessWidget {
-  const KursyPage({super.key});
+class TestyPage extends StatelessWidget {
+  const TestyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +35,7 @@ class KursyPage extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(top: screenHeight * 0.001),
                     child: Text(
-                      'Kursy',
+                      'Testy',
                       style: GoogleFonts.itim(
                         color: Colors.white,
                         fontSize: screenWidth * 0.06,
@@ -62,7 +48,7 @@ class KursyPage extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    height: screenWidth * 0.15, // Zmniejszono wysokość linii
+                    height: screenWidth * 0.15,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         alignment: Alignment.bottomCenter,
@@ -78,54 +64,6 @@ class KursyPage extends StatelessWidget {
             ),
           ),
 
-          Center(
-            child: SizedBox(
-              height: 200,
-              child: Container(
-                color: const Color(0xFF1D1D1D),
-                child: PageView(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const NarzedziarPage()),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.asset(
-                            'assets/images/N1.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const TestyPage()),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.asset(
-                            'assets/images/N2.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-
           Expanded(
             child: Center(
               child: Column(
@@ -133,7 +71,7 @@ class KursyPage extends StatelessWidget {
                 children: [
                   const SizedBox(height: 50),
                   const Text(
-                    'Kursy\n dostępne już\n wkrótce!',
+                    'Testy\n dostępne już\n wkrótce!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,

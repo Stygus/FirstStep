@@ -5,28 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome with Flutter",
+      "name": "Flutter",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_web.dart",
-      "args": ["-d", "chrome"]
-    },
-    {
-      "name": "firststep",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
-      "name": "firststep (profile mode)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "profile"
-    },
-    {
-      "name": "firststep (release mode)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "release"
+      "program": "lib/main.dart"
     }
   ]
 }
