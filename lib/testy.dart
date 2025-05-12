@@ -223,8 +223,10 @@ class TestyPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder:
-                                (context) =>
-                                    TestSolvePage(testTitle: test['title']!),
+                                (context) => TestSolvePage(
+                                  testTitle: test['title']!,
+                                  difficulty: test['difficulty']!,
+                                ),
                           ),
                         );
                       },
@@ -255,13 +257,32 @@ class TestyPage extends StatelessWidget {
 
 class TestSolvePage extends StatelessWidget {
   final String testTitle;
+  final String difficulty;
 
-  const TestSolvePage({super.key, required this.testTitle});
+  const TestSolvePage({
+    super.key,
+    required this.testTitle,
+    required this.difficulty,
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    // Funkcja zwracająca kolor na podstawie poziomu trudności
+    Color _getDifficultyColor(String difficulty) {
+      switch (difficulty) {
+        case 'łatwy':
+          return Colors.green;
+        case 'średni':
+          return Colors.yellow;
+        case 'trudny':
+          return Colors.red;
+        default:
+          return Colors.grey;
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -337,6 +358,36 @@ class TestSolvePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            // Informacja o trudności testu
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF181818),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Poziom trudności: ',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: _getDifficultyColor(difficulty),
+                    radius: 10,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    difficulty[0].toUpperCase() + difficulty.substring(1),
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             // Opis testu
             Container(
               width: double.infinity,
@@ -361,7 +412,13 @@ class TestSolvePage extends StatelessWidget {
             // Przycisk rozpoczęcia testu
             ElevatedButton(
               onPressed: () {
-                // Logika rozpoczęcia testu
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => TestQuestionPage(testTitle: testTitle),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -380,6 +437,220 @@ class TestSolvePage extends StatelessWidget {
                   fontSize: screenWidth * 0.05,
                   fontWeight: FontWeight.bold,
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TestQuestionPage extends StatefulWidget {
+  final String testTitle;
+
+  const TestQuestionPage({super.key, required this.testTitle});
+
+  @override
+  _TestQuestionPageState createState() => _TestQuestionPageState();
+}
+
+class _TestQuestionPageState extends State<TestQuestionPage> {
+  int currentQuestionIndex = 0;
+  int score = 0;
+
+  final List<Map<String, dynamic>> questions = [
+    {
+      'question': 'Jakie jest prawidłowe ciśnienie krwi u dorosłego człowieka?',
+      'answers': ['120/80 mmHg', '140/90 mmHg', '100/60 mmHg', '160/100 mmHg'],
+      'correctAnswer': 0,
+    },
+    {
+      'question': 'Co należy zrobić w przypadku krwotoku z nosa?',
+      'answers': [
+        'Odchylić głowę do tyłu',
+        'Pochylić głowę do przodu',
+        'Położyć się na plecach',
+        'Zatkać nos chusteczką',
+      ],
+      'correctAnswer': 1,
+    },
+    {
+      'question': 'Ile kości znajduje się w ludzkim ciele?',
+      'answers': ['206', '208', '210', '212'],
+      'correctAnswer': 0,
+    },
+  ];
+
+  void nextQuestion(int selectedAnswer) {
+    if (selectedAnswer == questions[currentQuestionIndex]['correctAnswer']) {
+      score++;
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setState(() {
+        currentQuestionIndex++;
+      });
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) =>
+                  TestResultPage(score: score, total: questions.length),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1D1D1D),
+        automaticallyImplyLeading: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      backgroundColor: const Color(0xFF101010),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Pytanie
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF202020),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                questions[currentQuestionIndex]['question'],
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Odpowiedzi
+            Expanded(
+              child: ListView.builder(
+                itemCount: questions[currentQuestionIndex]['answers'].length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () => nextQuestion(index),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF181818),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: Text(
+                        questions[currentQuestionIndex]['answers'][index],
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: screenWidth * 0.045,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TestResultPage extends StatelessWidget {
+  final int score;
+  final int total;
+
+  const TestResultPage({super.key, required this.score, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1D1D1D),
+        automaticallyImplyLeading: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      backgroundColor: const Color(0xFF101010),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Twój wynik:',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: screenWidth * 0.06,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '$score / $total',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: screenWidth * 0.08,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => TestSolvePage(
+                          testTitle: 'Test',
+                          difficulty: 'łatwy',
+                        ),
+                  ),
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Powrót do menu',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
           ],
