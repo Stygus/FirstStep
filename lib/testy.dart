@@ -9,32 +9,28 @@ class TestyPage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Lista testów
     final List<Map<String, dynamic>> tests = [
       {
         'title': 'Test Pierwszej Pomocy',
         'description': 'Sprawdź swoją wiedzę z zakresu pierwszej pomocy.',
         'questions': 10,
-        'progress': 0.5, // 50% ukończone
       },
       {
         'title': 'Test Ratownictwa',
         'description': 'Test wiedzy o narzędziach ratowniczych.',
         'questions': 15,
-        'progress': 0.2, // 20% ukończone
       },
       {
         'title': 'Test Medyczny',
         'description': 'Zweryfikuj swoją wiedzę medyczną.',
         'questions': 20,
-        'progress': 0.0, // Jeszcze nie rozpoczęty
       },
     ];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        toolbarHeight: 30,
+        toolbarHeight: screenHeight * 0.1,
         automaticallyImplyLeading: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,109 +40,124 @@ class TestyPage extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        flexibleSpace: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: screenWidth * 0.15,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    alignment: Alignment.bottomCenter,
+                    image: AssetImage('assets/images/linia.png'),
+                    fit: BoxFit.fill,
+                    isAntiAlias: false,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       backgroundColor: const Color(0xFF101010),
       body: Column(
         children: [
-          SizedBox(
-            height: screenHeight * 0.1,
-            child: Stack(
+          // Nagłówek z opisem
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(
+              color: Color(0xFF202020),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: screenHeight * 0.001),
-                    child: Text(
-                      'Testy',
-                      style: GoogleFonts.itim(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.06,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                Text(
+                  'Testy',
+                  style: GoogleFonts.itim(
+                    color: Colors.white,
+                    fontSize: screenWidth * 0.08,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    height: screenWidth * 0.15,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        alignment: Alignment.bottomCenter,
-                        image: AssetImage('assets/images/linia.png'),
-                        fit: BoxFit.fill,
-                        isAntiAlias: false,
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
+                const SizedBox(height: 8),
+                Text(
+                  'Wybierz test, aby sprawdzić swoją wiedzę!',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: screenWidth * 0.045,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
 
+          const SizedBox(height: 16),
+
           // Lista testów
           Expanded(
-            child: ListView.builder(
-              itemCount: tests.length,
-              itemBuilder: (context, index) {
-                final test = tests[index];
-                return Card(
-                  color: const Color(0xFF202020),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      test['title']!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF181818),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: ListView.builder(
+                itemCount: tests.length,
+                itemBuilder: (context, index) {
+                  final test = tests[index];
+                  return Card(
+                    color: const Color(0xFF202020),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        child: Text(
+                          '${test['questions']}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
+                      title: Text(
+                        test['title']!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        test['description']!,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      trailing: const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    TestSolvePage(testTitle: test['title']!),
+                          ),
+                        );
+                      },
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          test['description']!,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Liczba pytań: ${test['questions']}',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        LinearProgressIndicator(
-                          value: test['progress'],
-                          backgroundColor: Colors.grey[800],
-                          color: Colors.green,
-                          minHeight: 5,
-                        ),
-                      ],
-                    ),
-                    trailing: const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  TestSolvePage(testTitle: test['title']!),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],
