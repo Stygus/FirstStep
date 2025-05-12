@@ -25,6 +25,27 @@ class TestyPage extends StatelessWidget {
         'description': 'Zweryfikuj swoją wiedzę medyczną.',
         'questions': 20,
       },
+      {
+        'title': 'Test Anatomii',
+        'description': 'Sprawdź swoją znajomość anatomii człowieka.',
+        'questions': 12,
+      },
+      {
+        'title': 'Test Farmakologii',
+        'description': 'Zweryfikuj swoją wiedzę o lekach i ich działaniu.',
+        'questions': 18,
+      },
+      {
+        'title': 'Test Ratownictwa Drogowego',
+        'description': 'Test wiedzy o zasadach ratownictwa drogowego.',
+        'questions': 14,
+      },
+      {
+        'title': 'Test Psychologii Kryzysowej',
+        'description':
+            'Sprawdź swoją wiedzę o wsparciu psychologicznym w kryzysie.',
+        'questions': 16,
+      },
     ];
 
     return Scaffold(
