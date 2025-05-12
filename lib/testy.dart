@@ -10,18 +10,24 @@ class TestyPage extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     // Lista testów
-    final List<Map<String, String>> tests = [
+    final List<Map<String, dynamic>> tests = [
       {
         'title': 'Test Pierwszej Pomocy',
         'description': 'Sprawdź swoją wiedzę z zakresu pierwszej pomocy.',
+        'questions': 10,
+        'progress': 0.5, // 50% ukończone
       },
       {
         'title': 'Test Ratownictwa',
         'description': 'Test wiedzy o narzędziach ratowniczych.',
+        'questions': 15,
+        'progress': 0.2, // 20% ukończone
       },
       {
         'title': 'Test Medyczny',
         'description': 'Zweryfikuj swoją wiedzę medyczną.',
+        'questions': 20,
+        'progress': 0.0, // Jeszcze nie rozpoczęty
       },
     ];
 
@@ -103,9 +109,26 @@ class TestyPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
-                      test['description']!,
-                      style: const TextStyle(color: Colors.grey),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          test['description']!,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Liczba pytań: ${test['questions']}',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 4),
+                        LinearProgressIndicator(
+                          value: test['progress'],
+                          backgroundColor: Colors.grey[800],
+                          color: Colors.green,
+                          minHeight: 5,
+                        ),
+                      ],
                     ),
                     trailing: const Icon(
                       Icons.arrow_forward,
@@ -146,14 +169,27 @@ class TestSolvePage extends StatelessWidget {
       ),
       backgroundColor: const Color(0xFF101010),
       body: Center(
-        child: Text(
-          'Rozwiązywanie testu: $testTitle',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Rozwiązywanie testu: $testTitle',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Logika rozwiązywania testu
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text('Rozpocznij test'),
+            ),
+          ],
         ),
       ),
     );
