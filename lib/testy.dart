@@ -170,8 +170,9 @@ class TestyPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder:
-                                (context) =>
-                                    TestSolvePage(testTitle: test['title']!),
+                                (context) => TestDifficultyPage(
+                                  testTitle: test['title']!,
+                                ),
                           ),
                         );
                       },
@@ -187,16 +188,39 @@ class TestyPage extends StatelessWidget {
   }
 }
 
-class TestSolvePage extends StatelessWidget {
+class TestDifficultyPage extends StatefulWidget {
   final String testTitle;
 
-  const TestSolvePage({super.key, required this.testTitle});
+  const TestDifficultyPage({super.key, required this.testTitle});
+
+  @override
+  _TestDifficultyPageState createState() => _TestDifficultyPageState();
+}
+
+class _TestDifficultyPageState extends State<TestDifficultyPage> {
+  String selectedDifficulty = 'Łatwy'; // Domyślna trudność
 
   @override
   Widget build(BuildContext context) {
+    Color getDifficultyColor() {
+      switch (selectedDifficulty) {
+        case 'Łatwy':
+          return Colors.green;
+        case 'Średni':
+          return Colors.yellow;
+        case 'Trudny':
+          return Colors.red;
+        default:
+          return Colors.green;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(testTitle, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          widget.testTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1D1D1D),
       ),
       backgroundColor: const Color(0xFF101010),
@@ -205,20 +229,54 @@ class TestSolvePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Rozwiązywanie testu: $testTitle',
+              'Wybierz trudność:',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ToggleButtons(
+              isSelected: [
+                selectedDifficulty == 'Łatwy',
+                selectedDifficulty == 'Średni',
+                selectedDifficulty == 'Trudny',
+              ],
+              onPressed: (index) {
+                setState(() {
+                  if (index == 0) selectedDifficulty = 'Łatwy';
+                  if (index == 1) selectedDifficulty = 'Średni';
+                  if (index == 2) selectedDifficulty = 'Trudny';
+                });
+              },
+              color: Colors.white,
+              selectedColor: Colors.black,
+              fillColor: getDifficultyColor(),
+              borderRadius: BorderRadius.circular(10),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Łatwy'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Średni'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Trudny'),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Logika rozwiązywania testu
+                // Logika rozpoczęcia testu z wybraną trudnością
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: getDifficultyColor(),
+              ),
               child: const Text('Rozpocznij test'),
             ),
           ],
