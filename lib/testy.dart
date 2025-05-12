@@ -285,38 +285,7 @@ class TestSolvePage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: screenHeight * 0.1,
-        automaticallyImplyLeading: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        flexibleSpace: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                height: screenWidth * 0.15,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    alignment: Alignment.bottomCenter,
-                    image: AssetImage('assets/images/linia.png'),
-                    fit: BoxFit.fill,
-                    isAntiAlias: false,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF101010),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -409,7 +378,7 @@ class TestSolvePage extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Przycisk rozpoczęcia testu
+            // Przycisk "Rozpocznij test"
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -439,6 +408,37 @@ class TestSolvePage extends StatelessWidget {
                 ),
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            // Przycisk "Powrót do menu"
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => TestyPage()),
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.2,
+                  vertical: screenHeight * 0.02,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Powrót do menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -458,6 +458,8 @@ class TestQuestionPage extends StatefulWidget {
 class _TestQuestionPageState extends State<TestQuestionPage> {
   int currentQuestionIndex = 0;
   int score = 0;
+  int? selectedAnswerIndex; // Przechowuje indeks wybranej odpowiedzi
+  bool showCorrectAnswer = false; // Flaga do wyświetlania poprawnej odpowiedzi
 
   final List<Map<String, dynamic>> questions = [
     {
@@ -482,14 +484,12 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
     },
   ];
 
-  void nextQuestion(int selectedAnswer) {
-    if (selectedAnswer == questions[currentQuestionIndex]['correctAnswer']) {
-      score++;
-    }
-
+  void nextQuestion() {
     if (currentQuestionIndex < questions.length - 1) {
       setState(() {
         currentQuestionIndex++;
+        selectedAnswerIndex = null;
+        showCorrectAnswer = false;
       });
     } else {
       Navigator.push(
@@ -501,6 +501,17 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
         ),
       );
     }
+  }
+
+  void selectAnswer(int index) {
+    setState(() {
+      selectedAnswerIndex = index;
+      showCorrectAnswer = true;
+
+      if (index == questions[currentQuestionIndex]['correctAnswer']) {
+        score++;
+      }
+    });
   }
 
   @override
@@ -551,13 +562,24 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
               child: ListView.builder(
                 itemCount: questions[currentQuestionIndex]['answers'].length,
                 itemBuilder: (context, index) {
+                  Color answerColor = const Color(0xFF181818);
+
+                  if (showCorrectAnswer) {
+                    if (index ==
+                        questions[currentQuestionIndex]['correctAnswer']) {
+                      answerColor = Colors.green; // Poprawna odpowiedź
+                    } else if (index == selectedAnswerIndex) {
+                      answerColor = Colors.red; // Błędna odpowiedź
+                    }
+                  }
+
                   return GestureDetector(
-                    onTap: () => nextQuestion(index),
+                    onTap: showCorrectAnswer ? null : () => selectAnswer(index),
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 8.0),
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF181818),
+                        color: answerColor,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.grey),
                       ),
@@ -567,10 +589,33 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
                           color: Colors.white,
                           fontSize: screenWidth * 0.045,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   );
                 },
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Przycisk przejścia do następnego pytania
+            ElevatedButton(
+              onPressed: selectedAnswerIndex != null ? nextQuestion : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    selectedAnswerIndex != null ? Colors.green : Colors.grey,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Następne pytanie',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
           ],
@@ -607,6 +652,7 @@ class TestResultPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Wynik testu
             Text(
               'Twój wynik:',
               style: TextStyle(
@@ -624,6 +670,8 @@ class TestResultPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
+
+            // Przycisk "Powrót do menu"
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -649,7 +697,35 @@ class TestResultPage extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'Powrót do menu',
+                'Powrót',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Przycisk "Rozwiąż ponownie"
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TestQuestionPage(testTitle: 'Test'),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Rozwiąż ponownie',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),

@@ -5,6 +5,7 @@ import 'rko.dart';
 import 'apteczka.dart';
 import 'kursy.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'testy.dart';
 
 class Menu extends StatelessWidget {
   const Menu({super.key});
@@ -24,7 +25,11 @@ class Menu extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => TestyPage()),
+              (route) => false,
+            );
           },
         ),
       ),
@@ -40,7 +45,7 @@ class Menu extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(top: screenHeight * 0.001),
                     child: Text(
-                      'Witaj w menu głównym xyz!',
+                      'Witaj w menu głównym!',
                       style: GoogleFonts.itim(
                         color: Colors.white,
                         fontSize: screenWidth * 0.06,
