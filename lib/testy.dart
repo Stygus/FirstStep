@@ -9,6 +9,22 @@ class TestyPage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
+    // Lista testów
+    final List<Map<String, String>> tests = [
+      {
+        'title': 'Test Pierwszej Pomocy',
+        'description': 'Sprawdź swoją wiedzę z zakresu pierwszej pomocy.',
+      },
+      {
+        'title': 'Test Ratownictwa',
+        'description': 'Test wiedzy o narzędziach ratowniczych.',
+      },
+      {
+        'title': 'Test Medyczny',
+        'description': 'Zweryfikuj swoją wiedzę medyczną.',
+      },
+    ];
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -64,32 +80,81 @@ class TestyPage extends StatelessWidget {
             ),
           ),
 
+          // Lista testów
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 50),
-                  const Text(
-                    'Testy\n dostępne już\n wkrótce!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+            child: ListView.builder(
+              itemCount: tests.length,
+              itemBuilder: (context, index) {
+                final test = tests[index];
+                return Card(
+                  color: const Color(0xFF202020),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      test['title']!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      test['description']!,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    trailing: const Icon(
+                      Icons.arrow_forward,
                       color: Colors.white,
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  TestSolvePage(testTitle: test['title']!),
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/images/logod.png',
-                    height: 200,
-                    width: 200,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TestSolvePage extends StatelessWidget {
+  final String testTitle;
+
+  const TestSolvePage({super.key, required this.testTitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(testTitle, style: const TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF1D1D1D),
+      ),
+      backgroundColor: const Color(0xFF101010),
+      body: Center(
+        child: Text(
+          'Rozwiązywanie testu: $testTitle',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
