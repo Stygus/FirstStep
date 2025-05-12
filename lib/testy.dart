@@ -260,30 +260,127 @@ class TestSolvePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(testTitle, style: const TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF1D1D1D),
+        toolbarHeight: screenHeight * 0.1,
+        automaticallyImplyLeading: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        flexibleSpace: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: screenWidth * 0.15,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    alignment: Alignment.bottomCenter,
+                    image: AssetImage('assets/images/linia.png'),
+                    fit: BoxFit.fill,
+                    isAntiAlias: false,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       backgroundColor: const Color(0xFF101010),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Rozwiązywanie testu: $testTitle',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+            // Nagłówek testu
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF202020),
+                borderRadius: BorderRadius.circular(10),
               ),
-              textAlign: TextAlign.center,
+              child: Column(
+                children: [
+                  Text(
+                    'Rozwiązywanie testu',
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: screenWidth * 0.05,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    testTitle,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: screenWidth * 0.07,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 20),
+
+            // Opis testu
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF181818),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'Ten test sprawdzi Twoją wiedzę w zakresie wybranej tematyki. '
+                'Odpowiedz na wszystkie pytania, aby uzyskać wynik końcowy.',
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: screenWidth * 0.045,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Przycisk rozpoczęcia testu
             ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Rozpocznij test'),
+              onPressed: () {
+                // Logika rozpoczęcia testu
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.2,
+                  vertical: screenHeight * 0.02,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Rozpocznij test',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
