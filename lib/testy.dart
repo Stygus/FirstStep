@@ -14,37 +14,44 @@ class TestyPage extends StatelessWidget {
         'title': 'Test Pierwszej Pomocy',
         'description': 'Sprawdź swoją wiedzę z zakresu pierwszej pomocy.',
         'questions': 10,
+        'difficulty': 'łatwy',
       },
       {
         'title': 'Test Ratownictwa',
         'description': 'Test wiedzy o narzędziach ratowniczych.',
         'questions': 15,
+        'difficulty': 'średni',
       },
       {
         'title': 'Test Medyczny',
         'description': 'Zweryfikuj swoją wiedzę medyczną.',
         'questions': 20,
+        'difficulty': 'trudny',
       },
       {
         'title': 'Test Anatomii',
         'description': 'Sprawdź swoją znajomość anatomii człowieka.',
         'questions': 12,
+        'difficulty': 'łatwy',
       },
       {
         'title': 'Test Farmakologii',
         'description': 'Zweryfikuj swoją wiedzę o lekach i ich działaniu.',
         'questions': 18,
+        'difficulty': 'trudny',
       },
       {
         'title': 'Test Ratownictwa Drogowego',
         'description': 'Test wiedzy o zasadach ratownictwa drogowego.',
         'questions': 14,
+        'difficulty': 'średni',
       },
       {
         'title': 'Test Psychologii Kryzysowej',
         'description':
             'Sprawdź swoją wiedzę o wsparciu psychologicznym w kryzysie.',
         'questions': 16,
+        'difficulty': 'trudny',
       },
     ];
 
@@ -85,7 +92,6 @@ class TestyPage extends StatelessWidget {
       backgroundColor: const Color(0xFF101010),
       body: Column(
         children: [
-          // Nagłówek z opisem
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
@@ -113,13 +119,58 @@ class TestyPage extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 16),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Colors.green,
+                          radius: 10,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Łatwy',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Colors.yellow,
+                          radius: 10,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Średni',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Colors.red,
+                          radius: 10,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Trudny',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // Lista testów
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -141,7 +192,9 @@ class TestyPage extends StatelessWidget {
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: Colors.green,
+                        backgroundColor: _getDifficultyColor(
+                          test['difficulty'],
+                        ),
                         child: Text(
                           '${test['questions']}',
                           style: const TextStyle(
@@ -170,9 +223,8 @@ class TestyPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder:
-                                (context) => TestDifficultyPage(
-                                  testTitle: test['title']!,
-                                ),
+                                (context) =>
+                                    TestSolvePage(testTitle: test['title']!),
                           ),
                         );
                       },
@@ -186,41 +238,31 @@ class TestyPage extends StatelessWidget {
       ),
     );
   }
+
+  Color _getDifficultyColor(String difficulty) {
+    switch (difficulty) {
+      case 'łatwy':
+        return Colors.green;
+      case 'średni':
+        return Colors.yellow;
+      case 'trudny':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 }
 
-class TestDifficultyPage extends StatefulWidget {
+class TestSolvePage extends StatelessWidget {
   final String testTitle;
 
-  const TestDifficultyPage({super.key, required this.testTitle});
-
-  @override
-  _TestDifficultyPageState createState() => _TestDifficultyPageState();
-}
-
-class _TestDifficultyPageState extends State<TestDifficultyPage> {
-  String selectedDifficulty = 'Łatwy'; // Domyślna trudność
+  const TestSolvePage({super.key, required this.testTitle});
 
   @override
   Widget build(BuildContext context) {
-    Color getDifficultyColor() {
-      switch (selectedDifficulty) {
-        case 'Łatwy':
-          return Colors.green;
-        case 'Średni':
-          return Colors.yellow;
-        case 'Trudny':
-          return Colors.red;
-        default:
-          return Colors.green;
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.testTitle,
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: Text(testTitle, style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF1D1D1D),
       ),
       backgroundColor: const Color(0xFF101010),
@@ -229,54 +271,18 @@ class _TestDifficultyPageState extends State<TestDifficultyPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Wybierz trudność:',
+              'Rozwiązywanie testu: $testTitle',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(height: 20),
-            ToggleButtons(
-              isSelected: [
-                selectedDifficulty == 'Łatwy',
-                selectedDifficulty == 'Średni',
-                selectedDifficulty == 'Trudny',
-              ],
-              onPressed: (index) {
-                setState(() {
-                  if (index == 0) selectedDifficulty = 'Łatwy';
-                  if (index == 1) selectedDifficulty = 'Średni';
-                  if (index == 2) selectedDifficulty = 'Trudny';
-                });
-              },
-              color: Colors.white,
-              selectedColor: Colors.black,
-              fillColor: getDifficultyColor(),
-              borderRadius: BorderRadius.circular(10),
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Łatwy'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Średni'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('Trudny'),
-                ),
-              ],
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Logika rozpoczęcia testu z wybraną trudnością
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: getDifficultyColor(),
-              ),
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               child: const Text('Rozpocznij test'),
             ),
           ],
