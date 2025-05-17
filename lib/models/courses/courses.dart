@@ -4,7 +4,9 @@ import 'package:firststep/components/courses/courseCreatorPage.dart';
 import 'package:firststep/components/courses/showCourse.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
+import 'package:firststep/webApp/testsView/editTest.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -683,6 +685,51 @@ class CourseElementsList extends ChangeNotifier {
       SafeAsync.notifyListeners(this);
     }
   }
+
+  /// Tworzy nowy test przez API
+  Future<Test?> createTestViaApi({
+    required String token,
+    required int creatorId,
+    required int courseId,
+    required String title,
+    required int duration,
+  }) async {
+    if (!token.startsWith('Bearer ')) {
+      token = 'Bearer $token';
+    }
+    try {
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/tests');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'creatorId': creatorId,
+          'courseId': courseId,
+          'title': title,
+          'duration': duration,
+        }),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final test = Test.fromJson(data);
+        // Dodaj test do kursu, jeśli to możliwe
+        // Możesz dodać logikę aktualizacji listy testów/kursów tutaj
+        return test;
+      } else {
+        debugPrint(
+          'Błąd tworzenia testu: ${response.statusCode} ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Wyjątek podczas tworzenia testu: $e');
+      return null;
+    }
+  }
 }
 
 class Category {
@@ -712,7 +759,7 @@ class Category {
 class Course {
   int id;
   int creatorId;
-  int testId;
+  int? testId;
   String title;
   String description;
   String difficultyLevel; // Enum: [ BASIC, INTERMEDIATE, ADVANCED ]
@@ -726,7 +773,7 @@ class Course {
   Course({
     required this.id,
     required this.creatorId,
-    required this.testId,
+    this.testId,
     required this.title,
     required this.description,
     required this.difficultyLevel,
@@ -737,12 +784,12 @@ class Course {
     this.categories = const [],
     CourseElementsList? courseElementsList,
   }) : courseElementsList = courseElementsList ?? CourseElementsList();
-
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       id: int.parse(json['id'].toString()),
       creatorId: int.parse(json['creatorId'].toString()),
-      testId: int.parse(json['testId'].toString()),
+      testId:
+          json['testId'] != null ? int.parse(json['testId'].toString()) : -1,
       title: json['title'],
       description: json['description'],
       difficultyLevel: json['difficultyLevel'],
@@ -812,6 +859,45 @@ class CourseList extends ChangeNotifier {
   Course? selectedCourse;
   List<Category> categories = [];
 
+  Future<Test?> createTestViaApi({
+    required String token,
+    required int creatorId,
+    required int courseId,
+    required String title,
+    required int duration,
+  }) async {
+    if (!token.startsWith('Bearer ')) {
+      token = 'Bearer $token';
+    }
+    try {
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/tests');
+      final Map<String, dynamic> requestBody = {
+        'creatorId': creatorId,
+        'courseId': courseId,
+        'title': title,
+        'duration': duration,
+      };
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json', 'Authorization': token},
+        body: jsonEncode(requestBody),
+      );
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final test = Test.fromJson(data);
+        return test;
+      } else {
+        debugPrint(
+          'Błąd tworzenia testu: ${response.statusCode} ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Wyjątek podczas tworzenia testu: $e');
+      return null;
+    }
+  }
+
   Future<void> getAllCategoriesFromApi(String token) async {
     try {
       final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/categories');
@@ -832,29 +918,116 @@ class CourseList extends ChangeNotifier {
     }
   }
 
-  void setSelectedCourse(Course course) {
-    selectedCourse = course;
-    notifyListeners();
+  Future<void> deleteCourseElementFromApi(
+    String token,
+    String courseId,
+    String name,
+  ) async {
+    try {
+      if (token is Future) {
+        token = token;
+      }
+
+      if (!token.startsWith('Bearer ')) {
+        token = 'Bearer $token';
+      }
+
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/$courseId');
+
+      final response = await http.delete(
+        url,
+        headers: {'accept': 'application/json', 'Authorization': token},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        debugPrint('Course element deleted successfully');
+        // Usuń kurs lokalnie
+        int removedId = int.tryParse(courseId) ?? -1;
+        if (removedId != -1) {
+          // Usuń element z listy kursów
+          courses.removeWhere((course) => course.id == removedId);
+          bestCourses.removeWhere((course) => course.id == removedId);
+          myCourses.removeWhere((course) => course.id == removedId);
+          // Wymuś aktualizację UI
+          notifyListeners();
+        }
+
+        // Opóźnione pobranie świeżej listy kursów
+        Future.delayed(Duration(milliseconds: 500), () {
+          try {
+            getAllCoursesFromApi(token, name).catchError((e) {
+              debugPrint('Error refreshing courses: $e');
+            });
+          } catch (e) {
+            debugPrint('Error when scheduling refresh: $e');
+          }
+        });
+      } else {
+        debugPrint('Error deleting course element: ${response.statusCode}');
+        debugPrint('Error response: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error deleting course element: $e');
+    } finally {
+      // Używamy bezpośredniego notifyListeners
+      notifyListeners();
+    }
   }
 
-  void updateCourses() {
-    // courses.sort((a, b) => b.studentCount.compareTo(a.studentCount));
-    bestCourses = courses.toList();
-    myCourses = courses.toList();
-    bestCourses.sort((a, b) => b.studentCount.compareTo(a.studentCount));
-    myCourses.sort((a, b) => a.creationDate.compareTo(b.creationDate));
+  // Nowa metoda do tworzenia kursu przez API
+  Future<Course?> createCourseViaApi(
+    String token,
+    String title,
+    String description,
+    String difficultyLevel,
+    String status,
+  ) async {
+    try {
+      if (!token.startsWith('Bearer ')) {
+        token = 'Bearer $token';
+      }
 
-    notifyListeners();
-  }
+      final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses');
 
-  void addCourse(Course course) {
-    courses.add(course);
-    notifyListeners();
-  }
+      final Map<String, dynamic> requestBody = {
+        'title': title,
+        'description': description,
+        'difficultyLevel': difficultyLevel,
+        'status': status,
+      };
 
-  void removeCourse(int id) {
-    courses.removeWhere((course) => course.id == id);
-    notifyListeners();
+      debugPrint('Creating new course: $requestBody');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint('Course created successfully');
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final Course newCourse = Course.fromJson(data);
+
+        // Dodajemy kurs do lokalnej listy
+        courses.add(newCourse);
+        updateCourses();
+        notifyListeners();
+
+        return newCourse;
+      } else {
+        debugPrint('Error creating course: ${response.statusCode}');
+        debugPrint('Error response: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception creating course: $e');
+      return null;
+    }
   }
 
   Future<void> getAllCoursesFromApi(String token, String name) async {
@@ -907,6 +1080,250 @@ class CourseList extends ChangeNotifier {
       throw Exception('Failed to update course');
     }
   }
+
+  void setSelectedCourse(Course course) {
+    selectedCourse = course;
+    notifyListeners();
+  }
+
+  void updateCourses() {
+    // courses.sort((a, b) => b.studentCount.compareTo(a.studentCount));
+    bestCourses = courses.toList();
+    myCourses = courses.toList();
+    bestCourses.sort((a, b) => b.studentCount.compareTo(a.studentCount));
+    myCourses.sort((a, b) => a.creationDate.compareTo(b.creationDate));
+
+    notifyListeners();
+  }
+
+  void addCourse(Course course) {
+    courses.add(course);
+    notifyListeners();
+  }
+
+  void removeCourse(int id) {
+    courses.removeWhere((course) => course.id == id);
+    notifyListeners();
+  }
+
+  /// Pobierz wszystkie pytania dla danego testu
+  Future<List<TestQuestion>> getTestQuestionsFromApi(
+    String token,
+    int testId,
+  ) async {
+    if (!token.startsWith('Bearer ')) {
+      token = 'Bearer $token';
+    }
+    final url = Uri.parse(
+      '${dotenv.env['SERVER_URL']!}/tests/$testId/questions',
+    );
+    final response = await http.get(
+      url,
+      headers: {'accept': 'application/json', 'Authorization': token},
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => TestQuestion.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load test questions');
+    }
+  }
+
+  /// Pobierz wszystkie odpowiedzi dla wszystkich pytań testu
+  Future<List<Answer>> getTestAnswersFromApi(String token, int testId) async {
+    if (!token.startsWith('Bearer ')) {
+      token = 'Bearer $token';
+    }
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/tests/$testId/answers');
+    final response = await http.get(
+      url,
+      headers: {'accept': 'application/json', 'Authorization': token},
+    );
+    if (response.statusCode == 200) {
+      final body = response.body.trim();
+      if (body.startsWith('{') && body.contains('No answers found')) {
+        // Backend zwraca obiekt z message zamiast pustej listy
+        debugPrint('API: No answers found for this test');
+        return [];
+      }
+      final List<dynamic> data = jsonDecode(body);
+      return data.map((item) => Answer.fromJson(item)).toList();
+    } else if (response.statusCode == 404 &&
+        response.body.contains('No answers found')) {
+      debugPrint('API 404: No answers found for this test');
+      return [];
+    } else {
+      debugPrint('API error: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to load test answers (${response.statusCode})');
+    }
+  }
+}
+
+enum QuestionType { SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE }
+
+class Answer {
+  final int id;
+  final int questionId;
+  String content;
+  final bool isCorrect;
+  final int order;
+
+  Answer({
+    required this.id,
+    required this.questionId,
+    required this.content,
+    required this.isCorrect,
+    required this.order,
+  });
+
+  factory Answer.fromJson(Map<String, dynamic> json) {
+    return Answer(
+      id: int.parse(json['id'].toString()),
+      questionId: int.parse(json['questionId'].toString()),
+      content: json['content'],
+      isCorrect: json['isCorrect'] ?? false,
+      order: json['order'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'questionId': questionId,
+      'content': content,
+      'isCorrect': isCorrect,
+      'order': order,
+    };
+  }
+}
+
+class TestQuestion {
+  final int id;
+  final int testId;
+  String content;
+  QuestionType questionType;
+  int points;
+  final int order;
+  List<Answer> answers;
+
+  TestQuestion({
+    required this.id,
+    required this.testId,
+    required this.content,
+    required this.questionType,
+    required this.points,
+    required this.order,
+    required this.answers,
+  });
+
+  factory TestQuestion.fromJson(Map<String, dynamic> json) {
+    return TestQuestion(
+      id: int.parse(json['id'].toString()),
+      testId: int.parse(json['testId'].toString()),
+      content: json['content'],
+      questionType: QuestionType.values.firstWhere(
+        (e) => e.toString().split('.').last == json['questionType'],
+        orElse: () => QuestionType.SINGLE_CHOICE,
+      ),
+      points: json['points'] ?? 1,
+      order: json['order'] ?? 0,
+      answers:
+          (json['answers'] as List<dynamic>? ?? [])
+              .map((a) => Answer.fromJson(a))
+              .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'testId': testId,
+      'content': content,
+      'questionType': questionType.toString().split('.').last,
+      'points': points,
+      'order': order,
+      'answers': answers.map((a) => a.toJson()).toList(),
+    };
+  }
+
+  // Dodane metody do zarządzania odpowiedziami
+  void addAnswer(Answer answer) {
+    answers.add(answer);
+  }
+
+  void removeAnswer(int answerId) {
+    answers.removeWhere((a) => a.id == answerId);
+  }
+
+  void updateAnswer(Answer updated) {
+    final idx = answers.indexWhere((a) => a.id == updated.id);
+    if (idx != -1) {
+      answers[idx] = updated;
+    }
+  }
+}
+
+class Test {
+  final int id;
+  final int creatorId;
+  final int courseId;
+  final String title;
+  final int duration;
+  final DateTime creationDate;
+  final List<TestQuestion> questions;
+
+  Test({
+    required this.id,
+    required this.creatorId,
+    required this.courseId,
+    required this.title,
+    required this.duration,
+    required this.creationDate,
+    required this.questions,
+  });
+
+  factory Test.fromJson(Map<String, dynamic> json) {
+    return Test(
+      id: int.parse(json['id'].toString()),
+      creatorId: int.parse(json['creatorId'].toString()),
+      courseId: int.parse(json['courseId'].toString()),
+      title: json['title'],
+      duration: json['duration'],
+      creationDate: DateTime.parse(json['creationDate']),
+      questions:
+          (json['questions'] as List<dynamic>? ?? [])
+              .map((q) => TestQuestion.fromJson(q))
+              .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'creatorId': creatorId,
+      'courseId': courseId,
+      'title': title,
+      'duration': duration,
+      'creationDate': creationDate.toIso8601String(),
+      'questions': questions.map((q) => q.toJson()).toList(),
+    };
+  }
+
+  // Dodane metody do zarządzania pytaniami
+  void addQuestion(TestQuestion question) {
+    questions.add(question);
+  }
+
+  void removeQuestion(int questionId) {
+    questions.removeWhere((q) => q.id == questionId);
+  }
+
+  void updateQuestion(TestQuestion updated) {
+    final idx = questions.indexWhere((q) => q.id == updated.id);
+    if (idx != -1) {
+      questions[idx] = updated;
+    }
+  }
 }
 
 class CourseCard extends ConsumerWidget {
@@ -926,228 +1343,393 @@ class CourseCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      width: 500, // szerokość na sztywno
-      margin: EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(255, 38, 38, 38),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Góra karty - tytuł i statystyki
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          course.title,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: 80, // Ograniczenie wysokości opisu
-                          ),
-                          child: Text(
-                            course.description,
-                            style: TextStyle(
-                              color: Colors.grey[300],
-                              fontSize: 14,
-                            ),
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.visibility, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            '${course.studentCount}',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.yellow, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            '5.0', // Placeholder for ratings
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 16),
-
-              // Środek karty - informacje i przyciski
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Ustawiamy wyrównanie do góry
-                children: [
-                  // Lewa kolumna ze statusem i poziomem trudności
-                  Column(
+    return Stack(
+      fit: StackFit.loose,
+      children: [
+        Container(
+          width: 500, // szerokość na sztywno
+          margin: EdgeInsets.only(bottom: 16, right: 16),
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 38, 38, 38),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Status',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                      ),
-                      Text(
-                        course.status,
-                        style: TextStyle(
-                          color: _getStatusColor(course.status),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'poziom trudności',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                      ),
-                      Text(
-                        course.difficultyLevel,
-                        style: TextStyle(
-                          color: _getDifficultyColor(course.difficultyLevel),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Prawa kolumna z przyciskami
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 110, // Stała szerokość przycisków
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final courseProvider = ref.read(coursesProvider);
-                            final courseElements = ref.read(
-                              courseElementsProvider,
-                            );
-                            final token =
-                                await ref.read(userProvider).getToken();
-                            courseElements.courseElements.clear();
-
-                            courseElements.getAllCourseElementsFromApi(
-                              token as String,
-                              course.id.toString(),
-                            );
-                            courseProvider.setSelectedCourse(course);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => CourseCreator(course: course),
+                      // Góra karty - tytuł i statystyki
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  course.title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight:
+                                        80, // Ograniczenie wysokości opisu
+                                  ),
+                                  child: Text(
+                                    course.description,
+                                    style: TextStyle(
+                                      color: Colors.grey[300],
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.visibility,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    '${course.studentCount}',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.yellow,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    '5.0', // Placeholder for ratings
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Edytuj',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      SizedBox(
-                        width: 110, // Stała szerokość przycisków
-                        child: ElevatedButton(
-                          onPressed: () => showCourse(ref, context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              0,
-                              136,
-                              0,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
+
+                      SizedBox(height: 16),
+
+                      // Środek karty - informacje i przyciski
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start, // Ustawiamy wyrównanie do góry
+                        children: [
+                          // Lewa kolumna ze statusem i poziomem trudności
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Status',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                course.status,
+                                style: TextStyle(
+                                  color: _getStatusColor(course.status),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'poziom trudności',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                course.difficultyLevel,
+                                style: TextStyle(
+                                  color: _getDifficultyColor(
+                                    course.difficultyLevel,
+                                  ),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Podgląd',
-                            style: TextStyle(color: Colors.white),
+
+                          // Prawa kolumna z przyciskami
+                          Column(
+                            children: [
+                              SizedBox(
+                                width: 110, // Stała szerokość przycisków
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    final courseProvider = ref.read(
+                                      coursesProvider,
+                                    );
+                                    final courseElements = ref.read(
+                                      courseElementsProvider,
+                                    );
+                                    final token =
+                                        await ref.read(userProvider).getToken();
+                                    courseElements.courseElements.clear();
+
+                                    courseElements.getAllCourseElementsFromApi(
+                                      token as String,
+                                      course.id.toString(),
+                                    );
+                                    courseProvider.setSelectedCourse(course);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                CourseCreator(course: course),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Edytuj',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              SizedBox(
+                                width: 110, // Stała szerokość przycisków
+                                child: ElevatedButton(
+                                  onPressed: () => showCourse(ref, context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(
+                                      255,
+                                      0,
+                                      136,
+                                      0,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Podgląd',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 16),
+
+                      // Dół karty - kategorie
+                      SizedBox(
+                        height: 30,
+                        width: double.infinity,
+                        child: ClipRect(
+                          child: OverflowBox(
+                            maxHeight: 30,
+                            alignment: Alignment.centerLeft,
+                            child: SingleChildScrollView(
+                              physics: NeverScrollableScrollPhysics(),
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                children:
+                                    course.categories.isNotEmpty
+                                        ? course.categories
+                                            .take(
+                                              3,
+                                            ) // Limitowanie do 3 kategorii
+                                            .map(
+                                              (cat) =>
+                                                  _buildCategoryChip(cat.name),
+                                            )
+                                            .toList()
+                                        : [
+                                          _buildCategoryChip('Brak kategorii'),
+                                        ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
 
-              SizedBox(height: 16),
-
-              // Dół karty - kategorie
-              SizedBox(
-                height: 30,
-                width: double.infinity,
-                child: ClipRect(
-                  child: OverflowBox(
-                    maxHeight: 30,
-                    alignment: Alignment.centerLeft,
-                    child: SingleChildScrollView(
-                      physics: NeverScrollableScrollPhysics(),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children:
-                            course.categories.isNotEmpty
-                                ? course.categories
-                                    .take(3) // Limitowanie do 3 kategorii
-                                    .map((cat) => _buildCategoryChip(cat.name))
-                                    .toList()
-                                : [_buildCategoryChip('Brak kategorii')],
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: const Color.fromARGB(255, 255, 0, 0),
                       ),
+                      onPressed: () async {
+                        // Logika usuwania kursu
+                        final courseProvider = ref.read(coursesProvider);
+                        final user = ref.read(userProvider);
+                        final token = await user.getToken();
+                        courseProvider.deleteCourseElementFromApi(
+                          token!,
+                          course.id.toString(),
+                          user.nickname,
+                        );
+                      },
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        OverflowBox(
+          alignment: Alignment.bottomRight,
+          fit: OverflowBoxFit.max,
+          child: Container(
+            margin: EdgeInsets.only(left: 40, top: 40),
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color:
+                  course.testId != null
+                      ? Colors.green
+                      : const Color.fromARGB(255, 61, 61, 61),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon:
+                  course.testId != null && course.testId != -1
+                      ? Text(course.testId.toString())
+                      : Icon(Icons.add, color: Colors.white),
+              onPressed: () async {
+                if (course.testId != null && course.testId != -1) {
+                  try {
+                    final user = ref.read(userProvider);
+                    final token = await user.getToken();
+                    final courseProvider = ref.read(coursesProvider);
+                    final testId = course.testId!;
+                    debugPrint(
+                      'Rozpoczynam pobieranie pytań dla testu $testId',
+                    );
+                    final questions = await courseProvider
+                        .getTestQuestionsFromApi(token!, testId);
+                    debugPrint('Pobrano ${questions.length} pytań');
+                    List<Answer> answers = [];
+                    try {
+                      answers = await courseProvider.getTestAnswersFromApi(
+                        token,
+                        testId,
+                      );
+                      debugPrint('Pobrano ${answers.length} odpowiedzi');
+                    } catch (e) {
+                      debugPrint(
+                        'Brak odpowiedzi lub błąd pobierania odpowiedzi: $e',
+                      );
+                      // Jeśli API zwraca błąd, ale to tylko brak odpowiedzi, nie przerywaj działania
+                      if (e.toString().contains('No answers found')) {
+                        answers = [];
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Błąd podczas pobierania odpowiedzi: $e',
+                              ),
+                            ),
+                          );
+                        }
+                        return;
+                      }
+                    }
+                    for (final q in questions) {
+                      q.answers =
+                          answers.where((a) => a.questionId == q.id).toList();
+                      debugPrint(
+                        'Pytanie ${q.id} ma ${q.answers.length} odpowiedzi',
+                      );
+                    }
+                    final test = Test(
+                      id: testId,
+                      creatorId: course.creatorId,
+                      courseId: course.id,
+                      title: course.title,
+                      duration: 10, // Możesz pobrać z API jeśli masz
+                      creationDate: course.creationDate,
+                      questions: questions,
+                    );
+                    debugPrint(
+                      'Przekazuję test do TestEditor: ${test.id}, pytań: ${test.questions.length}',
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TestEditor(test: test),
+                      ),
+                    );
+                  } catch (e, st) {
+                    debugPrint('Błąd podczas pobierania testu: $e\n$st');
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Błąd podczas pobierania testu: $e'),
+                        ),
+                      );
+                    }
+                  }
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CreateTestDialog(course: course),
+                  );
+                }
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1161,30 +1743,156 @@ class CourseCard extends ConsumerWidget {
       child: Text(label, style: TextStyle(color: Colors.white, fontSize: 12)),
     );
   }
+}
 
-  Color _getStatusColor(String status) {
-    switch (status.toUpperCase()) {
-      case 'PUBLISHED':
-        return Colors.green;
-      case 'DRAFT':
-        return Colors.orange;
-      case 'ARCHIVED':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+Color _getStatusColor(String status) {
+  switch (status.toUpperCase()) {
+    case 'PUBLISHED':
+      return Colors.green;
+    case 'DRAFT':
+      return Colors.orange;
+    case 'ARCHIVED':
+      return Colors.red;
+    default:
+      return Colors.grey;
+  }
+}
+
+Color _getDifficultyColor(String difficulty) {
+  switch (difficulty.toUpperCase()) {
+    case 'BASIC':
+      return Colors.green;
+    case 'INTERMEDIATE':
+      return Colors.orange;
+    case 'ADVANCED':
+      return Colors.red;
+    default:
+      return Colors.grey;
+  }
+}
+
+class CreateTestDialog extends ConsumerStatefulWidget {
+  final Course course;
+  const CreateTestDialog({super.key, required this.course});
+
+  @override
+  ConsumerState<CreateTestDialog> createState() => _CreateTestDialogState();
+}
+
+class _CreateTestDialogState extends ConsumerState<CreateTestDialog> {
+  final _formKey = GlobalKey<FormState>();
+  bool _loading = false;
+  String? _error;
+  String title = '';
+  int duration = 10;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color.fromARGB(255, 38, 38, 38),
+      title: const Text('Utwórz test', style: TextStyle(color: Colors.white)),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Tytuł testu',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
+              style: const TextStyle(color: Colors.white),
+              validator: (v) => (v == null || v.isEmpty) ? 'Podaj tytuł' : null,
+              onChanged: (v) => setState(() => title = v),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Czas trwania (minuty)',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
+              style: const TextStyle(color: Colors.white),
+              keyboardType: TextInputType.number,
+              initialValue: '10',
+              validator: (v) {
+                final val = int.tryParse(v ?? '');
+                if (val == null || val < 1) return 'Podaj poprawny czas';
+                return null;
+              },
+              onChanged:
+                  (v) => setState(() => duration = int.tryParse(v) ?? 10),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(_error!, style: const TextStyle(color: Colors.red)),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _loading ? null : () => Navigator.of(context).pop(),
+          child: const Text('Anuluj', style: TextStyle(color: Colors.white)),
+        ),
+        ElevatedButton(
+          onPressed: _loading ? null : _createTest,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+          child:
+              _loading
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                  : const Text('Utwórz'),
+        ),
+      ],
+    );
   }
 
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toUpperCase()) {
-      case 'BASIC':
-        return Colors.green;
-      case 'INTERMEDIATE':
-        return Colors.orange;
-      case 'ADVANCED':
-        return Colors.red;
-      default:
-        return Colors.grey;
+  Future<void> _createTest() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final userProviderRef = ref.read(userProvider);
+      final token = await userProviderRef.getToken();
+      final coursesProviderRef = ref.read(coursesProvider);
+      final test = await coursesProviderRef.createTestViaApi(
+        token: token!,
+        creatorId: widget.course.creatorId,
+        courseId: widget.course.id,
+        title: title,
+        duration: duration,
+      );
+      if (test != null) {
+        widget.course.testId = test.id;
+        // Odśwież listę kursów po utworzeniu testu
+        await coursesProviderRef.getAllCoursesFromApi(
+          token,
+          userProviderRef.nickname,
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => TestEditor(test: test)));
+      } else {
+        setState(() {
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Błąd: $e';
+        _loading = false;
+      });
     }
   }
 }

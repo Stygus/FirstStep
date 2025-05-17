@@ -16,7 +16,6 @@ class Logowanie extends ConsumerWidget {
 
     return Container(
       width: MediaQuery.of(context).size.width / 2.5,
-      height: MediaQuery.of(context).size.height / 2,
       padding: const EdgeInsets.all(50),
       decoration: BoxDecoration(
         color: Color.fromARGB(100, 26, 26, 26),
@@ -30,8 +29,9 @@ class Logowanie extends ConsumerWidget {
           ),
         ],
       ),
-      child: Center(
+      child: IntrinsicHeight(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Logowanie',
