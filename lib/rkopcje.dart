@@ -1,3 +1,4 @@
+import 'package:firststep/rkosymulator_dorosli.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -6,109 +7,120 @@ class RkOpcje extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double fontSize = screenWidth * 0.06; // responsywna wielkość czcionki
+    double imageHeight = screenHeight * 0.22; // responsywna wysokość obrazka
+    double verticalSpacing = screenHeight * 0.03; // responsywne odstępy
+
     return Scaffold(
-      backgroundColor: Color(0xFF101010),
+      backgroundColor: const Color(0xFF101010),
       appBar: AppBar(
-        backgroundColor: Color(0xFF101010),
+        backgroundColor: const Color(0xFF101010),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      // Dodajemy SingleChildScrollView, aby umożliwić przewijanie zawartości
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
           child: Column(
             children: [
-              SizedBox(height: 20), // Zmniejszony odstęp
+              SizedBox(height: verticalSpacing),
               Text(
-                textAlign: TextAlign.center,
                 'Dorośli i starsze dzieci',
+                textAlign: TextAlign.center,
                 style: GoogleFonts.itim(
-                  fontSize: 24,
-                  fontWeight: FontWeight.values[4],
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10), // Zmniejszony odstęp
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RkOpcje()),
-                  );
-                },
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+              SizedBox(height: verticalSpacing * 0.5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RkoSymulatorDorosli(),
+                        ),
+                      );
+                    },
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: imageHeight),
+                      child: Image.asset(
+                        'assets/images/dorosli.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
-                  child: Image.asset(
-                    'assets/images/dorosli.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
+                ],
               ),
-              SizedBox(height: 30), // Zmniejszony odstęp
+              SizedBox(height: verticalSpacing),
               Text(
-                textAlign: TextAlign.center,
                 'Dzieci do 5 roku życia',
-                style: GoogleFonts.itim(
-                  fontSize: 24,
-                  fontWeight: FontWeight.values[4],
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: 10), // Zmniejszony odstęp
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RkOpcje()),
-                  );
-                },
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.25,
-                  ),
-                  child: Image.asset(
-                    'assets/images/dzieckom.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              SizedBox(height: 30), // Zmniejszony odstęp
-              Text(
                 textAlign: TextAlign.center,
-                'Niemowlaki',
                 style: GoogleFonts.itim(
-                  fontSize: 24,
-                  fontWeight: FontWeight.values[4],
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10), // Zmniejszony odstęp
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RkOpcje()),
-                  );
-                },
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.25,
+              SizedBox(height: verticalSpacing * 0.5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Tu wstaw docelową stronę dla tej opcji
+                    },
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: imageHeight),
+                      child: Image.asset(
+                        'assets/images/dzieckom.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
-                  child: Image.asset(
-                    'assets/images/niemowlak.png',
-                    fit: BoxFit.contain,
-                  ),
+                ],
+              ),
+              SizedBox(height: verticalSpacing),
+              Text(
+                'Niemowlaki',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.itim(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
-              SizedBox(height: 20), // Dodany odstęp na końcu
+              SizedBox(height: verticalSpacing * 0.5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Tu wstaw docelową stronę dla tej opcji
+                    },
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: imageHeight),
+                      child: Image.asset(
+                        'assets/images/niemowlak.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: verticalSpacing),
             ],
           ),
         ),
