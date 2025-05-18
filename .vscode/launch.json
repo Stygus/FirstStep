@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome with Flutter",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_web.dart",
+      "args": ["-d", "chrome"]
+    },
+    {
       "name": "Flutter",
       "request": "launch",
       "type": "dart",

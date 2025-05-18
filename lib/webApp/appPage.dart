@@ -7,6 +7,7 @@ import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firststep/components/courses/createCourseDialog.dart';
 
 class AppPage extends ConsumerStatefulWidget {
   const AppPage({super.key});
@@ -33,6 +34,8 @@ class _AppPageState extends ConsumerState<AppPage> {
       debugPrintStack(stackTrace: stack);
     }
   }
+  // Usunięto starą metodę _showCreateCourseDialog
+  // Teraz używamy funkcji showCreateCourseDialog z pakietu createCourseDialog.dart
 
   @override
   void dispose() {
@@ -92,13 +95,36 @@ class _AppPageState extends ConsumerState<AppPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Najlepsza aktywność',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    // Nagłówek z tekstem i przyciskiem dodawania kursu
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Najlepsza aktywność',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // Przycisk dodawania nowego kursu
+                        if (user.id !=
+                            '-1') // Pokazujemy przycisk tylko dla zalogowanych użytkowników
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.add, color: Colors.white),
+                            label: Text(
+                              'Nowy kurs',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            onPressed: () => showCreateCourseDialog(context),
+                          ),
+                      ],
                     ),
                     SizedBox(height: 20),
                     user.id == '-1'
@@ -110,7 +136,11 @@ class _AppPageState extends ConsumerState<AppPage> {
                         )
                         : coursesList.courses.isEmpty
                         ? Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: Text(
+                            'Brak kursów do wyświetlenia',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
                         )
                         : Expanded(
                           child: GridView.builder(
@@ -125,10 +155,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                             scrollDirection: Axis.vertical,
                             itemCount: coursesList.courses.length,
                             itemBuilder: (context, index) {
-                              final course =
-                                  coursesList.bestCourses.length > index
-                                      ? coursesList.bestCourses[index]
-                                      : coursesList.courses[index];
+                              final course = coursesList.courses[index];
                               return Card(
                                 elevation: 4.0,
                                 color: Colors.black12,

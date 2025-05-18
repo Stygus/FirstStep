@@ -207,7 +207,6 @@ class _WebHomeState extends ConsumerState<WebHome> {
   @override
   Widget build(BuildContext context) {
     final login = ref.watch(loginProvider);
-    final user = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 16, 16, 16),
