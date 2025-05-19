@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'testy.dart'; // Upewnij się, że importujesz TestyPage
 
 class RkoSymulatorDorosli extends StatefulWidget {
   const RkoSymulatorDorosli({super.key});
@@ -11,9 +13,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
   final List<Map<String, dynamic>> steps = [
     {
       'text':
-          'Zadbaj o swoje bezpieczeństwo (np. odłącz prąd, zatrzymaj ruch uliczny).',
-      'image': 'assets/images/bezpieczenstwo.png',
-      'tip': 'Twoje bezpieczeństwo jest najważniejsze!',
+          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża. Oceń czy otoczenie pozwala ci na podjęcie się pierwszej pomocy.',
+      'image': 'assets/images/rd1.png',
+      'tip':
+          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,słaba widoczność na ruchliwej ulicy).',
     },
     {
       'text':
@@ -91,137 +94,189 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final step = steps[currentStep];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF101010),
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF101010),
+        toolbarHeight: 0,
+        automaticallyImplyLeading: true,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Symulator RKO – Dorośli',
-          style: TextStyle(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => TestyPage()),
+              (route) => false,
+            );
+          },
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.06),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Krok ${currentStep + 1} z ${steps.length}',
-                style: const TextStyle(color: Colors.white70, fontSize: 18),
-              ),
-              const SizedBox(height: 16),
-              if (step['image'] != null)
-                Image.asset(
-                  step['image'],
-                  height: screenWidth * 0.5,
-                  fit: BoxFit.contain,
-                ),
-              const SizedBox(height: 24),
-              Text(
-                step['text'],
-                style: const TextStyle(color: Colors.white, fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-              if (step['tip'] != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey[800],
-                    borderRadius: BorderRadius.circular(10),
+      backgroundColor: const Color(0xFF101010),
+      body: Column(
+        children: [
+          SizedBox(
+            height: screenHeight * 0.1,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: screenHeight * 0.001),
+                    child: Text(
+                      'Symulator RKO – Dorośli',
+                      style: GoogleFonts.itim(
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.06,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.info,
-                        color: Colors.lightBlueAccent,
-                        size: 22,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    height: screenWidth * 0.1875,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        alignment: Alignment.bottomCenter,
+                        image: AssetImage('assets/images/linia.png'),
+                        fit: BoxFit.fill,
+                        isAntiAlias: false,
+                        filterQuality: FilterQuality.high,
                       ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          step['tip'],
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (currentStep > 0)
-                    ElevatedButton(
-                      onPressed: previousStep,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Wstecz',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ),
-                  if (currentStep > 0) const SizedBox(width: 16),
-                  if (currentStep < steps.length - 1)
-                    ElevatedButton(
-                      onPressed: nextStep,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Dalej',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  if (currentStep == steps.length - 1)
-                    ElevatedButton(
-                      onPressed: restart,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Spróbuj ponownie',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(screenWidth * 0.06),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Krok ${currentStep + 1} z ${steps.length}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 18),
+                    ),
+                    const SizedBox(height: 16),
+                    if (step['image'] != null)
+                      Image.asset(
+                        step['image'],
+                        height: screenWidth * 0.5,
+                        fit: BoxFit.contain,
+                      ),
+                    const SizedBox(height: 24),
+                    Text(
+                      step['text'],
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                    if (step['tip'] != null) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blueGrey[800],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.info,
+                              color: Colors.lightBlueAccent,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                step['tip'],
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (currentStep > 0)
+                          ElevatedButton(
+                            onPressed: previousStep,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Wstecz',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ),
+                        if (currentStep > 0) const SizedBox(width: 16),
+                        if (currentStep < steps.length - 1)
+                          ElevatedButton(
+                            onPressed: nextStep,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Dalej',
+                              style: TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ),
+                        if (currentStep == steps.length - 1)
+                          ElevatedButton(
+                            onPressed: restart,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Spróbuj ponownie',
+                              style: TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
