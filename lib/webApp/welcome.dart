@@ -25,7 +25,7 @@ class Logowanie extends ConsumerWidget {
             color: Colors.black.withOpacity(0.2),
             spreadRadius: 5,
             blurRadius: 7,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -96,7 +96,6 @@ class Logowanie extends ConsumerWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Poziomy prostokąt plusa
                     Container(
                       width: 110,
                       height: 50,
@@ -105,7 +104,7 @@ class Logowanie extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    // Pionowy prostokąt plusa
+
                     Container(
                       width: 50,
                       height: 110,
@@ -114,7 +113,7 @@ class Logowanie extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    // Tekst na przycisku
+
                     Text(
                       'Zaloguj',
                       style: GoogleFonts.itim(
@@ -166,7 +165,7 @@ class Rejestracja extends ConsumerWidget {
             color: Colors.black.withOpacity(0.2),
             spreadRadius: 5,
             blurRadius: 7,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -223,7 +222,6 @@ class Rejestracja extends ConsumerWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Poziomy prostokąt plusa
                     Container(
                       width: 110,
                       height: 50,
@@ -232,7 +230,7 @@ class Rejestracja extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    // Pionowy prostokąt plusa
+
                     Container(
                       width: 50,
                       height: 110,
@@ -241,7 +239,7 @@ class Rejestracja extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    // Tekst na przycisku
+
                     Text(
                       'Zarejestruj',
                       style: GoogleFonts.itim(

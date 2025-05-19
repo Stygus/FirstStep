@@ -270,7 +270,6 @@ class TestSolvePage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Funkcja zwracająca kolor na podstawie poziomu trudności
     Color _getDifficultyColor(String difficulty) {
       switch (difficulty) {
         case 'łatwy':
@@ -327,7 +326,6 @@ class TestSolvePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Informacja o trudności testu
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16.0),
@@ -378,7 +376,6 @@ class TestSolvePage extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Przycisk "Rozpocznij test"
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -411,7 +408,6 @@ class TestSolvePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Przycisk "Powrót do menu"
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -458,8 +454,8 @@ class TestQuestionPage extends StatefulWidget {
 class _TestQuestionPageState extends State<TestQuestionPage> {
   int currentQuestionIndex = 0;
   int score = 0;
-  int? selectedAnswerIndex; // Przechowuje indeks wybranej odpowiedzi
-  bool showCorrectAnswer = false; // Flaga do wyświetlania poprawnej odpowiedzi
+  int? selectedAnswerIndex;
+  bool showCorrectAnswer = false;
 
   final List<Map<String, dynamic>> questions = [
     {
@@ -567,9 +563,9 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
                   if (showCorrectAnswer) {
                     if (index ==
                         questions[currentQuestionIndex]['correctAnswer']) {
-                      answerColor = Colors.green; // Poprawna odpowiedź
+                      answerColor = Colors.green;
                     } else if (index == selectedAnswerIndex) {
-                      answerColor = Colors.red; // Błędna odpowiedź
+                      answerColor = Colors.red;
                     }
                   }
 
@@ -599,7 +595,6 @@ class _TestQuestionPageState extends State<TestQuestionPage> {
 
             const SizedBox(height: 20),
 
-            // Przycisk przejścia do następnego pytania
             ElevatedButton(
               onPressed: selectedAnswerIndex != null ? nextQuestion : null,
               style: ElevatedButton.styleFrom(
@@ -652,7 +647,6 @@ class TestResultPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Wynik testu
             Text(
               'Twój wynik:',
               style: TextStyle(
@@ -671,7 +665,6 @@ class TestResultPage extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Przycisk "Powrót do menu"
             ElevatedButton(
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
@@ -704,7 +697,6 @@ class TestResultPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Przycisk "Rozwiąż ponownie"
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacement(

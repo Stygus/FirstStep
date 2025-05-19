@@ -10,9 +10,9 @@ class RkOpcje extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    double fontSize = screenWidth * 0.06; // responsywna wielkość czcionki
-    double imageHeight = screenHeight * 0.22; // responsywna wysokość obrazka
-    double verticalSpacing = screenHeight * 0.03; // responsywne odstępy
+    double fontSize = screenWidth * 0.06;
+    double imageHeight = screenHeight * 0.22;
+    double verticalSpacing = screenHeight * 0.03;
 
     return Scaffold(
       backgroundColor: const Color(0xFF101010),
@@ -79,9 +79,7 @@ class RkOpcje extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      // Tu wstaw docelową stronę dla tej opcji
-                    },
+                    onTap: () {},
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(
@@ -107,9 +105,7 @@ class RkOpcje extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      // Tu wstaw docelową stronę dla tej opcji
-                    },
+                    onTap: () {},
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(

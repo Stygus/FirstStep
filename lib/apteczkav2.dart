@@ -617,14 +617,14 @@ class ApteczkaV2Page extends StatefulWidget {
 }
 
 class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
-  List<Map<String, dynamic>> _items = []; // Lista elementów apteczki
+  List<Map<String, dynamic>> _items = [];
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Dodaj domyślne elementy dla wybranej apteczki
+
     if (defaultItems.containsKey(widget.selectedApteczka)) {
       _items = List<Map<String, dynamic>>.from(
         defaultItems[widget.selectedApteczka]!,
@@ -638,7 +638,7 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
         'name': name,
         'description': description,
         'image': 'assets/images/logod.png', // Tymczasowe zdjęcie
-        'quantity': 1, // Domyślna ilość
+        'quantity': 1,
       });
     });
   }
@@ -690,7 +690,7 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
               TextField(
                 controller: _descriptionController,
                 style: TextStyle(color: Colors.white),
-                maxLines: 4, // Dodano więcej miejsca na opis
+                maxLines: 4,
                 decoration: InputDecoration(
                   hintText: 'Opis elementu',
                   hintStyle: TextStyle(color: Colors.grey),
@@ -710,7 +710,7 @@ class _ApteczkaV2PageState extends State<ApteczkaV2Page> {
                     _addItem(_nameController.text, _descriptionController.text);
                     _nameController.clear();
                     _descriptionController.clear();
-                    Navigator.pop(context); // Zamknij menu
+                    Navigator.pop(context);
                   }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),

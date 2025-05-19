@@ -18,22 +18,30 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Nożyczki ratownicze',
-      'description': 'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
+      'description':
+          'Nożyczki do cięcia bandaży i ubrań w sytuacjach awaryjnych.',
     },
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Rękawiczki jednorazowe',
-      'description': 'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
+      'description':
+          'Rękawiczki chroniące przed kontaktem z krwią i płynami ustrojowymi.',
     },
     {
       'image': 'assets/images/narzedziazdjecie.png',
       'name': 'Apteczka pierwszej pomocy',
-      'description': 'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
+      'description':
+          'Zestaw podstawowych narzędzi i materiałów do udzielania pomocy.',
     },
   ];
 
   final List<String> statuses = ['Do nauczenia', 'W trakcie nauki', 'Nauczone'];
-  final List<String> learnedStatus = ['Do nauczenia', 'Do nauczenia', 'Do nauczenia', 'Do nauczenia'];
+  final List<String> learnedStatus = [
+    'Do nauczenia',
+    'Do nauczenia',
+    'Do nauczenia',
+    'Do nauczenia',
+  ];
   int currentIndex = 0;
 
   void _updateStatus(int index, String status) {
@@ -117,17 +125,17 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                 ),
               ),
 
-              // Zdjęcie narzędzia z obsługą kliknięcia
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FiszkaDetailsPage(
-                        items: items,
-                        initialIndex: currentIndex,
-                        onStatusChange: _updateStatus,
-                      ),
+                      builder:
+                          (context) => FiszkaDetailsPage(
+                            items: items,
+                            initialIndex: currentIndex,
+                            onStatusChange: _updateStatus,
+                          ),
                     ),
                   );
                 },
@@ -140,7 +148,6 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
 
               const SizedBox(height: 20),
 
-              // Statystyki nauczonych przedmiotów
               Column(
                 children: [
                   Text(
@@ -154,7 +161,6 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Nauczone przedmioty
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -176,7 +182,6 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // W trakcie nauki
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -198,7 +203,6 @@ class _NarzedziarPageState extends State<NarzedziarPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Do nauczenia
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -260,7 +264,7 @@ class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
       if (currentIndex < widget.items.length - 1) {
         currentIndex++;
       } else {
-        currentIndex = 0; // Wraca na początek, jeśli to ostatni element
+        currentIndex = 0;
       }
     });
   }
@@ -270,7 +274,7 @@ class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
       if (currentIndex > 0) {
         currentIndex--;
       } else {
-        currentIndex = widget.items.length - 1; // Wraca na ostatni element, jeśli to pierwszy
+        currentIndex = widget.items.length - 1;
       }
     });
   }
@@ -325,7 +329,6 @@ class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Strzałka do cofania
                     ElevatedButton.icon(
                       onPressed: _goToPrevious,
                       style: ElevatedButton.styleFrom(
@@ -335,7 +338,6 @@ class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
                       label: const Text(''),
                     ),
 
-                    // Zielony przycisk z "ptaszkiem"
                     ElevatedButton.icon(
                       onPressed: () => _updateStatus('Nauczone'),
                       style: ElevatedButton.styleFrom(
@@ -345,17 +347,18 @@ class _FiszkaDetailsPageState extends State<FiszkaDetailsPage> {
                       label: const Text(''),
                     ),
 
-                    // Pomarańczowy przycisk z klepsydrą
                     ElevatedButton.icon(
                       onPressed: () => _updateStatus('W trakcie nauki'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                       ),
-                      icon: const Icon(Icons.hourglass_bottom, color: Colors.white),
+                      icon: const Icon(
+                        Icons.hourglass_bottom,
+                        color: Colors.white,
+                      ),
                       label: const Text(''),
                     ),
 
-                    // Czerwony przycisk z "X"
                     ElevatedButton.icon(
                       onPressed: () => _updateStatus('Do nauczenia'),
                       style: ElevatedButton.styleFrom(

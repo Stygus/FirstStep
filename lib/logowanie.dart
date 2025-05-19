@@ -77,7 +77,7 @@ class Logowanie extends ConsumerWidget {
       body: Column(
         children: [
           SizedBox(
-            height: 80, // Define a fixed height
+            height: 80,
             child: rive.RiveAnimation.asset(
               'assets/Animacje/neonowy_puls.riv',
               fit: BoxFit.contain,
@@ -104,9 +104,8 @@ class Logowanie extends ConsumerWidget {
                   ),
                   SizedBox(height: 20),
 
-                  // Tytuł aplikacji
-                  SizedBox(height: 20), // Zwiększono odstęp
-                  // Pole do wpisania adresu e-mail
+                  SizedBox(height: 20),
+
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -120,8 +119,8 @@ class Logowanie extends ConsumerWidget {
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(height: 25), // Zwiększono odstęp
-                  // Pole do wpisania hasła
+                  SizedBox(height: 25),
+
                   TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
@@ -136,13 +135,11 @@ class Logowanie extends ConsumerWidget {
                     style: TextStyle(color: Colors.black),
                     obscureText: true,
                   ),
-                  SizedBox(height: 24), // Zwiększono odstęp
-                  // Przycisk logowania
+                  SizedBox(height: 24),
+
                   Center(
                     child: GestureDetector(
                       onTap: () {
-                        // Akcja po naciśnięciu przycisku
-
                         user.signIn(
                           emailController.text,
                           passwordController.text,
@@ -152,7 +149,6 @@ class Logowanie extends ConsumerWidget {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Poziomy prostokąt plusa
                           Container(
                             width: 110,
                             height: 50,
@@ -161,7 +157,7 @@ class Logowanie extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          // Pionowy prostokąt plusa
+
                           Container(
                             width: 50,
                             height: 110,
@@ -170,7 +166,7 @@ class Logowanie extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          // Tekst na przycisku
+
                           Text(
                             'Zaloguj',
                             style: GoogleFonts.itim(
@@ -185,7 +181,6 @@ class Logowanie extends ConsumerWidget {
                   ),
                   SizedBox(height: 24),
 
-                  // Link do rejestracji
                   Center(
                     child: GestureDetector(
                       onTap: () {

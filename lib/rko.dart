@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'rkopcje.dart'; // Import widgetu rkopcje.dart
+import 'rkopcje.dart';
 
 class RKO extends StatelessWidget {
   const RKO({super.key});

@@ -5,14 +5,16 @@ import 'package:firststep/narzedziar.dart';
 import 'package:firststep/testy.dart';
 
 void main() {
-  runApp(MaterialApp(
-    initialRoute: '/',
-    routes: {
-      '/': (context) => const KursyPage(),
-      '/narzedziar': (context) => const NarzedziarPage(),
-      '/testy': (context) => const TestyPage(),
-    },
-  ));
+  runApp(
+    MaterialApp(
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const KursyPage(),
+        '/narzedziar': (context) => const NarzedziarPage(),
+        '/testy': (context) => const TestyPage(),
+      },
+    ),
+  );
 }
 
 class KursyPage extends StatelessWidget {
@@ -88,7 +90,9 @@ class KursyPage extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const NarzedziarPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const NarzedziarPage(),
+                          ),
                         );
                       },
                       child: Padding(
@@ -105,7 +109,9 @@ class KursyPage extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const TestyPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const TestyPage(),
+                          ),
                         );
                       },
                       child: Padding(
@@ -124,7 +130,6 @@ class KursyPage extends StatelessWidget {
               ),
             ),
           ),
-
 
           Expanded(
             child: Center(

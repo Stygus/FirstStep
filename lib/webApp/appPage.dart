@@ -34,8 +34,6 @@ class _AppPageState extends ConsumerState<AppPage> {
       debugPrintStack(stackTrace: stack);
     }
   }
-  // Usunięto starą metodę _showCreateCourseDialog
-  // Teraz używamy funkcji showCreateCourseDialog z pakietu createCourseDialog.dart
 
   @override
   void dispose() {
@@ -95,7 +93,6 @@ class _AppPageState extends ConsumerState<AppPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nagłówek z tekstem i przyciskiem dodawania kursu
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -107,9 +104,8 @@ class _AppPageState extends ConsumerState<AppPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        // Przycisk dodawania nowego kursu
-                        if (user.id !=
-                            '-1') // Pokazujemy przycisk tylko dla zalogowanych użytkowników
+
+                        if (user.id != '-1')
                           ElevatedButton.icon(
                             icon: Icon(Icons.add, color: Colors.white),
                             label: Text(
@@ -144,13 +140,13 @@ class _AppPageState extends ConsumerState<AppPage> {
                         )
                         : Expanded(
                           child: GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              childAspectRatio:
-                                  1.4, // Zwiększenie wartości dla niższych kart
-                              mainAxisSpacing: 10.0,
-                              crossAxisSpacing: 10.0,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  childAspectRatio: 1.4,
+                                  mainAxisSpacing: 10.0,
+                                  crossAxisSpacing: 10.0,
+                                ),
                             controller: _horizontalController,
                             scrollDirection: Axis.vertical,
                             itemCount: coursesList.courses.length,
@@ -192,9 +188,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                 iconColor: Colors.white,
                 leading: Icon(Icons.home),
                 title: Text('Home', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  // Navigator.pop(context);
-                },
+                onTap: () {},
               ),
               ListTile(
                 iconColor: Colors.white,
@@ -211,7 +205,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                 title: Text('Logout', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   user.signOut();
-                  // Add logout logic here
+
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'testy.dart'; // Upewnij się, że importujesz TestyPage
+import 'testy.dart';
 
 class RkoSymulatorDorosli extends StatefulWidget {
   const RkoSymulatorDorosli({super.key});
@@ -16,24 +16,24 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża. Oceń czy otoczenie pozwala ci na podjęcie się pierwszej pomocy.',
       'image': 'assets/images/rd1.png',
       'tip':
-          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,słaba widoczność na ruchliwej ulicy).',
+          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,słaba widoczność na ulicy).',
     },
     {
       'text':
           'Sprawdź przytomność – potrząśnij delikatnie, zapytaj: „Czy wszystko w porządku?”',
-      'image': 'assets/images/przytomnosc.png',
+      'image': 'assets/images/rd2.png',
       'tip': 'Nie potrząsaj zbyt mocno, wystarczy lekko dotknąć ramię.',
     },
     {
       'text':
-          'Zawołaj pomoc – jeśli poszkodowany nie reaguje, zawołaj głośno o pomoc i/lub zadzwoń na 112.',
-      'image': 'assets/images/pomoc.png',
+          'Zawołaj pomoc – jeśli poszkodowany nie reaguje, zawołaj głośno o pomoc.',
+      'image': 'assets/images/rd3.png',
       'tip': 'Im szybciej zawołasz pomoc, tym lepiej!',
     },
     {
       'text':
           'Sprawdź oddech – odchyl głowę, sprawdź, czy oddycha: „patrz, słuchaj, czuj” przez 10 sekund.',
-      'image': 'assets/images/oddech.png',
+      'image': 'assets/images/rd4.png',
       'tip': 'Nie spiesz się – 10 sekund to dłużej niż myślisz.',
     },
     {
@@ -44,7 +44,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłonie jedna na drugiej, na środku klatki piersiowej.\n- Ręce wyprostowane, uciskaj 5–6 cm głęboko.\n- Częstotliwość: 100–120/min.',
+          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłonie jedna na drugiej, na środku klatki piersiowej na lini sutków.\n- Ręce wyprostowane, uciskaj 5–6 cm głęboko.\n- Częstotliwość: 100–120/min.',
       'image': 'assets/images/uciski.png',
       'tip': 'Uciskaj mocno i szybko, nie bój się złamać żeber.',
     },
@@ -164,7 +164,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                   children: [
                     Text(
                       'Krok ${currentStep + 1} z ${steps.length}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 18),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 18,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     if (step['image'] != null)
@@ -229,7 +232,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                             ),
                             child: const Text(
                               'Wstecz',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         if (currentStep > 0) const SizedBox(width: 16),
@@ -248,7 +254,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                             ),
                             child: const Text(
                               'Dalej',
-                              style: TextStyle(fontSize: 18, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         if (currentStep == steps.length - 1)
@@ -266,7 +275,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                             ),
                             child: const Text(
                               'Spróbuj ponownie',
-                              style: TextStyle(fontSize: 18, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                       ],

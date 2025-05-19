@@ -62,7 +62,7 @@ class Start extends ConsumerWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Color(0xFF1E1E1E), // Kolor tła dla start.dart
+      backgroundColor: Color(0xFF1E1E1E),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -73,9 +73,7 @@ class Start extends ConsumerWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => RKO(),
-                ), // Poprawiono nawigację do RKO
+                MaterialPageRoute(builder: (context) => RKO()),
               );
             },
             child: Column(
@@ -91,7 +89,7 @@ class Start extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  'Panel RKO', // Przeniesiono tekst pod zdjęcie
+                  'Panel RKO',
                   style: GoogleFonts.itim(
                     fontSize: 24,
                     fontWeight: FontWeight.values[4],
@@ -140,9 +138,7 @@ class Start extends ConsumerWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => Logowanie(),
-                ), // Przeniesienie do logowania
+                MaterialPageRoute(builder: (context) => Logowanie()),
               );
             },
             child: Column(
@@ -169,79 +165,3 @@ class Start extends ConsumerWidget {
     );
   }
 }
-
-// class testowy extends ConsumerWidget {
-//   const testowy({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return Scaffold(
-//       resizeToAvoidBottomInset: false,
-//       body: Center(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             SizedBox(height: 50),
-//             FilledButton(
-//               onPressed: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(builder: (context) => StepusWidget()),
-//                 );
-//               },
-//               child: Text('Test'),
-//             ),
-//             SizedBox(height: 50),
-//             Container(
-//               width: 250,
-//               height: 250,
-//               child: Stack(
-//                 children: [
-//                   Align(
-//                     alignment: Alignment.centerLeft,
-//                     child: Transform.rotate(
-//                       angle: 45 * math.pi / 180,
-//                       child: ClipPath(
-//                         child: Container(
-//                           width: 100,
-//                           height: 100,
-//                           color: const Color.fromARGB(
-//                             255,
-//                             244,
-//                             225,
-//                             54,
-//                           ), // Pierwszy kontener (na spodzie)
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   Align(
-//                     alignment: Alignment.topCenter,
-//                     child: Transform.rotate(
-//                       angle: 45 * math.pi / 180,
-//                       child: ClipPath(
-//                         child: Container(
-//                           width: 100,
-//                           height: 100,
-//                           color: Colors.red, // Pierwszy kontener (na spodzie)
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             SizedBox(height: 50),
-//             TextButton(
-//               onPressed: () async {
-//                 final user = ref.watch(userProvider.notifier);
-//                 debugPrint(user.nickname);
-//               },
-//               child: Text('Testowy przycisk'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
