@@ -66,7 +66,7 @@ class RkOpcje extends StatelessWidget {
               ),
               SizedBox(height: verticalSpacing),
               Text(
-                'Dzieci do 5 roku życia',
+                'Dzieci do 8 roku życia',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.itim(
                   fontSize: fontSize,

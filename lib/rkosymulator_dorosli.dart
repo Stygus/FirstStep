@@ -45,8 +45,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Nie spiesz się z oceną. Upewnij się że nie czujesz oddechu na policzku,klatka nie porusza się, niesłyszysz oddechu w takim wypadku przejdź dalej.',
     },
     {
-      'text':
-          'Wezwij pogotowie (112) – jeśli nie oddycha prawidłowo lub nie oddycha wcale.',
+      'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację',
       'image': 'assets/images/rd5.png',
       'tip':
           'Spokojnie i wyraźnie podaj dokładną lokalizację i opisz sytuację. Nie rozłączaj się dopóki dyspozytor nie powie, że możesz.',
@@ -70,7 +69,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Rescustytacja zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie.Twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie.Twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -91,13 +90,27 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Pozycja boczna chroni przed zadławieniem i umożliwia swobodne oddychanie.',
     },
     {
+      'text': 'Jak ułożyć poszkodowanego w pozycji bocznej bezpiecznej?',
+      'image': null,
+      'tip': null,
+      'steps': [
+        'Ułóż poszkodowanego na boku.',
+        'Połóż rękę bliższą Tobie pod kątem prostym względem tułowia (łokieć zgięty).',
+        'Drugą rękę złóż na przeciwległym policzku.',
+        'Zegnij bliższą Tobie nogę w kolanie.',
+        'Chwyć za zgięte kolano i bark, obróć delikatnie poszkodowanego na bok, tak żeby noga opierała się o podłoże, a głowa była lekko odchylona do tyłu.',
+        'Utrzymaj drożność dróg oddechowych: upewnij się, że żadne ciało obce nie blokuje ust czy gardła, i że głowa jest lekko odchylona, by ułatwić oddychanie.',
+      ],
+    },
+    {
       'text': 'Kontroluj oddech do przyjazdu pomocy.',
       'image': 'assets/images/rd4.png',
-      'tip': 'Jeśli oddech się pogorszy lub ustanie – rozpocznij RKO.',
+      'tip':
+          'Jeśli oddech się pogorszy lub ustanie – rozpocznij masaż serca oraz wdechy 30:2 do przyjazdu karetki lub odzyskania oddechu.',
     },
     {
       'text':
-          'Rescustytacja zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -166,24 +179,57 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     Widget stepWidget(Map<String, dynamic> step, int stepNum, int totalSteps) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             'Krok $stepNum z $totalSteps',
             style: const TextStyle(color: Colors.white70, fontSize: 18),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           if (step['image'] != null)
-            Image.asset(
-              step['image'],
-              height: screenWidth * 0.5,
-              fit: BoxFit.contain,
-            ),
-          const SizedBox(height: 24),
+            Image.asset(step['image'], height: 200, fit: BoxFit.contain),
+          if (step['image'] != null) const SizedBox(height: 24),
           Text(
             step['text'],
-            style: const TextStyle(color: Colors.white, fontSize: 20),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
+          if (step['steps'] != null) ...[
+            const SizedBox(height: 18),
+            ...List.generate(
+              (step['steps'] as List).length,
+              (i) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${i + 1}. ',
+                      style: const TextStyle(
+                        color: Colors.lightBlueAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        step['steps'][i],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           if (step['tip'] != null) ...[
             const SizedBox(height: 16),
             Container(
