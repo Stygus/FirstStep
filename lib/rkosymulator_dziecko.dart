@@ -3,14 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'testy.dart';
 import 'menu.dart';
 
-class RkoSymulatorDorosli extends StatefulWidget {
-  const RkoSymulatorDorosli({super.key});
+class RkoSymulatorDziecko extends StatefulWidget {
+  const RkoSymulatorDziecko({super.key});
 
   @override
-  State<RkoSymulatorDorosli> createState() => _RkoSymulatorDorosliState();
+  State<RkoSymulatorDziecko> createState() => _RkoSymulatorDzieckoState();
 }
 
-class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
+class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
   int currentStep = 0;
   bool showBreathChoice = false;
   bool showRecoverySteps = false;
@@ -26,13 +26,13 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Sprawdź przytomność – potrząśnij delikatnie, zapytaj: „Czy wszystko w porządku?”',
+          'Sprawdź przytomność – potrząśnij delikatnie, potrząśnij delikatnie, spróbuj wywołać po imieniu,uzyskać kontakt',
       'image': 'assets/images/rd2.png',
       'tip': 'Brak reakcji będzie wskazywał na utratę przytomności.',
     },
     {
       'text':
-          'Zawołaj pomoc – jeśli poszkodowany nie reaguje, zawołaj głośno o pomoc.',
+          'Jeśli dziecko nie reaguje, a ktoś jest w pobliżu zawołaj o pomoc ',
       'image': 'assets/images/rd3.png',
       'tip':
           'Większa ilość ratowników to znaczące wsparcie. Mogą pomóc w wezwaniu karetki oraz zmienić się w trakcie masażu serca.',
@@ -52,19 +52,20 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłonie jedna na drugiej, na środku klatki piersiowej na lini sutków.\n- Ręce wyprostowane, uciskaj 5–6 cm głęboko.\n- Częstotliwość: 100–120/min.',
+          'Rozpocznij od 5 oddechów ratowniczych. Zatkaj nos, odchyl głowę, zakryj usta swoimi ustami, dmuchnij normalnie 5 razy ',
       'image': 'assets/images/rd6.png',
-      'tip': 'Uciskaj mocno, szybko i zdecydowanie.',
+      'tip': 'Jeśli nie ma reakcji przejdź do masażu serca w następnym kroku.',
     },
     {
       'text':
-          'Po 30 uciśnięciach wykonaj 2 oddechy ratownicze (jeśli się na to zdecydujesz):\n- Zatkaj nos, odchyl głowę, zakryj usta swoimi ustami, dmuchnij normalnie 2 razy.',
+          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłoń lub dłonie splecione w przypadku starszego dziecka, na środku klatki piersiowej na lini sutków.\n- Ręce wyprostowane, uciskaj na 1/3 wysokości klatki ok.5cm.\n- Częstotliwość: 100–120/min.',
       'image': 'assets/images/rd7.png',
       'tip':
-          'Jeśli nie chcesz wykonywać oddechów – kontynuuj same uciski. Nie rób przerwy dłuższej niż 10 sekund pomiędzy wdechami/uciskami.',
+          'Nie rób przerwy dłuższej niż 10 sekund pomiędzy wdechami/uciskami.',
     },
     {
-      'text': 'Kontynuuj 30:2 aż do przybycia pomocy lub powrotu oddechu.',
+      'text':
+          'Kontynuuj 30:2, czyli 30 uciśnięć oraz 2 wdechy aż do przybycia pomocy lub powrotu oddechu.',
       'image': 'assets/images/rd8.png',
       'tip':
           'Nie przerywaj RKO do momentu przyjazdu karetki lub wyczerpania oraz braku sił i braku możliwości zmiany z inną osobą!',
@@ -86,7 +87,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Spokojnie i wyraźnie podaj dokładną lokalizację i opisz sytuację. Nie rozłączaj się dopóki dyspozytor nie powie, że możesz.',
     },
     {
-      'text': 'Ułóż poszkodowanego w pozycji bocznej bezpiecznej.',
+      'text': 'Ułóż dziecko w pozycji bocznej bezpiecznej.',
       'image': 'assets/images/rdb.png',
       'tip':
           'Pozycja boczna chroni przed zadławieniem i umożliwia swobodne oddychanie. Instrukcja w następnym kroku.',
@@ -96,7 +97,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
       'image': null,
       'tip': null,
       'steps': [
-        'Ułóż poszkodowanego na boku.',
+        'Ułóż dziecko na boku.',
         'Połóż rękę bliższą Tobie pod kątem prostym względem tułowia (łokieć zgięty).',
         'Drugą rękę złóż na przeciwległym policzku.',
         'Zegnij bliższą Tobie nogę w kolanie.',
@@ -104,7 +105,6 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
         'Utrzymaj drożność dróg oddechowych: upewnij się, że żadne ciało obce nie blokuje ust czy gardła, i że głowa jest lekko odchylona, by ułatwić oddychanie.',
       ],
     },
-
     {
       'text':
           'Kontroluj oddech do przyjazdu pomocy. Sprawdzaj co jakiś czas czy oddech jest prawidłowy i czy nie ustał',
@@ -113,18 +113,16 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Nie spiesz się z oceną. Upewnij się że nie czujesz oddechu na policzku,klatka nie porusza się. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu. Przejdź do RKO instrukcja w następnym kroku.',
       'choice': true,
     },
-
     {
-      'text': 'Jak wykonać RKO u dorosłego?',
+      'text': 'Jak wykonać RKO u dziecka?',
       'image': null,
       'tip': null,
       'steps': [
-        'Uklęknij obok poszkodowanego.',
-        'Połóż nasadę jednej dłoni na środku klatki piersiowej (na linii sutków).',
-        'Drugą dłoń połóż na pierwszej i spleć palce.',
+        'Uklęknij obok dziecka. Wykonaj 5 wdechów ratowniczych.',
+        'Połóż jedną dłoń bądź w przypadku dzieci starszych dwie splecione na środku klatki piersiowej (na linii sutków).',
         'Wyprostuj ręce w łokciach i ustaw barki pionowo nad klatką piersiową.',
-        'Uciskaj klatkę piersiową na głębokość 5–6 cm z częstotliwością 100–120/min.',
-        'Po 30 uciśnięciach wykonaj 2 oddechy ratownicze (jeśli się na to zdecydujesz bo np: znasz tą osobe ): odchyl głowę, zatkaj nos, zakryj usta poszkodowanego swoimi ustami i wdmuchnij powietrze.',
+        'Uciskaj klatkę piersiową na głębokość 1/3 klatki piersiowej ok 5. cm z częstotliwością 100–120/min.',
+        'Po 30 uciśnięciach wykonaj 2 oddechy ratownicze. Odchyl głowę, zatkaj nos, zakryj usta poszkodowanego swoimi ustami i wdmuchnij powietrze.',
         'Kontynuuj cykl 30 uciśnięć i 2 oddechów do przyjazdu pomocy lub powrotu oddechu.',
       ],
     },
@@ -197,7 +195,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     double baseFont = screenWidth * 0.045;
-    double headerFont = screenWidth * 0.055;
+    double headerFont = screenWidth * 0.048;
     double stepFont = screenWidth * 0.042;
     double buttonFont = screenWidth * 0.045;
     double imageHeight = screenHeight * 0.23;
@@ -297,22 +295,6 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        toolbarHeight: 0,
-        automaticallyImplyLeading: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => TestyPage()),
-              (route) => false,
-            );
-          },
-        ),
-      ),
       backgroundColor: const Color(0xFF101010),
       body: Column(
         children: [
@@ -323,9 +305,9 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(top: screenHeight * 0.001),
+                    padding: EdgeInsets.only(top: screenHeight * 0.030),
                     child: Text(
-                      'Symulator RKO – Dorośli',
+                      'Symulator RKO – Dziecko',
                       style: GoogleFonts.itim(
                         color: Colors.white,
                         fontSize: screenWidth * 0.06,
@@ -338,7 +320,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    height: screenWidth * 0.1875,
+                    height: screenWidth * 0.1000,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         alignment: Alignment.bottomCenter,

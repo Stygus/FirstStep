@@ -1,4 +1,5 @@
 import 'package:firststep/rkosymulator_dorosli.dart';
+import 'package:firststep/rkosymulator_dziecko.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -79,7 +80,14 @@ class RkOpcje extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RkoSymulatorDziecko(),
+                        ),
+                      );
+                    },
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(
