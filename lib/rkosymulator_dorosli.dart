@@ -58,18 +58,20 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Po 30 uciśnięciach wykonaj 2 oddechy ratownicze (jeśli umiesz i chcesz):\n- Zatkaj nos, odchyl głowę, zakryj usta, dmuchnij normalnie 2 razy.',
+          'Po 30 uciśnięciach wykonaj 2 oddechy ratownicze (jeśli się na to zdecydujesz):\n- Zatkaj nos, odchyl głowę, zakryj usta swoimi ustami, dmuchnij normalnie 2 razy.',
       'image': 'assets/images/rd7.png',
-      'tip': 'Jeśli nie chcesz wykonywać oddechów – kontynuuj same uciski.',
+      'tip':
+          'Jeśli nie chcesz wykonywać oddechów – kontynuuj same uciski. Nie rób przerwy dłuższej niż 10 sekund podczas wdechami/zmianą uciskania.',
     },
     {
       'text': 'Kontynuuj 30:2 aż do przybycia pomocy lub powrotu oddechu.',
       'image': 'assets/images/rd8.png',
-      'tip': 'Nie przerywaj RKO bez ważnego powodu!',
+      'tip':
+          'Nie przerywaj RKO do momentu przyjazdu karetki/lub do momentu braku sił i braku możliwości zmiany z inną osobą!',
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie.Twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -87,7 +89,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
       'text': 'Ułóż poszkodowanego w pozycji bocznej bezpiecznej.',
       'image': 'assets/images/rdb.png',
       'tip':
-          'Pozycja boczna chroni przed zadławieniem i umożliwia swobodne oddychanie.',
+          'Pozycja boczna chroni przed zadławieniem i umożliwia swobodne oddychanie. Instrukcja w następnym kroku.',
     },
     {
       'text': 'Jak ułożyć poszkodowanego w pozycji bocznej bezpiecznej?',
