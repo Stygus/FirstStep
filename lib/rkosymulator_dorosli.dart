@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'testy.dart';
+import 'menu.dart'; // Dodaj import menu jeśli jeszcze nie ma
 
 class RkoSymulatorDorosli extends StatefulWidget {
   const RkoSymulatorDorosli({super.key});
@@ -10,7 +11,6 @@ class RkoSymulatorDorosli extends StatefulWidget {
 }
 
 class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
-  // 0: normalne kroki, 1: wybór po oddechu, 2: procedura boczna
   int currentStep = 0;
   bool showBreathChoice = false;
   bool showRecoverySteps = false;
@@ -28,26 +28,28 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
       'text':
           'Sprawdź przytomność – potrząśnij delikatnie, zapytaj: „Czy wszystko w porządku?”',
       'image': 'assets/images/rd2.png',
-      'tip': 'Nie potrząsaj zbyt mocno, wystarczy lekko dotknąć ramię.',
+      'tip': 'Brak reakcji będzie wskazywał na utratę przytomności.',
     },
     {
       'text':
           'Zawołaj pomoc – jeśli poszkodowany nie reaguje, zawołaj głośno o pomoc.',
       'image': 'assets/images/rd3.png',
-      'tip': 'Im szybciej zawołasz pomoc, tym lepiej!',
+      'tip':
+          'Większa ilość ratowników to znaczące wsparcie. Mogą pomóc w wezwaniu karetki oraz zmienić się w trakcie masażu serca.',
     },
     {
       'text':
           'Sprawdź oddech – odchyl głowę, sprawdź, czy oddycha: „patrz, słuchaj, czuj” przez 10 sekund.',
       'image': 'assets/images/rd4.png',
-      'tip': 'Nie spiesz się – 10 sekund to dłużej niż myślisz.',
+      'tip':
+          'Nie spiesz się z oceną. Upewnij się że nie czujesz oddechu na policzku,klatka nie porusza się, niesłyszysz oddechu w takim wypadku przejdź dalej.',
     },
-
     {
       'text':
           'Wezwij pogotowie (112) – jeśli nie oddycha prawidłowo lub nie oddycha wcale.',
       'image': 'assets/images/rd5.png',
-      'tip': 'Podaj dokładną lokalizację i opisz sytuację.',
+      'tip':
+          'Spokojnie i wyraźnie podaj dokładną lokalizację i opisz sytuację. Nie rozłączaj się dopóki dyspozytor nie powie, że możesz.',
     },
     {
       'text':
@@ -77,9 +79,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
 
   final List<Map<String, dynamic>> recoverySteps = [
     {
-      'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację.',
+      'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację .',
       'image': 'assets/images/rd5.png',
-      'tip': 'Nie zostawiaj poszkodowanego samego!',
+      'tip':
+          'Spokojnie i wyraźnie podaj dokładną lokalizację i opisz sytuację. Nie rozłączaj się dopóki dyspozytor nie powie, że możesz.',
     },
     {
       'text': 'Ułóż poszkodowanego w pozycji bocznej bezpiecznej.',
@@ -94,9 +97,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Rescustytacja zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie \n\n' +
-          'Dzięki Twoim działaniom poszkodowany mógł dostać drugą szansę.\n\n' +
-          'To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Rescustytacja zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -287,7 +288,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            'Czy poszkodowany oddycha prawidłowo?',
+                            'Oceń stan poszkodowanego.\n Czy jest przytomny? Czy oddycha?',
                             style: TextStyle(color: Colors.white, fontSize: 22),
                             textAlign: TextAlign.center,
                           ),
@@ -295,7 +296,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                           ElevatedButton.icon(
                             icon: const Icon(Icons.check, color: Colors.white),
                             label: const Text(
-                              'Oddycha prawidłowo',
+                              'Nieprzytomny oddycha ',
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.white,
@@ -323,7 +324,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                           ElevatedButton.icon(
                             icon: const Icon(Icons.close, color: Colors.white),
                             label: const Text(
-                              'Nie oddycha',
+                              'Nieprzytonmy nie oddycha',
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.white,
@@ -426,7 +427,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                                     ),
                                   ),
                                 ),
-                              if (recoveryStep == recoverySteps.length - 1)
+                              if (recoveryStep == recoverySteps.length - 1) ...[
                                 ElevatedButton(
                                   onPressed: restart,
                                   style: ElevatedButton.styleFrom(
@@ -440,13 +441,43 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                                     ),
                                   ),
                                   child: const Text(
-                                    'Spróbuj ponownie',
+                                    'Reset',
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.white,
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Menu(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Menu',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ],
@@ -507,7 +538,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                                     ),
                                   ),
                                 ),
-                              if (currentStep == steps.length - 1)
+                              if (currentStep == steps.length - 1) ...[
                                 ElevatedButton(
                                   onPressed: restart,
                                   style: ElevatedButton.styleFrom(
@@ -521,13 +552,43 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                                     ),
                                   ),
                                   child: const Text(
-                                    'Spróbuj ponownie',
+                                    'Reset',
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.white,
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Menu(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Menu',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ],
