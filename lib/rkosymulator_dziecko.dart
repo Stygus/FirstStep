@@ -19,7 +19,7 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
   final List<Map<String, dynamic>> steps = [
     {
       'text':
-          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża. Oceń czy otoczenie pozwala ci na podjęcie się pierwszej pomocy.',
+          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża.',
       'image': 'assets/images/rd1.png',
       'tip':
           'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,słaba widoczność na ulicy).',
@@ -42,7 +42,7 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
           'Sprawdź oddech – odchyl głowę, sprawdź, czy oddycha: „patrz, słuchaj, czuj” przez 10 sekund.',
       'image': 'assets/images/rd4.png',
       'tip':
-          'Upewnij się że nie czujesz oddechu. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
+          'Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
     },
     {
       'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację',
@@ -58,7 +58,7 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
     },
     {
       'text':
-          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłoń lub dłonie splecione w przypadku starszego dziecka, na środku klatki piersiowej na lini sutków.\n- Ręce wyprostowane, uciskaj na 1/3 wysokości klatki ok.5cm.\n- Częstotliwość: 100–120/min.',
+          'Rozpocznij uciski klatki piersiowej:\n- Ułóż dłoń lub dłonie splecione w przypadku starszego dziecka, na środku klatki piersiowej na lini sutków. Ręce wyprostowane, uciskaj na 1/3 wysokości klatki ok.5cm.',
       'image': 'assets/images/rd7.png',
       'tip':
           'Nie rób przerwy dłuższej niż 10 sekund pomiędzy wdechami/uciskami.',
@@ -72,7 +72,7 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -195,7 +195,7 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     double baseFont = screenWidth * 0.045;
-    double headerFont = screenWidth * 0.048;
+    double headerFont = screenWidth * 0.055;
     double stepFont = screenWidth * 0.042;
     double buttonFont = screenWidth * 0.045;
     double imageHeight = screenHeight * 0.23;
@@ -299,28 +299,14 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
       body: Column(
         children: [
           SizedBox(
-            height: screenHeight * 0.1,
+            height: screenHeight * 0.13,
             child: Stack(
               children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: screenHeight * 0.030),
-                    child: Text(
-                      'Symulator RKO – Dziecko',
-                      style: GoogleFonts.itim(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.06,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    height: screenWidth * 0.1000,
+                    height: screenWidth * 0.17,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         alignment: Alignment.bottomCenter,
@@ -328,6 +314,21 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                         fit: BoxFit.fill,
                         isAntiAlias: false,
                         filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: screenHeight * 0.032),
+                    child: Text(
+                      'Symulator RKO – Dziecko',
+                      style: GoogleFonts.itim(
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.06,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -348,11 +349,11 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Oceń stan poszkodowanego.\n Czy jest przytomny? Czy oddycha?',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 22,
+                                  fontSize: headerFont,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -362,10 +363,10 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                                   Icons.check,
                                   color: Colors.white,
                                 ),
-                                label: const Text(
+                                label: Text(
                                   'Nieprzytomny oddycha ',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: buttonFont,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -393,10 +394,10 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                                   Icons.close,
                                   color: Colors.white,
                                 ),
-                                label: const Text(
+                                label: Text(
                                   'Nieprzytonmy nie oddycha',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: buttonFont,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -430,10 +431,10 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Wstecz',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: buttonFont * 0.9,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -538,10 +539,10 @@ class _RkoSymulatorDzieckoState extends State<RkoSymulatorDziecko> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Wstecz',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: buttonFont * 0.9,
                                       color: Colors.white,
                                     ),
                                   ),

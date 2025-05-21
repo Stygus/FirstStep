@@ -19,10 +19,10 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
   final List<Map<String, dynamic>> steps = [
     {
       'text':
-          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża. Oceń czy otoczenie pozwala ci na podjęcie się pierwszej pomocy.',
+          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża.',
       'image': 'assets/images/rd1.png',
       'tip':
-          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,słaba widoczność na ulicy).',
+          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,ryzyko porażenia prądem).',
     },
     {
       'text':
@@ -31,8 +31,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
       'tip': 'Brak reakcji będzie wskazywał na utratę przytomności.',
     },
     {
-      'text':
-          'Zawołaj pomoc – jeśli poszkodowany nie reaguje, zawołaj głośno o pomoc.',
+      'text': 'Jeśli poszkodowany nie reaguje zawołaj głośno o pomoc.',
       'image': 'assets/images/rd3.png',
       'tip':
           'Większa ilość ratowników to znaczące wsparcie. Mogą pomóc w wezwaniu karetki oraz zmienić się w trakcie masażu serca.',
@@ -42,7 +41,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
           'Sprawdź oddech – odchyl głowę, sprawdź, czy oddycha: „patrz, słuchaj, czuj” przez 10 sekund.',
       'image': 'assets/images/rd4.png',
       'tip':
-          'Upewnij się że nie czujesz oddechu. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
+          'Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
     },
     {
       'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację',
@@ -71,7 +70,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.   To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -130,7 +129,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -367,7 +366,7 @@ class _RkoSymulatorDorosliState extends State<RkoSymulatorDorosli> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
-                                'Oceń stan poszkodowanego.\n Czy jest przytomny? Czy oddycha?',
+                                'Oceń stan poszkodowanego\n Czy jest przytomny? Czy oddycha?',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,
