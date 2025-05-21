@@ -1,5 +1,6 @@
 import 'package:firststep/components/courses/RichTextFormatter.dart';
 import 'package:firststep/components/courses/videoControls.dart';
+import 'package:firststep/components/courses/videoPlayer.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
@@ -568,7 +569,7 @@ class _CourseState extends ConsumerState<Course> {
                   final element = courseElements.courseElements[index - 1];
 
                   return Card(
-                    color: const Color(0xFF262626),
+                    color: const Color.fromARGB(0, 38, 38, 38),
                     margin: const EdgeInsets.symmetric(
                       vertical: 8,
                       horizontal: 16,
@@ -963,198 +964,9 @@ class _CourseState extends ConsumerState<Course> {
                 final controller = snapshot.data!;
 
                 debugPrint('Wideo zainicjalizowane: ${controller.dataSource}');
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: controller.value.aspectRatio,
-                      child: Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          VideoPlayer(controller),
-                          // Pasek postępu odtwarzania
-                          VideoProgressIndicator(
-                            controller,
-                            allowScrubbing: true,
-                            colors: const VideoProgressColors(
-                              playedColor: Colors.red,
-                              bufferedColor: Colors.grey,
-                              backgroundColor: Colors.black54,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8.0,
-                              horizontal: 16.0,
-                            ),
-                          ),
-                          // Przycisk play/pause na środku
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: Center(
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    if (controller.value.isPlaying) {
-                                      controller.pause();
-                                    } else {
-                                      controller.play();
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black38,
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Icon(
-                                    controller.value.isPlaying
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Kontrolki wideo
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Column(
-                        children: [
-                          // Wyświetlanie czasu
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: ValueListenableBuilder(
-                              valueListenable: controller,
-                              builder: (
-                                context,
-                                VideoPlayerValue value,
-                                child,
-                              ) {
-                                final position = value.position;
-                                final duration = value.duration;
 
-                                // Formatowanie czasu
-                                String formatDuration(Duration d) {
-                                  final minutes = d.inMinutes
-                                      .toString()
-                                      .padLeft(2, '0');
-                                  final seconds = (d.inSeconds % 60)
-                                      .toString()
-                                      .padLeft(2, '0');
-                                  return '$minutes:$seconds';
-                                }
-
-                                return Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      formatDuration(position),
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                    ),
-                                    Text(
-                                      formatDuration(duration),
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                          // Przyciski kontrolne
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.replay_10,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  final position =
-                                      controller.value.position -
-                                      const Duration(seconds: 10);
-                                  controller.seekTo(
-                                    position.isNegative
-                                        ? Duration.zero
-                                        : position,
-                                  );
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  controller.value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  color: Colors.white,
-                                  size: 36,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    if (controller.value.isPlaying) {
-                                      controller.pause();
-                                    } else {
-                                      controller.play();
-                                    }
-                                  });
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.forward_10,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  final newPosition =
-                                      controller.value.position +
-                                      const Duration(seconds: 10);
-                                  final duration = controller.value.duration;
-                                  controller.seekTo(
-                                    newPosition > duration
-                                        ? duration
-                                        : newPosition,
-                                  );
-                                },
-                              ),
-                              // Przycisk pełnego ekranu
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.fullscreen,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  // TODO: Implementacja trybu pełnoekranowego
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Pełny ekran będzie dostępny wkrótce',
-                                      ),
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
+                // Używamy nowego komponentu VideoPlayerWidget do obsługi wideo
+                return VideoPlayerWidget(controller: controller);
               } else {
                 return Container(
                   width: double.infinity,
