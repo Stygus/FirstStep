@@ -24,7 +24,7 @@ class _AppPageState extends ConsumerState<AppPage> {
     final courses = ref.read(coursesProvider);
     final user = ref.read(userProvider);
     try {
-      await courses.getAllCoursesFromApi(
+      await courses.getUserCoursesFromApi(
         await user.getToken() ?? '',
         user.nickname,
       );

@@ -131,7 +131,7 @@ class _CourseCreatorState extends ConsumerState<CourseCreator>
         if (didPop) {
           ref
               .read(coursesProvider)
-              .getAllCoursesFromApi(
+              .getUserCoursesFromApi(
                 await ref.read(userProvider).getToken() ?? '',
                 ref.read(userProvider).nickname,
               );

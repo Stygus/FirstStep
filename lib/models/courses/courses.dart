@@ -955,7 +955,7 @@ class CourseList extends ChangeNotifier {
         // Opóźnione pobranie świeżej listy kursów
         Future.delayed(Duration(milliseconds: 500), () {
           try {
-            getAllCoursesFromApi(token, name).catchError((e) {
+            getUserCoursesFromApi(token, name).catchError((e) {
               debugPrint('Error refreshing courses: $e');
             });
           } catch (e) {
@@ -1030,9 +1030,28 @@ class CourseList extends ChangeNotifier {
     }
   }
 
-  Future<void> getAllCoursesFromApi(String token, String name) async {
+  Future<void> getUserCoursesFromApi(String token, String name) async {
     token = 'Bearer $token';
     final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses/$name');
+    final response = await http.get(
+      url,
+      headers: {'accept': 'application/json', 'Authorization': token},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      courses = data.map((item) => Course.fromJson(item)).toList();
+      updateCourses();
+      getAllCategoriesFromApi(token);
+      notifyListeners();
+    } else {
+      throw Exception('Failed to load courses');
+    }
+  }
+
+  Future<void> getAllCoursesFromApi(String token) async {
+    token = 'Bearer $token';
+    final url = Uri.parse('${dotenv.env['SERVER_URL']!}/courses');
     final response = await http.get(
       url,
       headers: {'accept': 'application/json', 'Authorization': token},
@@ -1874,7 +1893,7 @@ class _CreateTestDialogState extends ConsumerState<CreateTestDialog> {
       if (test != null) {
         widget.course.testId = test.id;
         // Odśwież listę kursów po utworzeniu testu
-        await coursesProviderRef.getAllCoursesFromApi(
+        await coursesProviderRef.getUserCoursesFromApi(
           token,
           userProviderRef.nickname,
         );
