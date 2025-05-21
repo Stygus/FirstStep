@@ -455,6 +455,22 @@ class _CourseState extends ConsumerState<Course> {
                     courseElements.courseElements.length +
                     1, // +1 dla nagłówka kursu
                 itemBuilder: (context, index) {
+                  if (index == courseElements.courseElements.length) {
+                    return Container(
+                      height: 200,
+                      color: Color.fromARGB(255, 61, 61, 61),
+                      child: Column(
+                        children: [
+                          Text('Kurs posiada test:'),
+
+                          Text(
+                            widget.course.testId.toString(),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                   // Pierwszy element to nagłówek z tytułem i opisem kursu
                   if (index == 0) {
                     return Container(
@@ -569,7 +585,17 @@ class _CourseState extends ConsumerState<Course> {
                   final element = courseElements.courseElements[index - 1];
 
                   return Card(
-                    color: const Color.fromARGB(0, 38, 38, 38),
+                    color: const Color.fromARGB(0, 255, 255, 255),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      side: const BorderSide(
+                        color: Color.fromARGB(0, 29, 29, 29),
+                        width: 2,
+                      ),
+                    ),
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
                     margin: const EdgeInsets.symmetric(
                       vertical: 8,
                       horizontal: 16,
@@ -893,110 +919,121 @@ class _CourseState extends ConsumerState<Course> {
           ),
         ); // Nowa implementacja wideo dla kursy.dart
       case 'VIDEO':
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FutureBuilder<VideoPlayerController?>(
-            future: _getVideoController(
-              _convertLocalhostUrl(element.content),
-              elementId: element.id.toString(),
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  width: double.infinity,
-                  height: 220,
-                  color: Colors.grey[800],
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 8),
-                        Text(
-                          'Ładowanie wideo...',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ],
+        return ColoredBox(
+          color: const Color.fromARGB(255, 44, 44, 44),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FutureBuilder<VideoPlayerController?>(
+              future: _getVideoController(
+                _convertLocalhostUrl(element.content),
+                elementId: element.id.toString(),
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    width: double.infinity,
+                    height: 220,
+                    color: Colors.grey[800],
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(color: Colors.white),
+                          SizedBox(height: 8),
+                          Text(
+                            'Ładowanie wideo...',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                debugPrint('Błąd ładowania wideo: ${snapshot.error}');
-                return Container(
-                  width: double.infinity,
-                  height: 220,
-                  color: Colors.grey[700],
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Błąd ładowania wideo',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      // Dodajemy przycisk do próby ponownego załadowania
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Spróbuj ponownie'),
-                        onPressed: () {
-                          setState(() {
-                            // Force rebuild to retry
-                            _isLowBitrateMode = !_isLowBitrateMode;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueGrey[700],
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else if (snapshot.hasData &&
-                  snapshot.data != null &&
-                  snapshot.data!.value.isInitialized) {
-                final controller = snapshot.data!;
-
-                debugPrint('Wideo zainicjalizowane: ${controller.dataSource}');
-
-                // Używamy nowego komponentu VideoPlayerWidget do obsługi wideo
-                return VideoPlayerWidget(controller: controller);
-              } else {
-                return Container(
-                  width: double.infinity,
-                  height: 220,
-                  color: Colors.grey[700],
-                  child: const Center(
+                  );
+                } else if (snapshot.hasError) {
+                  debugPrint('Błąd ładowania wideo: ${snapshot.error}');
+                  return Container(
+                    width: double.infinity,
+                    height: 220,
+                    color: Colors.grey[700],
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          color: Colors.amber,
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
                           size: 40,
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Nie można załadować wideo',
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Błąd ładowania wideo',
                           style: TextStyle(color: Colors.white),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Sprawdź połączenie z internetem',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        // Dodajemy przycisk do próby ponownego załadowania
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Spróbuj ponownie'),
+                          onPressed: () {
+                            setState(() {
+                              // Force rebuild to retry
+                              _isLowBitrateMode = !_isLowBitrateMode;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueGrey[700],
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                );
-              }
-            },
+                  );
+                } else if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.value.isInitialized) {
+                  final controller = snapshot.data!;
+
+                  debugPrint(
+                    'Wideo zainicjalizowane: ${controller.dataSource}',
+                  );
+
+                  // Używamy nowego komponentu VideoPlayerWidget do obsługi wideo
+                  return VideoPlayerWidget(controller: controller);
+                } else {
+                  return Container(
+                    width: double.infinity,
+                    height: 220,
+                    color: Colors.grey[700],
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.amber,
+                            size: 40,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Nie można załadować wideo',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Sprawdź połączenie z internetem',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         );
 
