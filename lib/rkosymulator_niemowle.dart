@@ -19,10 +19,10 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
   final List<Map<String, dynamic>> steps = [
     {
       'text':
-          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża. Oceń czy otoczenie pozwala ci na podjęcie się pierwszej pomocy.',
+          'Zadbaj o swoje bezpieczeństwo! Rozejrzyj się czy nic ci nie zagraża.',
       'image': 'assets/images/rd1.png',
       'tip':
-          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta, słaba widoczność na ulicy).',
+          'Twoje bezpieczeństwo jest najważniejsze! Różne czynniki mogą wpłynąć na to czy możesz działać np: (pożar, niebezpieczne zwierzęta,ryzyko porażenia prądem).',
     },
     {
       'text':
@@ -42,7 +42,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
           'Sprawdź oddech – odchyl głowę, sprawdź, czy oddycha: „patrz, słuchaj, czuj” przez 10 sekund.',
       'image': 'assets/images/rd4.png',
       'tip':
-          'Upewnij się, że nie czujesz oddechu. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
+          'Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu.',
     },
     {
       'text': 'Wezwij pomoc – zadzwoń pod 112 i opisz sytuację.',
@@ -51,8 +51,14 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
           'Spokojnie i wyraźnie podaj dokładną lokalizację i opisz sytuację. Nie rozłączaj się dopóki dyspozytor nie powie, że możesz. Ustaw telefon na głośnik i przejdź do RKO – instrukcja w następnym kroku.',
     },
     {
+      'text': 'Umieść pod plecami dziecka zrolowany ręcznik lub koc.',
+      'image': 'assets/images/rd6.png',
+      'tip':
+          'Podłożenie ręcznika lub koca pod plecy dziecka pomaga utrzymać drożność dróg oddechowych i ułatwia wykonanie wdechów ratowniczych.',
+    },
+    {
       'text':
-          'Zacznij 5 wdechami ratowniczymi. W tym celu umieść pod plecami dziecka zrolowany ręcznik lub koc – u noworodka leżącego na plecach główka może być zgięta, a powinna być w pozycji neutralnej. Unieś lekko żuchwę dziecka, nabierz powietrze i obejmij ustami nos i usta dziecka. Staraj się zrobić to tak, aby powietrze podczas wdechów nie wydostawało się na zewnątrz.',
+          'Unieś lekko żuchwę dziecka, nabierz powietrze i obejmij ustami nos i usta dziecka. Wykonaj 5 wdechów ratowniczych. Pilnuj aby powietrze podczas wdechów nie wydostawało się na zewnątrz.',
       'image': 'assets/images/rd6.png',
       'tip':
           'Jeśli nie jesteś w stanie objąć jednocześnie ust i nosa dziecka, obejmij jedno z nich. W przypadku objęcia tylko nosa, pamiętaj o zamknięciu ust i odwrotnie.',
@@ -73,7 +79,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -111,7 +117,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
           'Kontroluj oddech do przyjazdu pomocy. Sprawdzaj co jakiś czas czy oddech jest prawidłowy i czy nie ustał.',
       'image': 'assets/images/rd4.png',
       'tip':
-          'Nie spiesz się z oceną. Upewnij się, że nie czujesz oddechu na policzku, klatka nie porusza się. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu. Przejdź do RKO – instrukcja w następnym kroku.',
+          'Upewnij się, że nie czujesz oddechu na policzku, klatka nie porusza się. Prawidłowy oddech to regularne, spokojne ruchy klatki piersiowej. Brak oddechu lub oddech agonalny (głębokie, nieregularne westchnienia) oznacza zatrzymanie oddechu. Przejdź do RKO – instrukcja w następnym kroku.',
       'choice': true,
     },
     {
@@ -128,7 +134,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
     },
     {
       'text':
-          'Pomoc zakończona!\n\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę. To dzięki takim ludziom jak Ty świat jest bezpieczniejszy!',
+          'Pomoc zakończona!\n To, co zrobiłeś, naprawdę ma znaczenie. Dzięki twoim działaniom poszkodowany mógł dostać drugą szansę.',
       'image': 'assets/images/rd9.png',
       'tip':
           'Pamiętaj: nie przerywaj RKO, dopóki nie przyjedzie pomoc lub poszkodowany nie zacznie oddychać.',
@@ -195,7 +201,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     double baseFont = screenWidth * 0.045;
-    double headerFont = screenWidth * 0.040;
+    double headerFont = screenWidth * 0.055;
     double stepFont = screenWidth * 0.042;
     double buttonFont = screenWidth * 0.045;
     double imageHeight = screenHeight * 0.23;
@@ -280,7 +286,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                       step['tip'],
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: stepFont * 0.9, // zmniejszona czcionka tipa
+                        fontSize: stepFont,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -299,41 +305,14 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
       body: Column(
         children: [
           SizedBox(
-            height: screenHeight * 0.1,
+            height: screenHeight * 0.13,
             child: Stack(
               children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => TestyPage()),
-                        (route) => false,
-                      );
-                    },
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: screenHeight * 0.030),
-                    child: Text(
-                      'Symulator RKO – Niemowlę',
-                      style: GoogleFonts.itim(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.06,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    height: screenWidth * 0.1000,
+                    height: screenWidth * 0.17,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         alignment: Alignment.bottomCenter,
@@ -341,6 +320,21 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                         fit: BoxFit.fill,
                         isAntiAlias: false,
                         filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: screenHeight * 0.034),
+                    child: Text(
+                      'Symulator RKO – Niemowlę',
+                      style: GoogleFonts.itim(
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.06,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -354,39 +348,42 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                 padding: EdgeInsets.all(screenWidth * 0.04),
                 child: SingleChildScrollView(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: screenHeight * 0.78),
+                    constraints: BoxConstraints(
+                      maxHeight: screenHeight * 0.78,
+                      minHeight: 0,
+                    ),
                     child: Builder(
                       builder: (context) {
                         if (showBreathChoice) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Oceń stan niemowlęcia.\n Czy jest przytomne? Czy oddycha?',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 22,
+                                  fontSize: headerFont,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 32),
+                              SizedBox(height: screenHeight * 0.04),
                               ElevatedButton.icon(
                                 icon: const Icon(
                                   Icons.check,
                                   color: Colors.white,
                                 ),
-                                label: const Text(
+                                label: Text(
                                   'Nieprzytomne oddycha',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: buttonFont,
                                     color: Colors.white,
                                   ),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 16,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.09,
+                                    vertical: screenHeight * 0.022,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -400,24 +397,24 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                   });
                                 },
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: screenHeight * 0.02),
                               ElevatedButton.icon(
                                 icon: const Icon(
                                   Icons.close,
                                   color: Colors.white,
                                 ),
-                                label: const Text(
+                                label: Text(
                                   'Nieprzytomne nie oddycha',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: buttonFont,
                                     color: Colors.white,
                                   ),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 32,
-                                    vertical: 16,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.09,
+                                    vertical: screenHeight * 0.022,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -430,7 +427,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                   });
                                 },
                               ),
-                              const SizedBox(height: 32),
+                              SizedBox(height: screenHeight * 0.04),
                               ElevatedButton(
                                 onPressed: previousStep,
                                 style: ElevatedButton.styleFrom(
@@ -443,10 +440,10 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Wstecz',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: buttonFont * 0.9,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -469,7 +466,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 32),
+                                SizedBox(height: screenHeight * 0.04),
                                 ElevatedButton.icon(
                                   icon: const Icon(
                                     Icons.check,
@@ -498,7 +495,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: screenHeight * 0.02),
                                 ElevatedButton.icon(
                                   icon: const Icon(
                                     Icons.close,
@@ -538,7 +535,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 32),
+                                SizedBox(height: screenHeight * 0.04),
                                 ElevatedButton(
                                   onPressed: previousStep,
                                   style: ElevatedButton.styleFrom(
@@ -551,10 +548,10 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Wstecz',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: buttonFont * 0.9,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -571,7 +568,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                 recoveryStep + 1,
                                 recoverySteps.length,
                               ),
-                              const SizedBox(height: 40),
+                              SizedBox(height: screenHeight * 0.05),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -590,16 +587,16 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                           ),
                                         ),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'Wstecz',
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: buttonFont * 0.9,
                                           color: Colors.white,
                                         ),
                                       ),
                                     ),
                                   if (recoveryStep > 0)
-                                    const SizedBox(width: 16),
+                                    SizedBox(width: screenWidth * 0.03),
                                   if (recoveryStep < recoverySteps.length - 1)
                                     ElevatedButton(
                                       onPressed: nextStep,
@@ -693,7 +690,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                 currentStep + 1,
                                 steps.length,
                               ),
-                              const SizedBox(height: 40),
+                              SizedBox(height: screenHeight * 0.05),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -712,16 +709,16 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                           ),
                                         ),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'Wstecz',
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: buttonFont * 0.9,
                                           color: Colors.white,
                                         ),
                                       ),
                                     ),
                                   if (currentStep > 0)
-                                    const SizedBox(width: 16),
+                                    SizedBox(width: screenWidth * 0.03),
                                   if (currentStep < steps.length - 1)
                                     ElevatedButton(
                                       onPressed: nextStep,
@@ -768,7 +765,7 @@ class _RkoSymulatorNiemowleState extends State<RkoSymulatorNiemowle> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    SizedBox(width: screenWidth * 0.03),
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.pushAndRemoveUntil(
