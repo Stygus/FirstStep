@@ -3,6 +3,7 @@ import 'package:firststep/components/courses/videoControls.dart';
 import 'package:firststep/components/courses/videoPlayer.dart';
 import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
+import 'package:firststep/test_solver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -456,18 +457,70 @@ class _CourseState extends ConsumerState<Course> {
                     1, // +1 dla nagłówka kursu
                 itemBuilder: (context, index) {
                   if (index == courseElements.courseElements.length) {
-                    return Container(
-                      height: 200,
-                      color: Color.fromARGB(255, 61, 61, 61),
-                      child: Column(
-                        children: [
-                          Text('Kurs posiada test:'),
-
-                          Text(
-                            widget.course.testId.toString(),
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                        ],
+                    return GestureDetector(
+                      onTap: () {
+                        if (widget.course.testId != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => TestSolverPage(
+                                    testId: widget.course.testId.toString(),
+                                    testTitle:
+                                        'Test kursu: ${widget.course.title}',
+                                  ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        height: 200,
+                        color: Color.fromARGB(255, 61, 61, 61),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.quiz,
+                              color: Colors.white,
+                              size: 50,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Kurs posiada test',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Kliknij, aby rozpocząć test',
+                              style: TextStyle(
+                                color: Colors.blue[300],
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[700],
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: const Text(
+                                'Rozpocznij test',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
