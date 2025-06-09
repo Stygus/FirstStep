@@ -1,6 +1,8 @@
 import 'package:firststep/rkosymulator_dorosli.dart';
 import 'package:firststep/rkosymulator_dziecko.dart';
 import 'package:firststep/rkosymulator_niemowle.dart';
+import 'package:firststep/zatkanie.dart';
+import 'package:firststep/aed_instrukcja.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -59,7 +61,7 @@ class RkOpcje extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(
-                        'assets/images/dorosli.png',
+                        'assets/images/men.png',
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -92,7 +94,7 @@ class RkOpcje extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(
-                        'assets/images/dzieckom.png',
+                        'assets/images/dziecko.png',
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -125,7 +127,68 @@ class RkOpcje extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(maxHeight: imageHeight),
                       child: Image.asset(
-                        'assets/images/niemowlak.png',
+                        'assets/images/niemowle.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: verticalSpacing),
+              Column(
+                children: [
+                  Text(
+                    'Zadławienie',
+                    style: GoogleFonts.itim(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: verticalSpacing * 0.3),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ZadlawienieInstrukcja(),
+                        ),
+                      );
+                    },
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: imageHeight),
+                      child: Image.asset(
+                        'assets/images/zadławienie.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: verticalSpacing * 0.7),
+                  Text(
+                    'AED',
+                    style: GoogleFonts.itim(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: verticalSpacing * 0.3),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AedInstrukcja(),
+                        ),
+                      );
+                    },
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: imageHeight),
+                      child: Image.asset(
+                        'assets/images/aed.png',
                         fit: BoxFit.contain,
                       ),
                     ),
