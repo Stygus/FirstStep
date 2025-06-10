@@ -14,29 +14,27 @@ void main() async {
 
   initializeHttpClient();
 
-  // Tworzymy stałe style do użycia w QuillEditor
   final customTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
 
     textTheme: const TextTheme(
-      // Definiujemy style tekstu, które będą później używane przez DefaultStyles.getInstance()
       displayLarge: TextStyle(
         fontSize: 32.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
-      ), // h1
+      ),
       displayMedium: TextStyle(
         fontSize: 26.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
-      ), // h2
+      ),
       displaySmall: TextStyle(
         fontSize: 22.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
       ), // h3
-      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.white), // paragraph
+      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.white),
       bodyMedium: TextStyle(
         fontSize: 14.0,
         fontFamily: 'monospace',
@@ -46,10 +44,8 @@ void main() async {
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
-      ), // title
+      ),
     ),
-    // Inne elementy motywu
-    // ...
   );
 
   runApp(
@@ -64,10 +60,7 @@ void main() async {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('pl'), // Polski
-          Locale('en'), // Angielski
-        ],
+        supportedLocales: const [Locale('pl'), Locale('en')],
         home: WebHome(),
       ),
     ),
@@ -87,7 +80,7 @@ class _WebHomeState extends ConsumerState<WebHome> {
   @override
   void initState() {
     super.initState();
-    // Dodanie callbacka, który zostanie wywołany po pierwszym wyrenderowaniu ramki
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       userDetected();
     });
@@ -207,7 +200,6 @@ class _WebHomeState extends ConsumerState<WebHome> {
   @override
   Widget build(BuildContext context) {
     final login = ref.watch(loginProvider);
-    final user = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 16, 16, 16),

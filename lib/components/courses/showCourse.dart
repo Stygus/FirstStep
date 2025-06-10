@@ -45,7 +45,6 @@ class _CourseDialogState extends ConsumerState<CourseDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
     final elements = widget.course.courseElementsList;
 
     return Dialog(

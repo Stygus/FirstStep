@@ -7,6 +7,7 @@ import 'package:firststep/providers/coursesProvider.dart';
 import 'package:firststep/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firststep/components/courses/createCourseDialog.dart';
 
 class AppPage extends ConsumerStatefulWidget {
   const AppPage({super.key});
@@ -23,7 +24,7 @@ class _AppPageState extends ConsumerState<AppPage> {
     final courses = ref.read(coursesProvider);
     final user = ref.read(userProvider);
     try {
-      await courses.getAllCoursesFromApi(
+      await courses.getUserCoursesFromApi(
         await user.getToken() ?? '',
         user.nickname,
       );
@@ -92,13 +93,34 @@ class _AppPageState extends ConsumerState<AppPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Najlepsza aktywność',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Najlepsza aktywność',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        if (user.id != '-1')
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.add, color: Colors.white),
+                            label: Text(
+                              'Nowy kurs',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            onPressed: () => showCreateCourseDialog(context),
+                          ),
+                      ],
                     ),
                     SizedBox(height: 20),
                     user.id == '-1'
@@ -110,25 +132,26 @@ class _AppPageState extends ConsumerState<AppPage> {
                         )
                         : coursesList.courses.isEmpty
                         ? Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: Text(
+                            'Brak kursów do wyświetlenia',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
                         )
                         : Expanded(
                           child: GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              childAspectRatio:
-                                  1.4, // Zwiększenie wartości dla niższych kart
-                              mainAxisSpacing: 10.0,
-                              crossAxisSpacing: 10.0,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  childAspectRatio: 1.4,
+                                  mainAxisSpacing: 10.0,
+                                  crossAxisSpacing: 10.0,
+                                ),
                             controller: _horizontalController,
                             scrollDirection: Axis.vertical,
                             itemCount: coursesList.courses.length,
                             itemBuilder: (context, index) {
-                              final course =
-                                  coursesList.bestCourses.length > index
-                                      ? coursesList.bestCourses[index]
-                                      : coursesList.courses[index];
+                              final course = coursesList.courses[index];
                               return Card(
                                 elevation: 4.0,
                                 color: Colors.black12,
@@ -165,9 +188,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                 iconColor: Colors.white,
                 leading: Icon(Icons.home),
                 title: Text('Home', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  // Navigator.pop(context);
-                },
+                onTap: () {},
               ),
               ListTile(
                 iconColor: Colors.white,
@@ -184,7 +205,7 @@ class _AppPageState extends ConsumerState<AppPage> {
                 title: Text('Logout', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   user.signOut();
-                  // Add logout logic here
+
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,

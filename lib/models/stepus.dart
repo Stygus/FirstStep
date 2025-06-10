@@ -135,23 +135,63 @@ class Stepus extends ChangeNotifier {
 }
 
 class Chat extends StatefulWidget {
-  const Chat({super.key});
+  final ScrollController? scrollController;
+
+  const Chat({super.key, this.scrollController});
 
   @override
   State<Chat> createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+  }
+
+  @override
+  void dispose() {
+    // Tylko dispose jeśli kontroler został stworzony w tym komponencie
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
         final chatHistory = ref.watch(stepusChatProvider);
 
+        // Auto scroll po aktualizacji wiadomości
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
         return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
           itemCount: chatHistory.chatHistory.length,
           itemBuilder: (context, index) {
-            return Message(id: index);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Message(id: index),
+            );
           },
         );
       },
